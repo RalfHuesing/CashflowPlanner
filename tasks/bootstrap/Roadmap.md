@@ -294,3 +294,11 @@ Ziel: Abschließende Prüfung aller 28 Abnahmekriterien aus Konzept Kap. 18, Cod
 | 6 | 6.1 | Vollständige Pipeline (`npm run verify`) | [x] Erledigt |
 | 6 | 6.2 | Browser- & Usability-Verifikation | [x] Erledigt |
 | 6 | 6.3 | Fachliches & Technisches Audit | [x] Erledigt |
+| 7 | 7.1 | Jährliche Inflation für Zielzahlungen | [x] Erledigt |
+
+## Erweiterung 7.1: Inflation
+
+- Eingebbarer jährlicher Satz mit 2 % Vorgabe; 0 % lässt Zielbeträge unverändert.
+- Künftige Zielzahlungen werden bis zum tatsächlichen Zahlungsmonat hochgerechnet; heute überfällige Zahlungen bleiben beim eingegebenen Betrag.
+- Alte gespeicherte Pläne und JSON-Dateien ohne Inflationsfeld werden mit 2 % geladen. Monatsbudget und Mindestreserve bleiben nominal.
+- Fachliche Tests, Dokumentation und Browserprüfung sind ergänzt.

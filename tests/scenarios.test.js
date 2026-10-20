@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {buildPlan, buildScenarios} from '../web/js/domain/scenarios.js';
 
-const settings = {cashCents: 1000, monthlyCents: 100, reserveCents: 200, currentAge: 40, horizonAge: 41};
+const settings = {cashCents: 1000, monthlyCents: 100, reserveCents: 200, currentAge: 40, horizonAge: 41, inflationBps: 0};
 const goal = {id: 'one', name: 'Auto', amountCents: 1000, type: 'once', dueMonth: '2027-04', flexMonths: 0};
 
 test('A retains real cash while B simulates explicit release and saves as late as possible', () => {
@@ -101,4 +101,24 @@ test('deterministic generated cases uphold cash balance, feasibility and monoton
       }
     }
   }
+});
+
+test('inflated expenses determine funding while monthly capacity and reserve remain nominal', () => {
+  const input = {...settings, cashCents: 200, inflationBps: 200};
+  const result = buildScenarios(input, [{...goal, dueMonth: '2027-10', flexMonths: 12}], '2026-10');
+  assert.equal(result.keep.expensesCents[12], 1020);
+  assert.equal(result.keep.rows[12].cashCents, 200);
+  assert.equal(result.keep.rows[12].requiredCents, 200);
+  assert.equal(result.release.events[0].amountCents, 1020);
+  for (const row of result.keep.rows.slice(1)) {
+    assert.equal(row.contributionCents + row.longTermCents, 100);
+  }
+  const {inflationBps: omitted, ...legacy} = input;
+  assert.equal(omitted, 200);
+  assert.deepEqual(buildPlan(legacy, [goal], '2026-10'), buildPlan(input, [goal], '2026-10'));
+  const flexible = buildScenarios(input, [{...goal, flexMonths: 4}], '2026-10');
+  assert.equal(flexible.keep.feasible, false);
+  assert.equal(flexible.flexibility.events[0].index, 10);
+  assert.equal(flexible.flexibility.events[0].amountCents, 1017);
+  assert.equal(flexible.flexibility.feasible, false);
 });

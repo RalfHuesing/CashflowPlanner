@@ -33,4 +33,8 @@ test('invalid settings and expense input are rejected', () => {
   for (const key of ['cashCents', 'monthlyCents', 'reserveCents']) assert.throws(() => validateSettings({...settings, [key]: -1}));
   for (const input of [null, [], [-1], [0.5], [Number.MAX_SAFE_INTEGER + 1]]) assert.throws(() => calculateLiquidity(input, settings));
   assert.throws(() => calculateLiquidity([Number.MAX_SAFE_INTEGER, 0], {...settings, reserveCents: 1}));
+  for (const inflationBps of [-1, 10001, 0.1, null, NaN, Infinity, '200']) {
+    assert.throws(() => validateSettings({...settings, inflationBps}), RangeError);
+  }
+  for (const inflationBps of [0, 200, 10000]) assert.equal(validateSettings({...settings, inflationBps}).inflationBps, inflationBps);
 });

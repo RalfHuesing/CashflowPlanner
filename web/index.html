@@ -88,6 +88,12 @@
                   <input id="horizonAge" name="horizonAge" type="number" min="0" max="120" step="1">
                 </div>
               </div>
+              <label for="inflationBps">Jährliche Inflation für Zielzahlungen</label>
+              <div class="money-input">
+                <input id="inflationBps" name="inflationBps" inputmode="decimal" autocomplete="off" aria-describedby="inflation-help settings-error">
+                <span>%</span>
+              </div>
+              <p id="inflation-help" class="field-help">Auf heutige Zielbeträge angewendet; 0 % schaltet die Inflation aus.</p>
               <p id="settings-error" class="error-text" role="status">
               </p>
               <button type="button" id="confirm-cash" class="text-button">Cashbestand als aktuell bestätigen</button>
@@ -122,7 +128,7 @@
         <details class="panel assumptions">
           <summary>Wie wird gerechnet?</summary>
           <p>Cash wird so spät wie möglich angespart. Ab dem nächsten Kalendermonat erfolgt die Zuführung vor den Ausgaben. Offene Ausgaben im aktuellen Monat werden aus deinem heutigen Bestand bezahlt; für diesen Monat wird keine zusätzliche Sparrate angenommen.</p>
-          <p>Die Planung rechnet nominal, ohne Zinsen, Inflation, Steuern oder Renditen. Altersangaben sind näherungsweise; Fälligkeiten werden kalendermonatsgenau berechnet. Wiederkehrende Ausgaben werden nur bis zum Planungshorizont berücksichtigt.</p>
+          <p>Zukünftige Zielzahlungen werden mit der eingestellten jährlichen Inflation auf heutige Zielbeträge aufgeschlagen. Der monatlich verfügbare Betrag und die Mindestreserve bleiben nominal; bei 0 % ist die Inflation ausgeschaltet. Zinsen, Steuern und Renditen werden nicht berücksichtigt. Altersangaben sind näherungsweise; Fälligkeiten werden kalendermonatsgenau berechnet. Wiederkehrende Ausgaben werden nur bis zum Planungshorizont berücksichtigt.</p>
           <p>Ein freigebbarer Überschuss setzt voraus, dass du künftig bei Bedarf den gesamten verfügbaren Monatsbetrag für Cash einsetzen kannst. Er ist keine Empfehlung für eine Investition.</p>
           <p id="horizon-note">
           </p>
@@ -225,7 +231,7 @@
         </div>
         <label for="goal-name">Bezeichnung</label>
         <input id="goal-name" name="name" maxlength="120" required placeholder="Zum Beispiel Urlaub">
-        <label for="goal-amount">Betrag in Euro</label>
+        <label for="goal-amount">Betrag in Euro (heutiger Wert)</label>
         <input id="goal-amount" name="amount" inputmode="decimal" required placeholder="5.000,00">
         <div class="field-row">
           <div>

@@ -21,7 +21,7 @@ export async function generateExamples() {
     const result = buildScenarios(fixture.settings, fixture.goals, fixture.startMonth).keep;
     lines.push(`## ${fixture.name}`, '');
     lines.push(`Startmonat: ${fixture.startMonth}; Alter: ${fixture.settings.currentAge} bis ${fixture.settings.horizonAge} Jahre.`, '');
-    lines.push(`Cash heute: ${money(fixture.settings.cashCents)}; monatlich verfügbar: ${money(fixture.settings.monthlyCents)}; Mindestreserve: ${money(fixture.settings.reserveCents)}.`, '');
+    lines.push(`Cash heute: ${money(fixture.settings.cashCents)}; monatlich verfügbar: ${money(fixture.settings.monthlyCents)}; Mindestreserve: ${money(fixture.settings.reserveCents)}; jährliche Inflation: ${((fixture.settings.inflationBps ?? 200) / 100).toLocaleString('de-DE')} %.`, '');
     lines.push('| Ziel | Betrag | Erster Termin | Wiederholung | Spielraum |', '|---|---:|---|---|---:|');
     for (const goal of fixture.goals) {
       lines.push(`| ${goal.name} | ${money(goal.amountCents)} | ${goal.dueMonth} | ${goal.type === 'annual' ? 'jährlich' : 'einmalig'} | ± ${goal.flexMonths} Monate |`);

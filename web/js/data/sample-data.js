@@ -1,3 +1,5 @@
+import { DEFAULT_INFLATION_BPS } from './import-export.js';
+
 export function getSampleData(now = new Date()) {
   const date = now instanceof Date ? now : new Date(now);
   const year = date.getFullYear();
@@ -14,6 +16,7 @@ export function getSampleData(now = new Date()) {
       reserveCents: 0,
       currentAge: 35,
       horizonAge: 60,
+      inflationBps: DEFAULT_INFLATION_BPS,
     },
     goals: [
       {

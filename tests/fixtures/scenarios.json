@@ -3,7 +3,7 @@
     "id": "reference",
     "name": "Referenz: Urlaub und zwei Autos",
     "startMonth": "2026-10",
-    "settings": {"cashCents": 4000000, "monthlyCents": 50000, "reserveCents": 0, "currentAge": 40, "horizonAge": 56},
+    "settings": {"cashCents": 4000000, "monthlyCents": 50000, "reserveCents": 0, "currentAge": 40, "horizonAge": 56, "inflationBps": 0},
     "goals": [
       {"id": "holiday", "name": "Urlaub", "amountCents": 500000, "type": "annual", "dueMonth": "2027-10", "flexMonths": 0},
       {"id": "car-one", "name": "Erstes Auto", "amountCents": 4000000, "type": "once", "dueMonth": "2032-10", "flexMonths": 0},
@@ -15,7 +15,7 @@
     "id": "covered",
     "name": "Kleines erreichbares Ziel",
     "startMonth": "2026-10",
-    "settings": {"cashCents": 200000, "monthlyCents": 20000, "reserveCents": 50000, "currentAge": 40, "horizonAge": 41},
+    "settings": {"cashCents": 200000, "monthlyCents": 20000, "reserveCents": 50000, "currentAge": 40, "horizonAge": 41, "inflationBps": 0},
     "goals": [{"id": "trip", "name": "Reise", "amountCents": 100000, "type": "once", "dueMonth": "2027-04", "flexMonths": 2}],
     "expected": {"requiredTodayCents": 50000, "gapCents": 0, "feasible": true}
   },
@@ -23,11 +23,19 @@
     "id": "overdue-import",
     "name": "Überfällige importierte Ziele: heute nachholen, Jahresrhythmus erhalten",
     "startMonth": "2026-10",
-    "settings": {"cashCents": 150000, "monthlyCents": 10000, "reserveCents": 20000, "currentAge": 40, "horizonAge": 41},
+    "settings": {"cashCents": 150000, "monthlyCents": 10000, "reserveCents": 20000, "currentAge": 40, "horizonAge": 41, "inflationBps": 0},
     "goals": [
       {"id": "overdue-once", "name": "Offene Anschaffung", "amountCents": 30000, "type": "once", "dueMonth": "2025-08", "flexMonths": 0},
       {"id": "overdue-annual", "name": "Jahresausgabe im April", "amountCents": 100000, "type": "annual", "dueMonth": "2020-04", "flexMonths": 0}
     ],
     "expected": {"requiredTodayCents": 190000, "gapCents": 40000, "feasible": false}
+  },
+  {
+    "id": "inflation",
+    "name": "Ziel in einem Jahr mit zwei Prozent Inflation",
+    "startMonth": "2026-10",
+    "settings": {"cashCents": 0, "monthlyCents": 0, "reserveCents": 0, "currentAge": 40, "horizonAge": 41, "inflationBps": 200},
+    "goals": [{"id": "future", "name": "Anschaffung", "amountCents": 10000, "type": "once", "dueMonth": "2027-10", "flexMonths": 0}],
+    "expected": {"requiredTodayCents": 10200, "gapCents": 10200, "feasible": false}
   }
 ]

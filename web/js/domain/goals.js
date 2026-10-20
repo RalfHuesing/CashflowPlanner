@@ -1,5 +1,5 @@
 import {addMonths, monthDifference, monthNumber} from './calendar.js';
-import {assertCents, safeSum} from './money.js';
+import {assertCents, assertInflationBps, DEFAULT_INFLATION_BPS, safeSum} from './money.js';
 
 export function validateGoal(goal) {
   if (!goal || typeof goal !== 'object' || Array.isArray(goal)) throw new TypeError('Ungültiges Ziel.');
@@ -28,11 +28,16 @@ function isOverduePayment(goal, dueIndex) {
   return dueIndex < 0 && (goal.type !== 'annual' || dueIndex % 12 !== 0);
 }
 
-/** Delay future events together, preserving overdue payments today and every event. */
-export function generateEvents(goals, startMonth, horizon, delayed = false) {
+function validateEventInputs(goals, startMonth, horizon, inflationBps) {
   monthNumber(startMonth);
+  assertInflationBps(inflationBps);
   if (!Number.isInteger(horizon) || horizon < 0 || horizon > 1440) throw new RangeError('Ungültiger Planungshorizont.');
   if (!Array.isArray(goals) || goals.length > 1000) throw new RangeError('Maximal 1.000 Ziele sind zulässig.');
+}
+
+/** Delay future events together, preserving overdue payments today and every event. */
+export function generateEvents(goals, startMonth, horizon, delayed = false, inflationBps = DEFAULT_INFLATION_BPS) {
+  validateEventInputs(goals, startMonth, horizon, inflationBps);
   const seen = new Set();
   const events = [];
   const excludedGoals = [];
@@ -62,8 +67,11 @@ export function generateEvents(goals, startMonth, horizon, delayed = false) {
     for (const index of indices) {
       const overdueOccurrence = overdue && index === 0;
       const eventShift = overdueOccurrence ? 0 : shiftMonths;
-      events.push({goalId: goal.id, name: goal.name, amountCents: goal.amountCents,
-        index: index + eventShift, month: addMonths(startMonth, index + eventShift),
+      const paymentIndex = index + eventShift;
+      const amountCents = Math.round(goal.amountCents * (1 + inflationBps / 10000) ** (paymentIndex / 12));
+      if (!Number.isSafeInteger(amountCents)) throw new RangeError('Der Zielbetrag mit Inflation ist zu groß.');
+      events.push({goalId: goal.id, name: goal.name, amountCents,
+        index: paymentIndex, month: addMonths(startMonth, paymentIndex),
         originalMonth: overdueOccurrence ? goal.dueMonth : addMonths(startMonth, index),
         overdue: overdueOccurrence, shiftMonths: eventShift});
     }

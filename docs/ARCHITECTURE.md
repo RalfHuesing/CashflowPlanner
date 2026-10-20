@@ -2,7 +2,7 @@
 
 Die statische Anwendung besteht aus `web/index.html`, lokalem CSS und ES Modules. `web/js/main.js` verbindet Eingaben, Berechnung, lokale Speicherung und Darstellung. Die Navigation zeigt drei Ansichten über lokale Hash-Links: Übersicht, Ziele und Zeitplan. Die Zielansicht filtert, sortiert und paginiert die Eingaben, damit auch große Listen bedienbar bleiben. Die Module in `web/js/ui/` erzeugen Navigation, Zielverwaltung, Kennzahlen, SVG-Grafik und Monatstabelle. Sie enthalten keine eigene Finanzmathematik.
 
-`web/js/domain/` enthält pure, browserunabhängige Funktionen für Kalender, Zielereignisse, Rückwärtsbedarf und Szenarien. Geld wird intern als ganzzahlige Centzahl gehalten. `web/js/data/` validiert gespeicherte und importierte Eingaben, kapselt LocalStorage und erzeugt den JSON-Export. Berechnete Ergebnisse werden nicht gespeichert.
+`web/js/domain/` enthält pure, browserunabhängige Funktionen für Kalender, Zielereignisse, Inflationshochrechnung, Rückwärtsbedarf und Szenarien. Geld wird intern als ganzzahlige Centzahl gehalten; der jährliche Inflationssatz wird als ganzzahlige Basispunkte gespeichert (200 = 2 %). `web/js/data/` validiert gespeicherte und importierte Eingaben, kapselt LocalStorage und erzeugt den JSON-Export. Berechnete Ergebnisse werden nicht gespeichert.
 
 Der Datenfluss ist: Eingabe → Validierung → Domain-Berechnung → UI-Darstellung; bei gültigen Änderungen zusätzlich → LocalStorage. Beim Start wird gespeicherter Zustand validiert und geladen. JSON-Import ersetzt ihn erst nach vollständiger Prüfung und Benutzerbestätigung. Es gibt keine Netzwerkübertragung von Finanzdaten und keine produktiven npm-Abhängigkeiten.
 

@@ -1,4 +1,4 @@
-import { validateData } from './import-export.js';
+import { DEFAULT_INFLATION_BPS, validateData } from './import-export.js';
 
 export const STORAGE_KEY = 'cashflow-planner.data';
 export const STORAGE_VERSION = 1;
@@ -11,6 +11,7 @@ export const DEFAULT_DATA = Object.freeze({
     reserveCents: 0,
     currentAge: 30,
     horizonAge: 90,
+    inflationBps: DEFAULT_INFLATION_BPS,
   }),
   goals: Object.freeze([]),
   cashUpdatedAt: null,

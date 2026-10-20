@@ -4,10 +4,12 @@ export const FORMAT_NAME = 'cashflow-planner';
 export const FORMAT_VERSION = 1;
 export const MAX_IMPORT_BYTES = 1_000_000;
 export const MAX_GOALS = 1_000;
+export const DEFAULT_INFLATION_BPS = 200;
 
 const DATE_RE = /^(19\d{2}|[2-9]\d{3})-(0[1-9]|1[0-2])$/;
 const ISO_TIMESTAMP_RE = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{1,3})?Z$/;
-const SETTINGS_KEYS = ['cashCents', 'monthlyCents', 'reserveCents', 'currentAge', 'horizonAge'];
+const LEGACY_SETTINGS_KEYS = ['cashCents', 'monthlyCents', 'reserveCents', 'currentAge', 'horizonAge'];
+const SETTINGS_KEYS = [...LEGACY_SETTINGS_KEYS, 'inflationBps'];
 const GOAL_KEYS = ['id', 'name', 'amountCents', 'type', 'dueMonth', 'flexMonths'];
 
 function fail(message) {
@@ -25,7 +27,9 @@ function hasExactKeys(value, keys) {
 }
 
 function validateSettings(settings) {
-  if (!isPlainObject(settings) || !hasExactKeys(settings, SETTINGS_KEYS)) fail('Ungültige Einstellungen.');
+  if (!isPlainObject(settings) || !(hasExactKeys(settings, LEGACY_SETTINGS_KEYS) || hasExactKeys(settings, SETTINGS_KEYS))) {
+    fail('Ungültige Einstellungen.');
+  }
   for (const key of ['cashCents', 'monthlyCents', 'reserveCents']) {
     const amount = settings[key];
     if (!Number.isSafeInteger(amount) || amount < 0 || amount > MAX_CENTS) {
@@ -38,7 +42,11 @@ function validateSettings(settings) {
     }
   }
   if (settings.horizonAge < settings.currentAge) fail('Der Planungshorizont darf nicht vor dem aktuellen Alter liegen.');
-  return { ...settings };
+  const inflationBps = Object.hasOwn(settings, 'inflationBps') ? settings.inflationBps : DEFAULT_INFLATION_BPS;
+  if (!Number.isInteger(inflationBps) || inflationBps < 0 || inflationBps > 10_000) {
+    fail('Ungültige Inflationsrate.');
+  }
+  return { ...settings, inflationBps };
 }
 
 function validateGoal(goal) {

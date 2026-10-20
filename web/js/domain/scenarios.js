@@ -7,7 +7,7 @@ import {safeSum} from './money.js';
 export function buildPlan(settings, goals, startMonth = currentMonth(), {release = false, delayed = false} = {}) {
   validateSettings(settings);
   const horizon = horizonMonths(settings.currentAge, settings.horizonAge);
-  const generated = generateEvents(goals, startMonth, horizon, delayed);
+  const generated = generateEvents(goals, startMonth, horizon, delayed, settings.inflationBps);
   const liquidity = calculateLiquidity(generated.expensesCents, settings);
   const releasedCents = release ? liquidity.releasableCents : 0;
   let cash = settings.cashCents - releasedCents;

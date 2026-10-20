@@ -1,5 +1,13 @@
-/** Input ceiling keeps even 1,000 annual goals over 120 years safely integral. */
+/** Input ceiling; inflated payments and their totals are checked separately. */
 export const MAX_CENTS = 10_000_000_000;
+export const DEFAULT_INFLATION_BPS = 200;
+
+export function assertInflationBps(value) {
+  if (!Number.isInteger(value) || value < 0 || value > 10000) {
+    throw new RangeError('Die Inflation muss zwischen 0 und 100 Prozent liegen.');
+  }
+  return value;
+}
 
 export function assertCents(value, name = 'Betrag', positive = false) {
   if (!Number.isSafeInteger(value) || value < (positive ? 1 : 0) || value > MAX_CENTS) {

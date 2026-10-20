@@ -28,6 +28,6 @@ npm run verify
 
 ## Umfang und Grenzen
 
-Alle Beträge sind nominal und werden centgenau berechnet. Es gibt weder Zinsen noch Inflation. CashflowPlanner plant keine Depotverkäufe, Kredite, Transaktionen oder Konten. Die errechnete Freigabe von Cash ist eine hypothetische Möglichkeit, keine Anlageempfehlung. Daten werden lokal im Browser gespeichert; ein JSON-Export dient als manuelle Sicherung. Auf gemeinsam genutzten Geräten sind lokale Browserdaten zugänglich.
+Zielbeträge werden als heutige Eurobeträge erfasst und bis zum Zahlungsmonat mit dem einstellbaren jährlichen Inflationssatz hochgerechnet (Vorgabe 2 %, 0 % schaltet die Hochrechnung aus). Geldbeträge werden auf Cent gerundet. Monatlich verfügbarer Betrag und Mindestreserve bleiben nominal konstant; Zinsen und Renditen werden nicht berechnet. CashflowPlanner plant keine Depotverkäufe, Kredite, Transaktionen oder Konten. Die errechnete Freigabe von Cash ist eine hypothetische Möglichkeit, keine Anlageempfehlung. Daten werden lokal im Browser gespeichert; ein JSON-Export dient als manuelle Sicherung. Auf gemeinsam genutzten Geräten sind lokale Browserdaten zugänglich.
 
 Fachliche Details: [Produkt](docs/PRODUCT.md), [Algorithmus](docs/ALGORITHM.md), [Architektur](docs/ARCHITECTURE.md), [Datenformat](docs/DATA_FORMAT.md).

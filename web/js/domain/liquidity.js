@@ -1,11 +1,12 @@
 import {horizonMonths} from './calendar.js';
-import {assertCents, safeSum} from './money.js';
+import {assertCents, assertInflationBps, DEFAULT_INFLATION_BPS, safeSum} from './money.js';
 
 export function validateSettings(settings) {
   if (!settings || typeof settings !== 'object' || Array.isArray(settings)) throw new TypeError('Ungültige Ausgangslage.');
   assertCents(settings.cashCents, 'Cashbestand');
   assertCents(settings.monthlyCents, 'Monatsbetrag');
   assertCents(settings.reserveCents, 'Mindestreserve');
+  assertInflationBps(settings.inflationBps === undefined ? DEFAULT_INFLATION_BPS : settings.inflationBps);
   horizonMonths(settings.currentAge, settings.horizonAge);
   return settings;
 }
