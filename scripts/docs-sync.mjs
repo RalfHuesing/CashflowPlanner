@@ -22,9 +22,9 @@ export async function generateExamples() {
     lines.push(`## ${fixture.name}`, '');
     lines.push(`Startmonat: ${fixture.startMonth}; Alter: ${fixture.settings.currentAge} bis ${fixture.settings.horizonAge} Jahre.`, '');
     lines.push(`Cash heute: ${money(fixture.settings.cashCents)}; monatlich verfügbar: ${money(fixture.settings.monthlyCents)}; Mindestreserve: ${money(fixture.settings.reserveCents)}; jährliche Inflation: ${((fixture.settings.inflationBps ?? 200) / 100).toLocaleString('de-DE')} %.`, '');
-    lines.push('| Ziel | Betrag | Erster Termin | Wiederholung | Spielraum |', '|---|---:|---|---|---:|');
+    lines.push('| Ziel | Betrag | Erster Termin | Letzter Termin | Wiederholung | Spielraum |', '|---|---:|---|---|---|---:|');
     for (const goal of fixture.goals) {
-      lines.push(`| ${goal.name} | ${money(goal.amountCents)} | ${goal.dueMonth} | ${goal.type === 'annual' ? 'jährlich' : 'einmalig'} | ± ${goal.flexMonths} Monate |`);
+      lines.push(`| ${goal.name} | ${money(goal.amountCents)} | ${goal.dueMonth} | ${goal.endMonth ?? '—'} | ${goal.type === 'annual' ? 'jährlich' : 'einmalig'} | ± ${goal.flexMonths} Monate |`);
     }
     lines.push('', `Erforderlicher Cashbestand heute: **${money(result.requiredTodayCents)}**. Finanzierungslücke: **${money(result.gapCents)}**. Rechnerisch freigebbar: **${money(result.releasableCents)}**. Plan: **${result.feasible ? 'finanzierbar' : 'nicht finanzierbar'}**.`, '');
     if (result.firstCriticalMonth) lines.push(`Erster kritischer Monat im Maximalzuführungsverlauf: ${result.firstCriticalMonth}.`, '');

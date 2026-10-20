@@ -56,10 +56,11 @@ export function renderGoals(goals, onEdit, onDelete, startMonth) {
     const content = node('div', 'goal-content');
     const heading = node('div', 'goal-card-header');
     heading.append(node('h3', '', goal.name), node('span', 'goal-amount', money(goal.amountCents)));
-    content.append(heading, node('p', '', `${monthLabel(goal.dueMonth)} · ${goal.type === 'annual' ? 'Jährlich' : 'Einmalig'}${goal.flexMonths ? ` · ± ${goal.flexMonths} Monate` : ''}`));
-    if (goal.dueMonth < startMonth && (goal.type !== 'annual' || goal.dueMonth.slice(5) !== startMonth.slice(5))) {
+    const timing = `${monthLabel(goal.dueMonth)} · ${goal.type === 'annual' ? 'Jährlich' : 'Einmalig'}${goal.type === 'annual' && goal.endMonth ? ` · bis ${monthLabel(goal.endMonth)}` : ''}${goal.flexMonths ? ` · ± ${goal.flexMonths} Monate` : ''}`;
+    content.append(heading, node('p', '', timing));
+    if (goal.dueMonth < startMonth && (goal.type !== 'annual' || goal.dueMonth.slice(5) !== startMonth.slice(5) || (goal.endMonth && goal.endMonth < startMonth))) {
       content.append(node('p', 'overdue-label', goal.type === 'annual'
-        ? 'Überfällig · eine offene Ausgabe wird heute nachgeholt. Weitere jährliche Termine bleiben bestehen.'
+        ? 'Überfällig · eine offene Ausgabe wird heute nachgeholt.'
         : 'Überfällig · im aktuellen Monat eingeplant.'));
     }
     const actions = node('div', 'goal-actions');
@@ -92,8 +93,24 @@ export function renderGoals(goals, onEdit, onDelete, startMonth) {
 export function bindGoalForm(onSave, startMonth) {
   const dialog = document.getElementById('goal-dialog');
   const form = document.getElementById('goal-form');
-  const fields = ['name', 'amount', 'dueMonth', 'type', 'flexMonths'].map((name) => form.elements[name]);
-  for (const field of fields) field.setAttribute('aria-describedby', 'goal-error');
+  const fields = ['name', 'amount', 'dueMonth', 'type', 'flexMonths', 'endMonth'].map((name) => form.elements[name]);
+  for (const field of fields) field.setAttribute('aria-describedby', field.name === 'endMonth' ? 'goal-end-month-help goal-error' : 'goal-error');
+  const validateEndMonth = (type, endMonth, dueMonth, reject) => {
+    if (type !== 'annual' || !endMonth) return;
+    if (!/^(19\d{2}|[2-9]\d{3})-(0[1-9]|1[0-2])$/.test(endMonth)) reject(form.elements.endMonth, 'Bitte wähle einen gültigen letzten Fälligkeitsmonat.');
+    if (endMonth < dueMonth) reject(form.elements.endMonth, 'Die letzte Fälligkeit muss im ersten Fälligkeitsmonat oder später liegen.');
+  };
+  const endMonthField = document.getElementById('goal-end-month-field');
+  const updateEndMonthField = () => {
+    const annual = form.elements.type.value === 'annual';
+    endMonthField.hidden = !annual;
+    form.elements.endMonth.disabled = !annual;
+    if (!annual) {
+      form.elements.endMonth.value = '';
+      form.elements.endMonth.removeAttribute('aria-invalid');
+    }
+  };
+  form.elements.type.addEventListener('change', updateEndMonthField);
   let editingId = null;
   let opener = null;
   dialog.addEventListener('close', () => {
@@ -110,6 +127,8 @@ export function bindGoalForm(onSave, startMonth) {
     document.getElementById('goal-month').value = goal?.dueMonth ?? startMonth;
     document.getElementById('goal-type').value = goal?.type ?? 'once';
     document.getElementById('goal-flex').value = goal?.flexMonths ?? 0;
+    form.elements.endMonth.value = goal?.type === 'annual' ? goal.endMonth ?? '' : '';
+    updateEndMonthField();
     document.getElementById('goal-error').textContent = '';
     for (const field of fields) field.removeAttribute('aria-invalid');
     dialog.showModal();
@@ -131,11 +150,14 @@ export function bindGoalForm(onSave, startMonth) {
       try { amountCents = parseMoney(form.elements.amount.value); }
       catch (error) { reject(form.elements.amount, error.message); }
       const dueMonth = form.elements.dueMonth.value;
+      const type = form.elements.type.value;
+      const endMonth = type === 'annual' ? form.elements.endMonth.value || null : null;
       const flexMonths = Number(form.elements.flexMonths.value);
       if (!amountCents) reject(form.elements.amount, 'Der Zielbetrag muss größer als 0 € sein.');
       if (!/^(19\d{2}|[2-9]\d{3})-(0[1-9]|1[0-2])$/.test(dueMonth)) reject(form.elements.dueMonth, 'Bitte wähle einen gültigen Fälligkeitsmonat.');
+      validateEndMonth(type, endMonth, dueMonth, reject);
       if (!Number.isInteger(flexMonths) || flexMonths < 0 || flexMonths > 1200) reject(form.elements.flexMonths, 'Der Spielraum muss zwischen 0 und 1200 Monaten liegen.');
-      onSave({ id: editingId ?? (globalThis.crypto?.randomUUID?.() ?? "goal-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2)), name, amountCents, dueMonth, type: form.elements.type.value, flexMonths });
+      onSave({ id: editingId ?? (globalThis.crypto?.randomUUID?.() ?? "goal-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2)), name, amountCents, dueMonth, type, endMonth, flexMonths });
       dialog.close();
     } catch (problem) { document.getElementById('goal-error').textContent = problem.message; }
   });

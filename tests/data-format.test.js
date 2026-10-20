@@ -10,9 +10,38 @@ const example = {
 
 test('JSON-Export und Import erhalten alle Centwerte und Felder exakt', () => {
   const json = exportData(example, new Date('2026-10-20T12:00:00.000Z'));
-  assert.deepEqual(parseImport(json), example);
+  const normalized = structuredClone(example);
+  normalized.goals[0].endMonth = null;
+  assert.deepEqual(parseImport(json), normalized);
   const fractionalTimestamp = { ...example, cashUpdatedAt: '2026-10-20T10:30:00.123Z' };
-  assert.deepEqual(parseImport(exportData(fractionalTimestamp, new Date('2026-10-20T12:00:00.123Z'))), fractionalTimestamp);
+  assert.deepEqual(parseImport(exportData(fractionalTimestamp, new Date('2026-10-20T12:00:00.123Z'))), {
+    ...fractionalTimestamp,
+    goals: [{ ...fractionalTimestamp.goals[0], endMonth: null }],
+  });
+});
+
+test('v1 Import akzeptiert ältere Ziele ohne Endmonat und ergänzt null im Export', () => {
+  const legacy = structuredClone(example);
+  delete legacy.goals[0].endMonth;
+  const document = { format: 'cashflow-planner', version: 1, exportedAt: '2026-10-20T12:00:00.000Z', data: legacy };
+  const imported = parseImport(JSON.stringify(document));
+  assert.equal(imported.goals[0].endMonth, null);
+  assert.equal(JSON.parse(exportData(imported)).data.goals[0].endMonth, null);
+});
+
+test('Endmonat gilt einschließlich und wird für Jahresziele validiert', () => {
+  const bounded = structuredClone(example);
+  bounded.goals[0].endMonth = '2030-08';
+  assert.equal(parseImport(exportData(bounded)).goals[0].endMonth, '2030-08');
+
+  for (const endMonth of ['2027-07', '2027-13', 'gestern']) {
+    const invalid = structuredClone(bounded);
+    invalid.goals[0].endMonth = endMonth;
+    assert.throws(() => exportData(invalid));
+  }
+  const once = structuredClone(bounded);
+  once.goals[0].type = 'once';
+  assert.throws(() => exportData(once), /Einmalige/);
 });
 
 test('v1 Import übernimmt fehlende Inflationsrate mit 2 Prozent und Export ergänzt sie', () => {

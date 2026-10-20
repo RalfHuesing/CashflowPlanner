@@ -11,6 +11,7 @@ const ISO_TIMESTAMP_RE = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{1,3})?Z$/;
 const LEGACY_SETTINGS_KEYS = ['cashCents', 'monthlyCents', 'reserveCents', 'currentAge', 'horizonAge'];
 const SETTINGS_KEYS = [...LEGACY_SETTINGS_KEYS, 'inflationBps'];
 const GOAL_KEYS = ['id', 'name', 'amountCents', 'type', 'dueMonth', 'flexMonths'];
+const GOAL_KEYS_WITH_END_MONTH = [...GOAL_KEYS, 'endMonth'];
 
 function fail(message) {
   throw new TypeError(message);
@@ -49,15 +50,24 @@ function validateSettings(settings) {
   return { ...settings, inflationBps };
 }
 
+function validateEndMonth(goal) {
+  const endMonth = Object.hasOwn(goal, 'endMonth') ? goal.endMonth : null;
+  if (endMonth !== null && (typeof endMonth !== 'string' || !DATE_RE.test(endMonth))) fail('Ungültiger Endmonat.');
+  if (goal.type === 'once' && endMonth !== null) fail('Einmalige Ziele dürfen keinen Endmonat haben.');
+  if (endMonth !== null && endMonth < goal.dueMonth) fail('Der Endmonat darf nicht vor dem Fälligkeitsmonat liegen.');
+  return endMonth;
+}
+
 function validateGoal(goal) {
-  if (!isPlainObject(goal) || !hasExactKeys(goal, GOAL_KEYS)) fail('Ungültiges Ziel.');
+  if (!isPlainObject(goal) || !(hasExactKeys(goal, GOAL_KEYS) || hasExactKeys(goal, GOAL_KEYS_WITH_END_MONTH))) fail('Ungültiges Ziel.');
   if (typeof goal.id !== 'string' || !goal.id.trim() || goal.id.length > 100) fail('Ungültige Ziel-ID.');
   if (typeof goal.name !== 'string' || goal.name.trim().length < 1 || goal.name.trim().length > 120) fail('Ungültiger Zielname.');
   if (!Number.isSafeInteger(goal.amountCents) || goal.amountCents <= 0 || goal.amountCents > MAX_CENTS) fail('Ungültiger Zielbetrag.');
   if (goal.type !== 'once' && goal.type !== 'annual') fail('Ungültiger Zieltyp.');
   if (typeof goal.dueMonth !== 'string' || !DATE_RE.test(goal.dueMonth)) fail('Ungültiger Fälligkeitsmonat.');
+  const endMonth = validateEndMonth(goal);
   if (!Number.isInteger(goal.flexMonths) || goal.flexMonths < 0 || goal.flexMonths > 1200) fail('Ungültiger zeitlicher Spielraum.');
-  return { ...goal };
+  return { ...goal, endMonth };
 }
 
 function validateTimestamp(timestamp, fieldName) {

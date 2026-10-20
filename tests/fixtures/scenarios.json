@@ -37,5 +37,13 @@
     "settings": {"cashCents": 0, "monthlyCents": 0, "reserveCents": 0, "currentAge": 40, "horizonAge": 41, "inflationBps": 200},
     "goals": [{"id": "future", "name": "Anschaffung", "amountCents": 10000, "type": "once", "dueMonth": "2027-10", "flexMonths": 0}],
     "expected": {"requiredTodayCents": 10200, "gapCents": 10200, "feasible": false}
+  },
+  {
+    "id": "annual-end",
+    "name": "Jährliches Ziel mit letztem Zahlungsmonat",
+    "startMonth": "2026-10",
+    "settings": {"cashCents": 0, "monthlyCents": 0, "reserveCents": 0, "currentAge": 40, "horizonAge": 43, "inflationBps": 0},
+    "goals": [{"id": "annual-limited", "name": "Mitgliedschaft", "amountCents": 10000, "type": "annual", "dueMonth": "2027-10", "endMonth": "2028-10", "flexMonths": 0}],
+    "expected": {"requiredTodayCents": 20000, "gapCents": 20000, "feasible": false}
   }
 ]

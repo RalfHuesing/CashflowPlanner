@@ -23,7 +23,9 @@ test('LocalStorage speichert und lädt das vollständige versionierte Datenmodel
   const record = JSON.parse(storage.getItem(STORAGE_KEY));
   assert.equal(record.version, STORAGE_VERSION);
   assert.equal(record.savedAt, '2026-10-20T12:00:00.000Z');
-  assert.deepEqual(loadData(storage).data, data);
+  const normalized = structuredClone(data);
+  normalized.goals[0].endMonth = null;
+  assert.deepEqual(loadData(storage).data, normalized);
 });
 
 test('Standard- und Beispieldaten verwenden 2 Prozent Inflation', () => {
@@ -35,12 +37,15 @@ test('alte v1 LocalStorage-Daten erhalten 2 Prozent und werden beim Speichern er
   const storage = memoryStorage();
   const legacy = structuredClone(data);
   delete legacy.settings.inflationBps;
+  delete legacy.goals[0].endMonth;
   storage.setItem(STORAGE_KEY, JSON.stringify({ version: STORAGE_VERSION, data: legacy }));
 
   const loaded = loadData(storage).data;
   assert.equal(loaded.settings.inflationBps, 200);
   assert.equal(saveData(loaded, storage).ok, true);
   assert.equal(JSON.parse(storage.getItem(STORAGE_KEY)).data.settings.inflationBps, 200);
+  assert.equal(loaded.goals[0].endMonth, null);
+  assert.equal(JSON.parse(storage.getItem(STORAGE_KEY)).data.goals[0].endMonth, null);
 });
 
 test('fehlender, beschädigter oder unbekannt versionierter Speicher liefert Defaults mit Hinweis', () => {

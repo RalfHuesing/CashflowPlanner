@@ -69,6 +69,22 @@ test('maximum permitted delay can solve shortfalls without dropping horizon paym
   assert.equal(blocked.flexibility.events[0].month, '2027-10');
 });
 
+test('annual end months constrain funding and cannot be crossed to solve a shortfall', () => {
+  const annual = {...goal, type: 'annual', dueMonth: '2027-04', endMonth: '2027-06', flexMonths: 6};
+  const result = buildScenarios({...settings, cashCents: 200, horizonAge: 43}, [annual], '2026-10');
+  assert.equal(result.keep.requiredTodayCents, 600);
+  assert.equal(result.keep.events.length, 1);
+  assert.equal(result.flexibility.events.length, 1);
+  assert.equal(result.flexibility.events[0].month, '2027-06');
+  assert.equal(result.flexibility.requiredTodayCents, 400);
+  assert.equal(result.flexibility.feasible, false);
+  const ended = buildPlan(settings, [{...annual, dueMonth: '2020-10', endMonth: '2025-10'}], '2026-10');
+  assert.equal(ended.requiredTodayCents, 1200);
+  assert.equal(ended.events.length, 1);
+  assert.equal(ended.rows[0].expenseCents, 1000);
+  assert.equal(ended.criticalEvents[0].overdue, true);
+});
+
 test('deterministic generated cases uphold cash balance, feasibility and monotonicity', () => {
   for (let seed = 1; seed <= 80; seed++) {
     const input = {...settings, cashCents: (seed * 97) % 4000, monthlyCents: (seed * 13) % 700, reserveCents: (seed * 3) % 100};

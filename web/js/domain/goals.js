@@ -8,24 +8,28 @@ export function validateGoal(goal) {
   assertCents(goal.amountCents, 'Zielbetrag', true);
   if (!['once', 'annual'].includes(goal.type)) throw new TypeError('Ungültige Wiederholung.');
   monthNumber(goal.dueMonth);
+  if (goal.endMonth !== undefined && goal.endMonth !== null) {
+    if (goal.type !== 'annual') throw new TypeError('Ein Endmonat ist nur für jährliche Ziele zulässig.');
+    if (monthNumber(goal.endMonth) < monthNumber(goal.dueMonth)) throw new RangeError('Der Endmonat darf nicht vor der ersten Fälligkeit liegen.');
+  }
   if (!Number.isInteger(goal.flexMonths) || goal.flexMonths < 0 || goal.flexMonths > 1200) throw new RangeError('Ungültiger zeitlicher Spielraum.');
   return goal;
 }
 
-function occurrenceIndices(goal, dueIndex, horizon) {
+function occurrenceIndices(goal, dueIndex, lastMonthIndex) {
   const first = Math.max(0, dueIndex);
   const indices = [first];
   if (goal.type === 'annual') {
     let next = dueIndex < 0 ? ((dueIndex % 12) + 12) % 12 : first + 12;
     if (next === 0) next = 12;
-    for (let index = next; index <= horizon; index += 12) indices.push(index);
+    for (let index = next; index <= lastMonthIndex; index += 12) indices.push(index);
   }
   return indices;
 }
 
-function isOverduePayment(goal, dueIndex) {
-  // An annual payment in this calendar month is regularly due, not overdue.
-  return dueIndex < 0 && (goal.type !== 'annual' || dueIndex % 12 !== 0);
+function isOverduePayment(goal, dueIndex, endIndex) {
+  // A current annual payment is regular only while its schedule is still active.
+  return dueIndex < 0 && (goal.type !== 'annual' || dueIndex % 12 !== 0 || endIndex < 0);
 }
 
 function validateEventInputs(goals, startMonth, horizon, inflationBps) {
@@ -48,7 +52,9 @@ export function generateEvents(goals, startMonth, horizon, delayed = false, infl
     if (seen.has(goal.id)) throw new TypeError('Ziel-IDs müssen eindeutig sein.');
     seen.add(goal.id);
     const dueIndex = monthDifference(startMonth, goal.dueMonth);
-    const overdue = isOverduePayment(goal, dueIndex);
+    const endIndex = goal.endMonth === undefined || goal.endMonth === null ? horizon : monthDifference(startMonth, goal.endMonth);
+    const lastMonthIndex = Math.min(horizon, endIndex);
+    const overdue = isOverduePayment(goal, dueIndex, endIndex);
     // Past dates represent one outstanding payment, payable now. Future annual
     // payments retain their original calendar month; past years are not backfilled.
     const first = Math.max(0, dueIndex);
@@ -59,14 +65,14 @@ export function generateEvents(goals, startMonth, horizon, delayed = false, infl
       excludedGoals.push({...goal, reason: 'after-horizon'});
       continue;
     }
-    const indices = occurrenceIndices(goal, dueIndex, horizon);
+    const indices = occurrenceIndices(goal, dueIndex, lastMonthIndex);
     const last = indices.at(-1);
-    const firstShiftableIndex = overdue ? indices[1] : first;
-    const shiftMonths = delayed && firstShiftableIndex !== undefined ? Math.min(goal.flexMonths, horizon - last) : 0;
+    const firstShiftableIndex = first === 0 ? indices[1] : first;
+    const shiftMonths = delayed && firstShiftableIndex !== undefined ? Math.min(goal.flexMonths, lastMonthIndex - last) : 0;
     if (shiftMonths > 0) shiftedGoals.push({id: goal.id, name: goal.name, shiftMonths, fromMonth: addMonths(startMonth, firstShiftableIndex), toMonth: addMonths(startMonth, firstShiftableIndex + shiftMonths)});
     for (const index of indices) {
       const overdueOccurrence = overdue && index === 0;
-      const eventShift = overdueOccurrence ? 0 : shiftMonths;
+      const eventShift = index === 0 ? 0 : shiftMonths;
       const paymentIndex = index + eventShift;
       const amountCents = Math.round(goal.amountCents * (1 + inflationBps / 10000) ** (paymentIndex / 12));
       if (!Number.isSafeInteger(amountCents)) throw new RangeError('Der Zielbetrag mit Inflation ist zu groß.');

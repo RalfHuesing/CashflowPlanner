@@ -35,9 +35,69 @@ test('past one-offs are payable today and only future goals beyond horizon are e
   assert.equal(generateEvents([{...goal, type: 'once'}], '2026-10', 0).expensesCents[0], 12345);
 });
 
+test('annual end months include the final due month and omit all later repetitions', () => {
+  const annual = {...goal, dueMonth: '2026-11', endMonth: '2027-11'};
+  const plan = generateEvents([annual], '2026-10', 48, false, 0);
+  assert.deepEqual(plan.events.map(event => event.month), ['2026-11', '2027-11']);
+  assert.equal(plan.expensesCents.reduce((sum, amount) => sum + amount, 0), goal.amountCents * 2);
+  assert.deepEqual(generateEvents([{...annual, endMonth: '2027-10'}], '2026-10', 48).events.map(event => event.month), ['2026-11']);
+  const excluded = generateEvents([{...annual, dueMonth: '2028-11', endMonth: '2028-11'}], '2026-10', 12, true);
+  assert.deepEqual(excluded.events, []);
+  assert.equal(excluded.excludedGoals[0].reason, 'after-horizon');
+  assert.deepEqual(generateEvents([{...goal, endMonth: null}], '2026-10', 24), generateEvents([goal], '2026-10', 24));
+});
+
+test('ended annual schedules retain exactly one overdue payment today', () => {
+  for (const dueMonth of ['2020-10', '2020-04', '2020-11']) {
+    const plan = generateEvents([{...goal, dueMonth, endMonth: '2025-11'}], '2026-10', 48, true, 200);
+    assert.equal(plan.events.length, 1);
+    assert.deepEqual(plan.events[0], {goalId: goal.id, name: goal.name, amountCents: goal.amountCents,
+      index: 0, month: '2026-10', originalMonth: dueMonth, overdue: true, shiftMonths: 0});
+    assert.deepEqual(plan.shiftedGoals, []);
+    assert.deepEqual(plan.excludedGoals, []);
+  }
+});
+
+test('a current-month end keeps a regular payment today and prevents shifting it', () => {
+  const plan = generateEvents([{...goal, dueMonth: '2020-10', endMonth: '2026-10'}], '2026-10', 24, true);
+  assert.equal(plan.events.length, 1);
+  assert.equal(plan.events[0].overdue, false);
+  assert.equal(plan.events[0].originalMonth, '2026-10');
+  assert.equal(plan.events[0].shiftMonths, 0);
+  assert.deepEqual(plan.shiftedGoals, []);
+  const betweenDueMonths = generateEvents([{...goal, dueMonth: '2020-04', endMonth: '2026-10'}], '2026-10', 24, true);
+  assert.equal(betweenDueMonths.events.length, 1);
+  assert.equal(betweenDueMonths.events[0].overdue, true);
+});
+
+test('annual flexibility respects end months while retaining every future occurrence', () => {
+  const annual = {...goal, dueMonth: '2026-11', endMonth: '2027-12'};
+  const regular = generateEvents([annual], '2026-10', 36, false, 0);
+  const delayed = generateEvents([annual], '2026-10', 36, true, 0);
+  assert.equal(delayed.events.length, regular.events.length);
+  assert.deepEqual(delayed.events.map(event => event.month), ['2026-12', '2027-12']);
+  assert.equal(delayed.shiftedGoals[0].shiftMonths, 1);
+  assert.deepEqual(generateEvents([{...annual, endMonth: '2027-11'}], '2026-10', 36, true, 0).events, regular.events);
+  const overdue = generateEvents([{...annual, dueMonth: '2025-11'}], '2026-10', 36, true, 0);
+  assert.deepEqual(overdue.events.map(event => event.month), ['2026-10', '2026-12', '2027-12']);
+  assert.equal(overdue.events[0].shiftMonths, 0);
+  const horizonBound = generateEvents([{...annual, endMonth: '2030-12'}], '2026-10', 14, true, 0);
+  assert.deepEqual(horizonBound.events.map(event => event.index), [2, 14]);
+});
+
+test('end months must be valid, annual and no earlier than the first due month', () => {
+  for (const endMonth of ['', 'bad', '2027-13', '2025-10', 202711, false]) {
+    assert.throws(() => validateGoal({...goal, endMonth}));
+  }
+  assert.throws(() => validateGoal({...goal, type: 'once', endMonth: '2027-11'}));
+  assert.equal(validateGoal({...goal, endMonth: goal.dueMonth}).endMonth, goal.dueMonth);
+  assert.equal(validateGoal({...goal, type: 'once', endMonth: null}).endMonth, null);
+});
+
 test('flexibility retains all occurrences and consistent annual cadence', () => {
   const result = generateEvents([{...goal, dueMonth: '2026-10'}], '2026-10', 15, true);
-  assert.deepEqual(result.events.map(event => event.index), [3, 15]);
+  assert.deepEqual(result.events.map(event => event.index), [0, 15]);
+  assert.deepEqual(result.events.map(event => event.shiftMonths), [0, 3]);
   assert.equal(result.shiftedGoals[0].shiftMonths, 3);
   assert.equal(generateEvents([goal], '2026-10', 13, true).shiftedGoals.length, 0);
   const delayedOverdue = generateEvents([goal], '2026-10', 15, true);

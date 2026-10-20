@@ -1,6 +1,6 @@
 # CashflowPlanner
 
-CashflowPlanner beantwortet eine Frage: Wie viel Cash wird heute und in den kommenden Monaten für geplante Ausgaben benötigt, und welcher Teil des monatlich verfügbaren Betrags bleibt für langfristige Anlagen frei? Einmalige und jährlich wiederkehrende Ziele teilen sich einen gemeinsamen Cashbestand. Übersicht, Zielverwaltung und Zeitplan sind getrennte Ansichten; große Ziellisten lassen sich durchsuchen und seitenweise anzeigen. Die Rechnung erfolgt vollständig im Browser, ohne Konto, Backend oder Laufzeitbibliotheken.
+CashflowPlanner beantwortet eine Frage: Wie viel Cash wird heute und in den kommenden Monaten für geplante Ausgaben benötigt, und welcher Teil des monatlich verfügbaren Betrags bleibt für langfristige Anlagen frei? Einmalige und jährlich wiederkehrende Ziele teilen sich einen gemeinsamen Cashbestand. Jährliche Ziele können optional einen letzten Zahlungsmonat haben. Übersicht, Zielverwaltung und Zeitplan sind getrennte Ansichten; große Ziellisten lassen sich durchsuchen und seitenweise anzeigen. Die Rechnung erfolgt vollständig im Browser, ohne Konto, Backend oder Laufzeitbibliotheken.
 
 ## Start
 

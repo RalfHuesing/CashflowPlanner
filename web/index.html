@@ -246,6 +246,11 @@
             </select>
           </div>
         </div>
+        <div id="goal-end-month-field" hidden>
+          <label for="goal-end-month">Letzte Fälligkeit (optional)</label>
+          <input id="goal-end-month" name="endMonth" type="month" min="1900-01" max="9999-12" disabled aria-describedby="goal-end-month-help goal-error">
+          <p id="goal-end-month-help" class="field-help">Der Monat zählt noch mit. Ohne Endmonat bleibt das jährliche Ziel bis zum Ende des Planungshorizonts bestehen.</p>
+        </div>
         <label for="goal-flex">Zeitlicher Spielraum (± Monate)</label>
         <input id="goal-flex" name="flexMonths" type="number" min="0" max="1200" step="1" value="0">
         <p class="field-help">Der normale Plan verwendet immer deinen Wunschtermin.</p>
