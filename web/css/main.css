@@ -155,15 +155,6 @@ main {
   color: var(--green);
   margin-bottom: 12px;
 }
-.local-badge {
-  font-size: .76rem;
-  white-space: nowrap;
-  background: var(--green-light);
-  padding: 8px 12px;
-  border-radius: 20px;
-  color: var(--green)!important;
-  margin-top: 8px;
-}
 .panel {
   padding: 23px;
   background: #fff;
@@ -282,12 +273,6 @@ input[aria-invalid=true] {
   text-align: center;
   color: var(--muted);
   font-size: .84rem;
-}
-.save-status {
-  margin: 0;
-  text-align: center;
-  color: var(--muted);
-  font-size: .73rem;
 }
 .summary-grid {
   display: grid;
@@ -588,10 +573,6 @@ dialog::backdrop {
   .page-heading {
     display: block;
   }
-  .local-badge {
-    display: inline-block;
-    margin: 0;
-  }
   .chart-label {
     font-size: 12px;
   }
@@ -636,9 +617,6 @@ dialog::backdrop {
   }
   .metric-value {
     font-size: 1.5rem;
-  }
-  .local-badge {
-    font-size: .69rem!important;
   }
   .chart-tooltip {
     min-height: 95px;
@@ -761,26 +739,8 @@ h1 {
 .overview-results .notice {
   margin-top: 15px;
 }
-.next-step {
-  padding: 22px 0 0;
-  border-top: 1px solid var(--border);
-  margin-top: 22px;
-}
-.next-step p {
-  font-size: .84rem;
-  color: var(--muted);
-  margin: 8px 0 17px;
-}
-.next-step .button {
-  display: inline-block;
-  text-decoration: none;
-  margin: 0 8px 8px 0;
-}
 .assumptions {
   margin-top: 25px;
-}
-.save-status {
-  margin-top: 24px;
 }
 .goals-toolbar {
   position: sticky;
@@ -1054,12 +1014,6 @@ h1 {
   }
   .timeline-layout .legend {
     justify-content: flex-start;
-  }
-  .next-step .button {
-    font-size: .8rem;
-  }
-  .local-badge {
-    margin-top: 0;
   }
   .assumptions {
     margin-top: 22px;

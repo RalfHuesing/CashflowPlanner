@@ -19,7 +19,7 @@ const message = document.getElementById('app-message');
 function notify(text) { message.textContent = text; message.hidden = !text; }
 function persist() {
   const result = saveData(data);
-  document.getElementById('save-status').textContent = result.ok ? '✓ Änderungen lokal gespeichert' : result.error;
+  if (!result.ok) notify(result.error);
 }
 function updateFreshness() {
   const notice = document.getElementById('stale-notice');
@@ -68,9 +68,6 @@ const openGoal = bindGoalForm((goal) => {
 bindSettings((settings, cashChanged) => {
   data = {...data,settings,cashUpdatedAt:cashChanged ? new Date().toISOString() : data.cashUpdatedAt};
   persist(); render();
-},() => {
-  data = {...data,cashUpdatedAt:new Date().toISOString()};
-  persist(); updateFreshness(); notify('Dein gespeicherter Cashbestand wurde als aktuell bestätigt.');
 });
 function confirmReplacement(description, action) {
   const dialog = document.getElementById('confirm-dialog');

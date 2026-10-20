@@ -21,7 +21,7 @@ export function fillSettings(settings) {
     if (field) field.value = moneyFields.includes(key) ? editableMoney(value) : key === 'inflationBps' ? editableInflation(value) : value;
   }
 }
-export function bindSettings(onChange, onConfirm) {
+export function bindSettings(onChange) {
   const form = document.getElementById('settings-form');
   const error = document.getElementById('settings-error');
   form.addEventListener('submit', (event) => event.preventDefault());
@@ -68,14 +68,5 @@ export function bindSettings(onChange, onConfirm) {
   const inflationField = document.getElementById('inflationBps');
   inflationField.addEventListener('blur', () => {
     try { inflationField.value = editableInflation(parseInflation(inflationField.value)); } catch { /* Keep invalid input available for correction. */ }
-  });
-  document.getElementById('confirm-cash').addEventListener('click', () => {
-    const invalid = form.querySelector('[aria-invalid="true"]');
-    if (invalid) {
-      error.textContent = 'Bitte korrigiere zuerst die markierten Eingaben, bevor du den Cashbestand bestätigst.';
-      invalid.focus();
-      return;
-    }
-    onConfirm();
   });
 }

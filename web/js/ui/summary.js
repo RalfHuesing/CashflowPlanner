@@ -6,7 +6,7 @@ export function renderSummary(plan, settings) {
     ['Dein aktueller Cashbestand', money(settings.cashCents), 'Tatsächlich heute verfügbar', ''],
     ['Ausgaben im aktuellen Monat', money(plan.rows[0].expenseCents), 'Aus dem heutigen Cashbestand; keine Sparrate in diesem Monat', ''],
     ['Lücke zum langfristigen Modellbedarf', money(plan.gapCents), plan.feasible ? 'Keine unter den eingestellten Annahmen' : firstShortfall ? `Erster Engpass: ${firstShortfall}` : 'Bei heutigem Bestand und gleichbleibendem Monatsbetrag', plan.feasible ? '' : 'negative'],
-    ['Langfristiger Modellbedarf', money(plan.requiredTodayCents), 'Rechenwert für alle Ziele inklusive dieses Monats; keine Halteempfehlung', ''],
+    ['Langfristiger Modellbedarf', money(plan.requiredTodayCents), `Heute nötiger Startbestand bei ${money(settings.monthlyCents)} monatlich; keine Halteempfehlung`, ''],
   ];
   document.getElementById('summary').replaceChildren(...metrics.map(([label, value, detail, style]) => {
     const card = node('div', `metric ${style}`);
