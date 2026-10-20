@@ -7,8 +7,7 @@ const root = fileURLToPath(new URL('../', import.meta.url));
 const documents = [
   'README.md', 'AGENTS.md', 'docs/PRODUCT.md', 'docs/ARCHITECTURE.md',
   'docs/ALGORITHM.md', 'docs/DATA_FORMAT.md', 'docs/EXAMPLES.md',
-  '.agents/rules/domain.md', '.agents/rules/code-quality.md', '.agents/rules/ui.md',
-  'tasks/bootstrap/Konzept.md', 'tasks/bootstrap/Roadmap.md'
+  '.agents/rules/domain.md', '.agents/rules/code-quality.md', '.agents/rules/ui.md'
 ];
 const failures = [];
 

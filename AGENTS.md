@@ -7,3 +7,5 @@ Lies nur aufgabenrelevante Dateien und analysiere vorhandenen Code vor Änderung
 Bei Finanzmathematik und Datenmodell gilt [.agents/rules/domain.md](.agents/rules/domain.md), bei Implementierung und Refactoring [.agents/rules/code-quality.md](.agents/rules/code-quality.md), bei UI-Arbeit [.agents/rules/ui.md](.agents/rules/ui.md).
 
 Führe betroffene Tests und den Linter aus, bei relevanten Änderungen die vollständige Suite und `npm run docs:check`. Melde nur nachweislich erfolgreiche Prüfungen und keine unvollständige Änderung als fertig. Neue Abhängigkeiten brauchen einen konkreten Nutzen. Keine automatische externe Veröffentlichung.
+
+Committe abgeschlossene, aufgabenbezogene Änderungen nach erfolgreichen erforderlichen Prüfungen automatisch in einem fokussierten Commit, sofern der Nutzer nichts anderes wünscht. Nimm nur Dateien der Aufgabe auf und lasse fremde Änderungen unberührt. Schlagen erforderliche Prüfungen fehl, behebe die Ursache oder lasse den Commit aus und nenne den Grund.
