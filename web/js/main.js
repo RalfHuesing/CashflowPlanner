@@ -1,0 +1,134 @@
+import { currentMonth } from './domain/calendar.js';
+import { buildScenarios } from './domain/scenarios.js';
+import { getCashFreshness, loadData, saveData } from './data/storage.js';
+import { exportData, MAX_IMPORT_BYTES, parseImport, validateData } from './data/import-export.js';
+import { getSampleData } from './data/sample-data.js';
+import { bindSettings, fillSettings } from './ui/settings-form.js';
+import { bindGoalForm, bindGoalList, renderGoals } from './ui/goals-form.js';
+import { renderSummary } from './ui/summary.js';
+import { renderChart } from './ui/chart.js';
+import { renderMonthlyPlan } from './ui/monthly-plan.js';
+import { money, monthLabel } from './ui/format.js';
+import { bindNavigation } from './ui/navigation.js';
+
+const loaded = loadData();
+let data = loaded.data;
+let scenario = 'keep';
+let scenarios;
+const startMonth = currentMonth();
+const message = document.getElementById('app-message');
+function notify(text) { message.textContent = text; message.hidden = !text; }
+function persist() {
+  const result = saveData(data);
+  document.getElementById('save-status').textContent = result.ok ? '✓ Änderungen lokal gespeichert' : result.error;
+}
+function updateFreshness() {
+  const notice = document.getElementById('stale-notice');
+  const { stale } = getCashFreshness(data.cashUpdatedAt);
+  notice.hidden = !stale || data.cashUpdatedAt === null;
+  if (!notice.hidden) notice.textContent = `Dein Cashbestand wurde zuletzt am ${new Date(data.cashUpdatedAt).toLocaleDateString('de-DE')} aktualisiert. Prüfe den aktuellen Betrag für eine zuverlässige Planung.`;
+}
+function renderResult() {
+  const plan = scenarios[scenario];
+  renderSummary(scenarios.keep, data.settings);
+  renderChart(plan, data.settings);
+  renderMonthlyPlan(plan);
+  const descriptions = {
+    keep: 'Szenario A: Dein vorhandener Cashbestand bleibt vollständig erhalten. Es wird keine Entnahme angenommen.',
+    release: `Szenario B · Simulation: ${money(plan.releasedCents)} werden hypothetisch sofort aus dem Cashbestand entnommen. Es erfolgt keine tatsächliche Transaktion.`,
+    flexibility: 'Theoretische Terminvariante: Flexible Ausgaben werden innerhalb ihres Spielraums später eingeplant. Deine gespeicherten Wunschtermine bleiben maßgeblich.',
+  };
+  let description = descriptions[scenario];
+  if (scenario === 'flexibility' && plan.shiftedGoals.length) description += ` Verschiebungen: ${plan.shiftedGoals.map((goal) => `${goal.name} um ${goal.shiftMonths} Monate (auf ${monthLabel(goal.toMonth)})`).join('; ')}.`;
+  document.getElementById('scenario-description').textContent = description;
+}
+function render() {
+  try {
+    scenarios = buildScenarios(data.settings, data.goals, startMonth);
+    if (!scenarios[scenario]) scenario = 'keep';
+    document.querySelector(`input[name="scenario"][value="${scenario}"]`).checked = true;
+    document.getElementById('flex-option').hidden = !scenarios.flexibility;
+    const flex = document.getElementById('flexibility-note');
+    flex.hidden = !scenarios.flexibility;
+    if (!flex.hidden) flex.textContent = scenarios.flexibility.feasible ? 'Mit späteren zulässigen Terminen wäre dein Plan finanzierbar. Wähle „Termine verschieben“, um diese theoretische Variante zu prüfen.' : `Auch mit späteren zulässigen Terminen fehlen heute ${money(scenarios.flexibility.gapCents)}. Die theoretische Variante kannst du im Diagramm prüfen.`;
+    renderGoals(data.goals, openGoal, removeGoal, startMonth);
+    const overdue = scenarios.keep.events.filter((event) => event.overdue);
+    const overdueNotice = document.getElementById('overdue-notice');
+    overdueNotice.hidden = !overdue.length;
+    overdueNotice.textContent = overdue.length ? `${overdue.length} ${overdue.length === 1 ? 'überfällige Ausgabe wird' : 'überfällige Ausgaben werden'} im aktuellen Monat aus deinem heutigen Cashbestand bezahlt: ${overdue.slice(0, 3).map((event) => event.name).join(', ')}${overdue.length > 3 ? ` und ${overdue.length - 3} weitere` : ''}. Bitte aktualisiere bereits bezahlte Ziele.` : '';
+    const excluded = scenarios.keep.excludedGoals;
+    const excludedNotice = document.getElementById('excluded-notice');
+    excludedNotice.hidden = !excluded.length;
+    excludedNotice.textContent = `Nicht im Plan enthalten: ${excluded.map((goal) => ` ${goal.name} (nach dem Planungshorizont)`.trim()).join('; ')}. Bitte prüfe Fälligkeiten und Planungshorizont.`;
+    document.getElementById('horizon-note').textContent = `Der Plan endet im ${monthLabel(scenarios.keep.horizonMonth)}. ${excluded.length ? `Nicht berücksichtigt: ${excluded.map((goal) => `${goal.name} (nach dem Planungshorizont)`).join('; ')}.` : 'Alle im Planungshorizont fälligen Ziele sind berücksichtigt.'}`;
+    renderResult(); updateFreshness();
+  } catch (error) { notify(`Die Planung konnte nicht berechnet werden: ${error.message}`); }
+}
+function applyData(next) {
+  const valid = validateData(next);
+  buildScenarios(valid.settings, valid.goals, startMonth);
+  data = valid;
+  scenario = 'keep';
+  fillSettings(data.settings); persist(); render();
+}
+function removeGoal(id) {
+  data = {...data,goals:data.goals.filter((goal) => goal.id !== id)};
+  persist(); render();
+  document.getElementById('add-goal').focus({ preventScroll: true });
+  notify('Ziel gelöscht. Die Planung wurde aktualisiert.');
+}
+const openGoal = bindGoalForm((goal) => {
+  const goals = data.goals.filter((entry) => entry.id !== goal.id);
+  goals.push(goal);
+  applyData({...data,goals}); notify('Ziel gespeichert.');
+},startMonth);
+bindSettings((settings, cashChanged) => {
+  data = {...data,settings,cashUpdatedAt:cashChanged ? new Date().toISOString() : data.cashUpdatedAt};
+  persist(); render();
+},() => {
+  data = {...data,cashUpdatedAt:new Date().toISOString()};
+  persist(); updateFreshness(); notify('Dein gespeicherter Cashbestand wurde als aktuell bestätigt.');
+});
+for (const radio of document.querySelectorAll('input[name="scenario"]')) radio.addEventListener('change',() => {scenario=radio.value;renderResult();});
+function confirmReplacement(description, action) {
+  const dialog = document.getElementById('confirm-dialog');
+  document.getElementById('confirm-description').textContent = description;
+  document.getElementById('confirm-accept').onclick = () => {
+    try {action();dialog.close();} catch (error) {dialog.close();notify(error.message);}
+  };
+  document.getElementById('confirm-cancel').onclick = () => dialog.close();
+  dialog.showModal();
+}
+document.getElementById('sample-button').addEventListener('click',() => {
+  const action = () => {applyData(getSampleData());notify('Beispieldaten geladen. Du kannst alle Werte ausprobieren und anpassen.');};
+  if (data.goals.length || data.settings.cashCents || data.settings.monthlyCents || data.settings.reserveCents) confirmReplacement('Die Beispieldaten ersetzen deine aktuelle Planung. Sichere sie bei Bedarf zuerst über „Exportieren“.',action);
+  else action();
+});
+document.getElementById('export-button').addEventListener('click',() => {
+  try {
+    const blob = new Blob([exportData(data)],{type:'application/json'});
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement('a'); anchor.href=url;anchor.download=`cashflow-planner-${startMonth}.json`;
+    document.body.append(anchor);anchor.click();anchor.remove();
+    setTimeout(() => URL.revokeObjectURL(url),1000);
+    notify('Deine Planung wurde als JSON-Datei zum Download bereitgestellt.');
+  } catch (error) {notify(`Export fehlgeschlagen: ${error.message}`);}
+});
+const fileInput = document.getElementById('import-file');
+document.getElementById('import-button').addEventListener('click',() => fileInput.click());
+fileInput.addEventListener('change',async () => {
+  const file = fileInput.files[0];
+  fileInput.value='';
+  if (!file) return;
+  try {
+    if (file.size>MAX_IMPORT_BYTES) throw new Error('Die Datei ist zu groß. Erlaubt ist maximal 1 MB.');
+    const imported = parseImport(await file.text());
+    buildScenarios(imported.settings,imported.goals,startMonth);
+    confirmReplacement(`Die gültige Datei enthält ${imported.goals.length} Ziele und ${money(imported.settings.cashCents)} Cashbestand. Deine aktuelle Planung wird vollständig ersetzt.`,() => {applyData(imported);notify('Die Planung wurde vollständig importiert.');});
+  } catch (error) {notify(`Import fehlgeschlagen: ${error.message}`);}
+});
+bindGoalList(() => renderGoals(data.goals, openGoal, removeGoal, startMonth));
+bindNavigation();
+fillSettings(data.settings);
+render();
+if (loaded.warning) notify(loaded.warning);

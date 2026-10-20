@@ -1,0 +1,143 @@
+import { editableMoney, money, monthLabel, node, parseMoney } from './format.js';
+export const GOALS_PER_PAGE = 12;
+const listState = { query: '', sort: 'due', page: 1 };
+
+/** Keep list selection independent of DOM so large lists remain easy to verify. */
+export function selectGoals(goals, { query = '', sort = 'due', page = 1 } = {}) {
+  const needle = query.trim().toLocaleLowerCase('de-DE');
+  const filtered = goals.filter((goal) => goal.name.toLocaleLowerCase('de-DE').includes(needle));
+  filtered.sort((a, b) => {
+    if (sort === 'name') return a.name.localeCompare(b.name, 'de');
+    if (sort === 'amount') return b.amountCents - a.amountCents || a.name.localeCompare(b.name, 'de');
+    return a.dueMonth.localeCompare(b.dueMonth) || a.name.localeCompare(b.name, 'de');
+  });
+  const pageCount = Math.max(1, Math.ceil(filtered.length / GOALS_PER_PAGE));
+  const currentPage = Math.max(1, Math.min(page, pageCount));
+  return {
+    goals: filtered.slice((currentPage - 1) * GOALS_PER_PAGE, currentPage * GOALS_PER_PAGE),
+    total: filtered.length,
+    page: currentPage,
+    pageCount,
+  };
+}
+
+export function bindGoalList(onChange) {
+  document.getElementById('goal-search').addEventListener('input', (event) => {
+    listState.query = event.target.value;
+    listState.page = 1;
+    onChange();
+  });
+  document.getElementById('goal-sort').addEventListener('change', (event) => {
+    listState.sort = event.target.value;
+    listState.page = 1;
+    onChange();
+  });
+}
+
+export function renderGoals(goals, onEdit, onDelete, startMonth) {
+  const selection = selectGoals(goals, listState);
+  listState.page = selection.page;
+  const container = document.getElementById('goal-list');
+  container.replaceChildren();
+  document.getElementById('goal-count').textContent = goals.length;
+  document.getElementById('nav-goal-count').textContent = goals.length;
+  const first = (selection.page - 1) * GOALS_PER_PAGE + 1;
+  const last = Math.min(selection.page * GOALS_PER_PAGE, selection.total);
+  document.getElementById('goal-results-status').textContent = selection.total
+    ? `${selection.total === 1 ? '1' : `${first}–${last}`} von ${selection.total} ${selection.total === 1 ? 'Ziel' : 'Zielen'}${listState.query ? ` · ${goals.length} insgesamt` : ''}`
+    : goals.length ? 'Keine passenden Ziele. Ändere deinen Suchbegriff.' : 'Deine Ziele erscheinen hier.';
+  if (!selection.total) {
+    container.append(node('p', 'empty-state', goals.length
+      ? 'Für diesen Suchbegriff wurden keine Ziele gefunden.'
+      : 'Was steht bei dir an? Füge dein erstes Ziel hinzu oder probiere die Beispieldaten aus.'));
+  }
+  for (const goal of selection.goals) {
+    const card = node('article', 'goal-card');
+    const content = node('div', 'goal-content');
+    const heading = node('div', 'goal-card-header');
+    heading.append(node('h3', '', goal.name), node('span', 'goal-amount', money(goal.amountCents)));
+    content.append(heading, node('p', '', `${monthLabel(goal.dueMonth)} · ${goal.type === 'annual' ? 'Jährlich' : 'Einmalig'}${goal.flexMonths ? ` · ± ${goal.flexMonths} Monate` : ''}`));
+    if (goal.dueMonth < startMonth && (goal.type !== 'annual' || goal.dueMonth.slice(5) !== startMonth.slice(5))) {
+      content.append(node('p', 'overdue-label', goal.type === 'annual'
+        ? 'Überfällig · eine offene Ausgabe wird heute nachgeholt. Weitere jährliche Termine bleiben bestehen.'
+        : 'Überfällig · im aktuellen Monat eingeplant.'));
+    }
+    const actions = node('div', 'goal-actions');
+    const edit = node('button', 'text-button', 'Bearbeiten');
+    edit.type = 'button';
+    edit.setAttribute('aria-label', `${goal.name} bearbeiten`);
+    edit.addEventListener('click', () => onEdit(goal));
+    const remove = node('button', 'text-button delete-button', 'Löschen');
+    remove.type = 'button';
+    remove.setAttribute('aria-label', `${goal.name} löschen`);
+    remove.addEventListener('click', () => onDelete(goal.id));
+    actions.append(edit, remove);
+    card.append(content, actions);
+    container.append(card);
+  }
+  const previous = document.getElementById('goals-previous');
+  const next = document.getElementById('goals-next');
+  previous.disabled = selection.page === 1;
+  next.disabled = selection.page === selection.pageCount;
+  document.getElementById('goals-page').textContent = `Seite ${selection.page} von ${selection.pageCount}`;
+  const turnPage = (direction) => {
+    listState.page += direction;
+    renderGoals(goals, onEdit, onDelete, startMonth);
+    document.getElementById('goals-page').focus({ preventScroll: true });
+    document.getElementById('goals-view').scrollIntoView({ block: 'start' });
+  };
+  previous.onclick = () => turnPage(-1);
+  next.onclick = () => turnPage(1);
+}
+export function bindGoalForm(onSave, startMonth) {
+  const dialog = document.getElementById('goal-dialog');
+  const form = document.getElementById('goal-form');
+  const fields = ['name', 'amount', 'dueMonth', 'type', 'flexMonths'].map((name) => form.elements[name]);
+  for (const field of fields) field.setAttribute('aria-describedby', 'goal-error');
+  let editingId = null;
+  let opener = null;
+  dialog.addEventListener('close', () => {
+    const target = opener?.isConnected ? opener : document.getElementById('add-goal');
+    target.focus({ preventScroll: true });
+  });
+  const open = (goal = null) => {
+    opener = document.activeElement;
+    editingId = goal?.id ?? null;
+    form.reset();
+    document.getElementById('goal-dialog-title').textContent = goal ? 'Ziel bearbeiten' : 'Neues Ziel';
+    document.getElementById('goal-name').value = goal?.name ?? '';
+    document.getElementById('goal-amount').value = goal ? editableMoney(goal.amountCents) : '';
+    document.getElementById('goal-month').value = goal?.dueMonth ?? startMonth;
+    document.getElementById('goal-type').value = goal?.type ?? 'once';
+    document.getElementById('goal-flex').value = goal?.flexMonths ?? 0;
+    document.getElementById('goal-error').textContent = '';
+    for (const field of fields) field.removeAttribute('aria-invalid');
+    dialog.showModal();
+  };
+  document.getElementById('add-goal').addEventListener('click', () => open());
+  for (const id of ['cancel-goal', 'close-goal']) document.getElementById(id).addEventListener('click', () => dialog.close());
+  form.addEventListener('submit', (event) => {
+    event.preventDefault();
+    for (const field of fields) field.removeAttribute('aria-invalid');
+    const reject = (field, message) => {
+      field.setAttribute('aria-invalid', 'true');
+      field.focus();
+      throw new Error(message);
+    };
+    try {
+      const name = form.elements.name.value.trim();
+      if (!name) reject(form.elements.name, 'Bitte gib deinem Ziel eine Bezeichnung.');
+      let amountCents;
+      try { amountCents = parseMoney(form.elements.amount.value); }
+      catch (error) { reject(form.elements.amount, error.message); }
+      const dueMonth = form.elements.dueMonth.value;
+      const flexMonths = Number(form.elements.flexMonths.value);
+      if (!amountCents) reject(form.elements.amount, 'Der Zielbetrag muss größer als 0 € sein.');
+      if (!/^(19\d{2}|[2-9]\d{3})-(0[1-9]|1[0-2])$/.test(dueMonth)) reject(form.elements.dueMonth, 'Bitte wähle einen gültigen Fälligkeitsmonat.');
+      if (!Number.isInteger(flexMonths) || flexMonths < 0 || flexMonths > 1200) reject(form.elements.flexMonths, 'Der Spielraum muss zwischen 0 und 1200 Monaten liegen.');
+      onSave({ id: editingId ?? (globalThis.crypto?.randomUUID?.() ?? "goal-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2)), name, amountCents, dueMonth, type: form.elements.type.value, flexMonths });
+      dialog.close();
+    } catch (problem) { document.getElementById('goal-error').textContent = problem.message; }
+  });
+  return open;
+}

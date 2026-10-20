@@ -1,0 +1,33 @@
+# CashflowPlanner
+
+CashflowPlanner beantwortet eine Frage: Wie viel Cash wird heute und in den kommenden Monaten für geplante Ausgaben benötigt, und welcher Teil des monatlich verfügbaren Betrags bleibt für langfristige Anlagen frei? Einmalige und jährlich wiederkehrende Ziele teilen sich einen gemeinsamen Cashbestand. Übersicht, Zielverwaltung und Zeitplan sind getrennte Ansichten; große Ziellisten lassen sich durchsuchen und seitenweise anzeigen. Die Rechnung erfolgt vollständig im Browser, ohne Konto, Backend oder Laufzeitbibliotheken.
+
+## Start
+
+Node.js ab Version 22 ist nur für Entwicklung und Tests erforderlich.
+
+```sh
+npm ci
+npm run dev
+```
+
+Anschließend `http://127.0.0.1:4173` öffnen. Für eine statische Bereitstellung genügt der Inhalt von `web/` auf einem beliebigen statischen Webserver. Es ist kein Build-Schritt erforderlich.
+
+## Prüfen
+
+```sh
+npm run lint
+npm test
+npm run test:coverage
+npm run docs:sync
+npm run docs:check
+npm run verify
+```
+
+`docs:sync` erzeugt [Beispielszenarien](docs/EXAMPLES.md) aus Test-Fixtures und Berechnungskern. `docs:check` prüft Dokumentationsverweise und die Aktualität dieser Datei, ohne Dateien zu ändern.
+
+## Umfang und Grenzen
+
+Alle Beträge sind nominal und werden centgenau berechnet. Es gibt weder Zinsen noch Inflation. CashflowPlanner plant keine Depotverkäufe, Kredite, Transaktionen oder Konten. Die errechnete Freigabe von Cash ist eine hypothetische Möglichkeit, keine Anlageempfehlung. Daten werden lokal im Browser gespeichert; ein JSON-Export dient als manuelle Sicherung. Auf gemeinsam genutzten Geräten sind lokale Browserdaten zugänglich.
+
+Fachliche Details: [Produkt](docs/PRODUCT.md), [Algorithmus](docs/ALGORITHM.md), [Architektur](docs/ARCHITECTURE.md), [Datenformat](docs/DATA_FORMAT.md).

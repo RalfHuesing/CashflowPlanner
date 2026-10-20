@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#176b59">
+    <title>CashflowPlanner · Deine Liquidität im Blick</title>
+    <link rel="stylesheet" href="css/main.css">
+    <script type="module" src="js/main.js">
+    </script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Zum Inhalt springen</a>
+    <header class="app-header">
+      <div class="brand">
+        <span class="brand-icon" aria-hidden="true">↗</span>
+        <div>
+          <strong>CashflowPlanner</strong>
+          <span>So wenig Cash wie möglich, so viel wie nötig.</span>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button id="sample-button" class="button subtle">Beispiel laden</button>
+        <button id="export-button" class="button subtle">Exportieren</button>
+        <button id="import-button" class="button subtle">Importieren</button>
+        <input id="import-file" type="file" accept=".json,application/json" hidden>
+      </div>
+    </header>
+    <nav class="primary-nav" aria-label="Hauptnavigation">
+      <a href="#uebersicht" data-view="overview" aria-current="page">
+        <span aria-hidden="true">◫</span> Übersicht</a>
+      <a href="#ziele" data-view="goals">
+        <span aria-hidden="true">◎</span> Ziele <span id="nav-goal-count" class="nav-count">0</span>
+      </a>
+      <a href="#zeitplan" data-view="timeline">
+        <span aria-hidden="true">↗</span> Zeitplan</a>
+    </nav>
+    <main id="main">
+      <div class="page-heading">
+        <div>
+          <p class="eyebrow">DEINE LIQUIDITÄTSPLANUNG</p>
+          <h1 id="page-title" tabindex="-1">Deine Übersicht</h1>
+          <p id="page-description">Wie viel Cash brauchst du heute – und was bleibt dir langfristig?</p>
+        </div>
+        <p class="local-badge">● Nur in deinem Browser gespeichert</p>
+      </div>
+      <p id="app-message" class="notice" role="status" hidden>
+      </p>
+      <section id="overview-view" class="app-view" aria-label="Übersicht">
+        <p id="stale-notice" class="notice" hidden>
+        </p>
+        <div class="overview-layout">
+          <section class="panel">
+            <div class="section-heading">
+              <h2>Ausgangslage</h2>
+              <span class="muted small">in Euro</span>
+            </div>
+            <form id="settings-form" novalidate>
+              <label for="cashCents">Aktueller Cashbestand</label>
+              <div class="money-input">
+                <input id="cashCents" name="cashCents" inputmode="decimal" autocomplete="off" aria-describedby="cash-help settings-error">
+                <span>€</span>
+              </div>
+              <p id="cash-help" class="field-help">Dein tatsächlich heute verfügbarer Bestand.</p>
+              <div class="field-row">
+                <div>
+                  <label for="monthlyCents">Monatlich verfügbar</label>
+                  <div class="money-input">
+                    <input id="monthlyCents" name="monthlyCents" inputmode="decimal" autocomplete="off">
+                    <span>€</span>
+                  </div>
+                </div>
+                <div>
+                  <label for="reserveCents">Mindestreserve</label>
+                  <div class="money-input">
+                    <input id="reserveCents" name="reserveCents" inputmode="decimal" autocomplete="off">
+                    <span>€</span>
+                  </div>
+                </div>
+              </div>
+              <div class="field-row">
+                <div>
+                  <label for="currentAge">Aktuelles Alter</label>
+                  <input id="currentAge" name="currentAge" type="number" min="0" max="120" step="1">
+                </div>
+                <div>
+                  <label for="horizonAge">Planung bis Alter</label>
+                  <input id="horizonAge" name="horizonAge" type="number" min="0" max="120" step="1">
+                </div>
+              </div>
+              <p id="settings-error" class="error-text" role="status">
+              </p>
+              <button type="button" id="confirm-cash" class="text-button">Cashbestand als aktuell bestätigen</button>
+            </form>
+          </section>
+          <div class="overview-results">
+            <section aria-labelledby="evaluation-heading">
+              <div class="section-heading">
+                <h2 id="evaluation-heading">Deine Auswertung</h2>
+                <span id="plan-status" class="status-badge">
+                </span>
+              </div>
+              <div id="summary" class="summary-grid">
+              </div>
+              <p id="explanation" class="explanation" aria-live="polite">
+              </p>
+              <div id="overdue-notice" class="notice" hidden>
+              </div>
+              <div id="excluded-notice" class="notice" hidden>
+              </div>
+              <div id="flexibility-note" class="notice" hidden>
+              </div>
+            </section>
+            <div class="next-step">
+              <h2>Deine Planung im Detail</h2>
+              <p>Verwalte anstehende Ausgaben oder prüfe, wann du Cash zurücklegen solltest.</p>
+              <a class="button subtle" href="#ziele">Ziele verwalten →</a>
+              <a class="button primary" href="#zeitplan">Zeitplan ansehen →</a>
+            </div>
+          </div>
+        </div>
+        <details class="panel assumptions">
+          <summary>Wie wird gerechnet?</summary>
+          <p>Cash wird so spät wie möglich angespart. Ab dem nächsten Kalendermonat erfolgt die Zuführung vor den Ausgaben. Offene Ausgaben im aktuellen Monat werden aus deinem heutigen Bestand bezahlt; für diesen Monat wird keine zusätzliche Sparrate angenommen.</p>
+          <p>Die Planung rechnet nominal, ohne Zinsen, Inflation, Steuern oder Renditen. Altersangaben sind näherungsweise; Fälligkeiten werden kalendermonatsgenau berechnet. Wiederkehrende Ausgaben werden nur bis zum Planungshorizont berücksichtigt.</p>
+          <p>Ein freigebbarer Überschuss setzt voraus, dass du künftig bei Bedarf den gesamten verfügbaren Monatsbetrag für Cash einsetzen kannst. Er ist keine Empfehlung für eine Investition.</p>
+          <p id="horizon-note">
+          </p>
+        </details>
+      </section>
+      <section id="goals-view" class="app-view" aria-label="Finanzielle Ziele" hidden>
+        <div class="goals-toolbar">
+          <div class="goals-toolbar-heading">
+            <div>
+              <h2>Finanzielle Ziele <span id="goal-count" class="count">0</span>
+              </h2>
+              <p class="muted small">Alle Ausgaben teilen sich deinen gemeinsamen Cashbestand.</p>
+            </div>
+            <button id="add-goal" class="button primary">+ Ziel hinzufügen</button>
+          </div>
+          <div class="goal-filters">
+            <div class="search-field">
+              <label for="goal-search" class="sr-only">Ziele suchen</label>
+              <input id="goal-search" type="search" placeholder="Ziele nach Namen suchen …" autocomplete="off">
+            </div>
+            <div class="sort-field">
+              <label for="goal-sort">Sortieren nach</label>
+              <select id="goal-sort">
+                <option value="due">Fälligkeit</option>
+                <option value="name">Bezeichnung</option>
+                <option value="amount">Betrag (absteigend)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="panel goals-panel">
+          <p id="goal-results-status" class="small muted" role="status">
+          </p>
+          <div id="goal-list">
+          </div>
+          <nav class="goal-pagination" aria-label="Seiten der Zielliste">
+            <button id="goals-previous" class="button subtle">← Zurück</button>
+            <span id="goals-page" class="small" tabindex="-1">
+            </span>
+            <button id="goals-next" class="button subtle">Weiter →</button>
+          </nav>
+        </div>
+      </section>
+      <section id="timeline-view" class="app-view timeline-layout" aria-label="Zeitplan" hidden>
+        <section class="panel chart-panel" aria-labelledby="chart-heading">
+          <div class="section-heading">
+            <div>
+              <h2 id="chart-heading">So entwickelt sich dein Cash</h2>
+              <p class="muted small">Monatliche Endstände über deinen Planungshorizont</p>
+            </div>
+          </div>
+          <fieldset class="scenario-switch">
+            <legend class="sr-only">Szenario wählen</legend>
+            <label>
+              <input type="radio" name="scenario" value="keep" checked> Cash behalten</label>
+            <label>
+              <input type="radio" name="scenario" value="release"> Überschuss freigeben</label>
+            <label id="flex-option" hidden>
+              <input type="radio" name="scenario" value="flexibility"> Termine verschieben</label>
+          </fieldset>
+          <p id="scenario-description" class="field-help">
+          </p>
+          <div id="chart">
+          </div>
+          <div class="legend">
+            <span>
+              <i class="line cash-line">
+              </i> Cashbestand</span>
+            <span>
+              <i class="line required-line">
+              </i> Erforderlicher Bestand</span>
+            <span>
+              <i class="line reserve-line">
+              </i> Mindestreserve</span>
+            <span>
+              <i class="event-dot">
+              </i> Ausgabe</span>
+          </div>
+        </section>
+        <section class="panel" aria-labelledby="monthly-heading">
+          <div class="section-heading">
+            <h2 id="monthly-heading">Deine nächsten 12 Monate</h2>
+            <span class="muted small">Ab nächstem Monat</span>
+          </div>
+          <div id="monthly-plan">
+          </div>
+        </section>
+      </section>
+      <p id="save-status" class="save-status" role="status">Änderungen werden automatisch gespeichert.</p>
+    </main>
+    <footer>
+      <strong>CashflowPlanner</strong>
+      <p>Deine Planung bleibt lokal. Beim Löschen der Browserdaten kann sie verloren gehen. Sichere sie regelmäßig per JSON-Export. Lokale Daten sind nicht automatisch verschlüsselt.</p>
+    </footer>
+    <dialog id="goal-dialog" aria-labelledby="goal-dialog-title">
+      <form id="goal-form" novalidate>
+        <div class="section-heading">
+          <h2 id="goal-dialog-title">Neues Ziel</h2>
+          <button type="button" id="close-goal" class="icon-button" aria-label="Dialog schließen">×</button>
+        </div>
+        <label for="goal-name">Bezeichnung</label>
+        <input id="goal-name" name="name" maxlength="120" required placeholder="Zum Beispiel Urlaub">
+        <label for="goal-amount">Betrag in Euro</label>
+        <input id="goal-amount" name="amount" inputmode="decimal" required placeholder="5.000,00">
+        <div class="field-row">
+          <div>
+            <label for="goal-month">Erste Fälligkeit</label>
+            <input id="goal-month" name="dueMonth" type="month" min="1900-01" max="9999-12" required>
+          </div>
+          <div>
+            <label for="goal-type">Wiederholung</label>
+            <select id="goal-type" name="type">
+              <option value="once">Einmalig</option>
+              <option value="annual">Jährlich</option>
+            </select>
+          </div>
+        </div>
+        <label for="goal-flex">Zeitlicher Spielraum (± Monate)</label>
+        <input id="goal-flex" name="flexMonths" type="number" min="0" max="1200" step="1" value="0">
+        <p class="field-help">Der normale Plan verwendet immer deinen Wunschtermin.</p>
+        <p id="goal-error" role="status" class="error-text">
+        </p>
+        <div class="dialog-actions">
+          <button type="button" id="cancel-goal" class="button subtle">Abbrechen</button>
+          <button class="button primary" type="submit">Ziel speichern</button>
+        </div>
+      </form>
+    </dialog>
+    <dialog id="confirm-dialog" aria-labelledby="confirm-title">
+      <h2 id="confirm-title">Planung ersetzen?</h2>
+      <p id="confirm-description">
+      </p>
+      <div class="dialog-actions">
+        <button id="confirm-cancel" class="button subtle">Abbrechen</button>
+        <button id="confirm-accept" class="button primary">Planung ersetzen</button>
+      </div>
+    </dialog>
+    <noscript>Bitte aktiviere JavaScript, um deine Liquiditätsplanung zu berechnen.</noscript>
+  </body>
+</html>

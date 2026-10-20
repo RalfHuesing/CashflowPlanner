@@ -1,0 +1,22 @@
+{
+  "name": "cashflow-planner",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node scripts/dev-server.mjs",
+    "lint": "eslint . --max-warnings 0",
+    "test": "node --test",
+    "test:coverage": "node --test --experimental-test-coverage",
+    "docs:sync": "node scripts/docs-sync.mjs",
+    "docs:check": "node scripts/docs-check.mjs",
+    "verify": "npm run lint && npm run test:coverage && npm run docs:check"
+  },
+  "devDependencies": {
+    "eslint": "10.13.0",
+    "globals": "17.13.0"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}
