@@ -80,16 +80,19 @@
   margin: 0;
 }
 
+.start-audience,
 .start-philosophy {
   padding: 24px 28px;
 }
 
+.start-audience h3,
 .start-philosophy h3 {
   font-size: 1.1rem;
   margin-bottom: 12px;
   color: var(--ink);
 }
 
+.start-audience p,
 .start-philosophy p {
   font-size: .92rem;
   color: var(--muted);
@@ -97,10 +100,12 @@
   margin: 0 0 10px;
 }
 
+.start-audience p:last-child,
 .start-philosophy p:last-child {
   margin-bottom: 0;
 }
 
+.start-audience strong,
 .start-philosophy strong {
   color: var(--ink);
 }
@@ -136,6 +141,7 @@
     gap: 14px;
   }
 
+  .start-audience,
   .start-philosophy {
     padding: 20px 18px;
   }
