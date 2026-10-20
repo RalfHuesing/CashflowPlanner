@@ -19,7 +19,7 @@ Cash_erforderlich_heute = E[0] + F[0]
 Lücke_heute = max(0, Cash_erforderlich_heute - Cash_aktuell)
 ```
 
-Die Formel rechnet die maximal möglichen künftigen Zuführungen rückwärts ein. Sie liefert das minimale Startkapital für **alle Ziele bis zum Planungshorizont** unter den Modellannahmen; es ist nicht der Betrag der heutigen Ausgaben oder eine pauschale Empfehlung, diese Summe heute vorzuhalten. Für einen 60-jährigen Horizont kann dieser Modellwert groß werden, wenn Zielausgaben jährlich steigen, `M` aber fest bleibt. Die Oberfläche trennt deshalb aktuelle Ausgaben, tatsächlichen Cashbestand, langfristigen Modellbedarf und ersten Engpass.
+Die Formel rechnet die maximal möglichen künftigen Zuführungen rückwärts ein. Sie liefert das minimale Startkapital für **alle Ziele bis zum Planungshorizont** unter den Modellannahmen; es ist nicht der Betrag der heutigen Ausgaben oder eine pauschale Empfehlung, diese Summe heute vorzuhalten. Für einen 60-jährigen Horizont kann dieser Modellwert groß werden, wenn Zielausgaben jährlich steigen, `M` aber fest bleibt. Die Oberfläche trennt deshalb aktuelle Ausgaben, tatsächlichen Cashbestand, heute nötigen Cashbestand und ersten Engpass.
 
 ## Monatsplan und Unterdeckung
 

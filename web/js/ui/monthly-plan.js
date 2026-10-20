@@ -10,7 +10,7 @@ export function renderMonthlyPlan(plan) {
   if (!plan.feasible) {
     currentMonth.classList.add('notice');
     container.replaceChildren(
-      node('p', 'notice', 'Der gleichbleibende Monatsbetrag reicht zusammen mit dem heutigen Bestand bei der eingestellten Inflation auf Zielbeträge nicht für den gesamten Planungshorizont. Die Vorschau zeigt den Verlauf bei voller monatlicher Zuführung. Sie ist kein finanzierbarer Sparplan; der langfristige Modellbedarf muss nicht pauschal heute vorgehalten werden.'),
+      node('p', 'notice', 'Der gleichbleibende Monatsbetrag reicht zusammen mit dem heutigen Bestand bei der eingestellten Inflation auf Zielbeträge nicht für den gesamten Planungshorizont. Die Vorschau zeigt den Verlauf bei voller monatlicher Zuführung. Sie ist kein finanzierbarer Sparplan; der heute nötige Cashbestand muss nicht pauschal heute vorgehalten werden.'),
       currentMonth,
     );
     const critical = plan.rows.find((row) => row.month === plan.firstCriticalMonth);

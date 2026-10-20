@@ -119,7 +119,7 @@
           <summary>Wie wird gerechnet?</summary>
           <p>Cash wird so spät wie möglich angespart. Ab dem nächsten Kalendermonat erfolgt die Zuführung vor den Ausgaben. Offene Ausgaben im aktuellen Monat werden aus deinem heutigen Bestand bezahlt; für diesen Monat wird keine zusätzliche Sparrate angenommen.</p>
           <p>Zukünftige Zielzahlungen und die Mindestreserve steigen mit der eingestellten jährlichen Inflation. Der verfügbare Monatsbetrag bleibt in jedem künftigen Monat nominal gleich. Bei 0 % gibt es keine Inflation. Zinsen, Steuern und Renditen werden nicht berücksichtigt. Altersangaben sind näherungsweise; Fälligkeiten werden kalendermonatsgenau berechnet. Wiederkehrende Ausgaben werden nur bis zum Planungshorizont berücksichtigt.</p>
-          <p>Der langfristige Modellbedarf berechnet den benötigten Bestand für Ziele über den gesamten Planungshorizont, unter Berücksichtigung der gleichbleibenden Monatszuführungen und der Mindestreserve. Er ist ein Rechenwert und keine Empfehlung, diesen Betrag heute vorzuhalten. Ein Fehlbetrag zeigt, dass der heutige Bestand und der gleichbleibende Monatsbetrag unter den getroffenen Annahmen nicht für alle Ziele reichen.</p>
+          <p>Der heute nötige Cashbestand berechnet das benötigte Startkapital für Ziele über den gesamten Planungshorizont, unter Berücksichtigung der gleichbleibenden Monatszuführungen und der Mindestreserve. Er ist ein Rechenwert und keine Empfehlung, diesen Betrag heute vorzuhalten. Ein fehlender Cashbestand zeigt, dass der heutige Bestand und der gleichbleibende Monatsbetrag unter den getroffenen Annahmen nicht für alle Ziele reichen.</p>
           <p id="horizon-note">
           </p>
         </details>
@@ -229,10 +229,6 @@
           <label for="goal-end-month">Letzte Fälligkeit (optional)</label>
           <input id="goal-end-month" name="endMonth" type="month" min="1900-01" max="9999-12" disabled aria-describedby="goal-end-month-help goal-error">
           <p id="goal-end-month-help" class="field-help">Der Monat zählt noch mit. Ohne Endmonat bleibt das jährliche Ziel bis zum Ende des Planungshorizonts bestehen.<span id="goal-end-month-age" class="month-age"></span></p>
-        </div>
-        <div hidden>
-          <label for="goal-flex">Zeitlicher Spielraum</label>
-          <input id="goal-flex" name="flexMonths" type="number" min="0" max="1200" step="1" value="0">
         </div>
         <p id="goal-error" role="status" class="error-text">
         </p>
