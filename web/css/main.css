@@ -628,6 +628,23 @@ dialog::backdrop {
   .legend {
     gap: 10px;
   }
+  .monthly-pagination {
+    justify-content: center;
+  }
+  .monthly-pagination button {
+    flex: 1 1 120px;
+  }
+  .monthly-year-picker {
+    width: 100%;
+    text-align: center;
+  }
+  .monthly-year-select {
+    width: 100%;
+  }
+  .monthly-page-info {
+    width: 100%;
+    text-align: center;
+  }
   footer {
     margin: 0 16px;
     padding: 22px 0;
@@ -890,12 +907,58 @@ h1 {
 .current-month-summary span {
   color: var(--muted);
 }
-.timeline-layout table {
+.timeline-layout table,
+.monthly-layout table {
   font-size: .86rem;
 }
-.timeline-layout td {
+.timeline-layout td,
+.monthly-layout td {
   padding-top: 14px;
   padding-bottom: 14px;
+}
+.monthly-layout {
+  display: grid;
+  gap: 24px;
+}
+.monthly-layout .panel {
+  padding: 25px;
+}
+.monthly-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 18px 0;
+  padding: 12px 16px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+.monthly-pagination button {
+  min-width: 135px;
+}
+.monthly-year-select {
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: #fff;
+  font-size: .86rem;
+  font-weight: 500;
+  color: var(--text);
+  cursor: pointer;
+}
+.monthly-page-info {
+  font-size: .82rem;
+  color: var(--muted);
+  font-weight: 500;
+}
+.event-note {
+  display: block;
+  font-size: .74rem;
+  color: var(--green);
+  margin-top: 3px;
+  font-weight: 500;
 }
 .timeline-layout .chart-panel .section-heading {
   margin-bottom: 20px;

@@ -34,6 +34,8 @@
       </a>
       <a href="#zeitplan" data-view="timeline">
         <span aria-hidden="true">↗</span> Zeitplan</a>
+      <a href="#monatsplan" data-view="monthly">
+        <span aria-hidden="true">▤</span> Monatsplan</a>
     </nav>
     <main id="main">
       <div class="page-heading">
@@ -187,10 +189,14 @@
               </i> Ausgabe</span>
           </div>
         </section>
+      </section>
+      <section id="monthly-view" class="app-view monthly-layout" aria-label="Monatsplan" hidden>
         <section class="panel" aria-labelledby="monthly-heading">
           <div class="section-heading">
-            <h2 id="monthly-heading">Deine nächsten 12 Monate</h2>
-            <span class="muted small">Ab nächstem Monat</span>
+            <div>
+              <h2 id="monthly-heading">Monatsplan</h2>
+              <p class="muted small">Monatsgenaue Cash-Zuführungen und Endstände bis zum Planungsende</p>
+            </div>
           </div>
           <div id="monthly-plan">
           </div>

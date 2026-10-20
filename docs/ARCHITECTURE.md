@@ -1,6 +1,6 @@
 # Architektur
 
-Die statische Anwendung besteht aus `web/index.html`, lokalem CSS und ES Modules. `web/js/main.js` verbindet Eingaben, Berechnung, lokale Speicherung und Darstellung. Die Navigation zeigt drei Ansichten über lokale Hash-Links: Übersicht, Ziele und Zeitplan. Die Zielansicht filtert, sortiert und paginiert die Eingaben, damit auch große Listen bedienbar bleiben. Die Module in `web/js/ui/` erzeugen Navigation, Zielverwaltung, Kennzahlen, SVG-Grafik und Monatstabelle. Sie enthalten keine eigene Finanzmathematik.
+Die statische Anwendung besteht aus `web/index.html`, lokalem CSS und ES Modules. `web/js/main.js` verbindet Eingaben, Berechnung, lokale Speicherung und Darstellung. Die Navigation zeigt vier Ansichten über lokale Hash-Links: Übersicht, Ziele, Zeitplan und Monatsplan. Die Zielansicht filtert, sortiert und paginiert die Eingaben, damit auch große Listen bedienbar bleiben. Die Module in `web/js/ui/` erzeugen Navigation, Zielverwaltung, Kennzahlen, SVG-Grafik und Monatstabelle. Sie enthalten keine eigene Finanzmathematik.
 
 `web/js/domain/` enthält pure, browserunabhängige Funktionen für Kalender, Zielereignisse, Inflationshochrechnung, Rückwärtsbedarf und den einzigen Cashplan. Geld wird intern als ganzzahlige Centzahl gehalten; der jährliche Inflationssatz wird als ganzzahlige Basispunkte gespeichert (200 = 2 %). Der Monatsbetrag bleibt in allen künftigen Monaten konstant. `web/js/data/` validiert gespeicherte und importierte Eingaben, kapselt LocalStorage und erzeugt den JSON-Export. Berechnete Ergebnisse werden nicht gespeichert.
 
