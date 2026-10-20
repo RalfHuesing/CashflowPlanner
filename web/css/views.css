@@ -80,31 +80,50 @@
   margin: 0;
 }
 
-.start-principle {
+.start-philosophy {
+  padding: 24px 28px;
+}
+
+.start-philosophy h3 {
+  font-size: 1.1rem;
+  margin-bottom: 12px;
+  color: var(--ink);
+}
+
+.start-philosophy p {
+  font-size: .92rem;
+  color: var(--muted);
+  line-height: 1.6;
+  margin: 0 0 10px;
+}
+
+.start-philosophy p:last-child {
+  margin-bottom: 0;
+}
+
+.start-philosophy strong {
+  color: var(--ink);
+}
+
+.start-privacy {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 24px;
-  padding: 26px 30px;
+  flex-direction: column;
+  gap: 6px;
+  padding: 18px 24px;
   background: #fbfdfc;
+  border-left: 3px solid var(--green);
 }
 
-.start-principle strong {
-  display: block;
-  font-size: 1.12rem;
+.start-privacy strong {
+  font-size: .98rem;
   color: var(--green);
-  margin-bottom: 4px;
 }
 
-.start-principle p {
+.start-privacy p {
   margin: 0;
   font-size: .88rem;
   color: var(--muted);
-}
-
-.start-principle .button {
-  white-space: nowrap;
-  text-decoration: none;
+  line-height: 1.5;
 }
 
 @media (max-width: 760px) {
@@ -117,10 +136,8 @@
     gap: 14px;
   }
 
-  .start-principle {
-    flex-direction: column;
-    text-align: center;
-    padding: 20px;
+  .start-philosophy {
+    padding: 20px 18px;
   }
 }
 
