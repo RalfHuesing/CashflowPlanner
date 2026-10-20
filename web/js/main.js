@@ -7,6 +7,7 @@ import { bindSettings, fillSettings } from './ui/settings-form.js';
 import { bindGoalForm, bindGoalList, renderGoals } from './ui/goals-form.js';
 import { renderSummary } from './ui/summary.js';
 import { renderChart } from './ui/chart.js';
+import { renderYearlyPlan } from './ui/yearly-plan.js';
 import { renderMonthlyPlan } from './ui/monthly-plan.js';
 import { money, monthLabel } from './ui/format.js';
 import { bindNavigation } from './ui/navigation.js';
@@ -30,6 +31,7 @@ function updateFreshness() {
 function renderResult() {
   renderSummary(plan, data.settings);
   renderChart(plan);
+  renderYearlyPlan(plan);
   renderMonthlyPlan(plan);
 }
 function render() {

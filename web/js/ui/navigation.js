@@ -2,6 +2,7 @@ const views = {
   uebersicht: { id: 'overview', title: 'Deine Übersicht', description: 'Dein aktueller Bestand, die Ausgaben dieses Monats und die Tragfähigkeit deiner Ziele.' },
   ziele: { id: 'goals', title: 'Deine finanziellen Ziele', description: 'Plane große Wünsche und regelmäßige Ausgaben an einem Ort.' },
   zeitplan: { id: 'timeline', title: 'Dein Zeitplan', description: 'Sieh, wann du Cash zurücklegen musst und wie sich dein Bestand entwickelt.' },
+  jahresplan: { id: 'yearly', title: 'Dein Jahresplan', description: 'Stapeldiagramm pro Jahr: Wieviel Cash du für Ausgaben zurücklegst und wieviel für langfristige Anlagen übrig bleibt.' },
   monatsplan: { id: 'monthly', title: 'Dein Monatsplan', description: 'Monatsgenauer Verlauf aller Ausgaben, Cash-Zuführungen und Endstände bis zum Planungsende.' },
 };
 

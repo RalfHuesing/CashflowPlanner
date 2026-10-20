@@ -701,6 +701,110 @@
 }
 
 /* ==========================================================================
+   Yearly Plan View (Jahresplan / Stapeldiagramm)
+   ========================================================================== */
+.yearly-layout {
+  display: grid;
+  gap: 24px;
+}
+
+.yearly-layout .chart-panel {
+  padding: 25px;
+}
+
+.yearly-kpis {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.yearly-chart-wrap {
+  position: relative;
+  max-width: 1100px;
+  margin: 16px auto 0;
+}
+
+.yearly-chart-wrap svg {
+  width: 100%;
+  height: auto;
+  overflow: visible;
+  display: block;
+}
+
+.bar-cash {
+  fill: #c47d2b;
+  transition: opacity .15s ease;
+}
+
+.bar-free {
+  fill: #176b59;
+  transition: opacity .15s ease;
+}
+
+.marker-expense {
+  fill: #b43b38;
+  stroke: #fff;
+  stroke-width: 1.5px;
+}
+
+.box {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+  vertical-align: middle;
+  margin-right: 6px;
+}
+
+.box.free-box {
+  background: #176b59;
+}
+
+.box.cash-box {
+  background: #c47d2b;
+}
+
+.diamond-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  background: #b43b38;
+  transform: rotate(45deg);
+  vertical-align: middle;
+  margin-right: 6px;
+}
+
+.yearly-tooltip {
+  min-height: 110px;
+}
+
+.tooltip-free {
+  color: #176b59;
+  font-weight: 600;
+}
+
+.tooltip-cash {
+  color: #c47d2b;
+  font-weight: 600;
+}
+
+.tooltip-expense {
+  color: #b43b38;
+  font-weight: 600;
+}
+
+@media (max-width: 760px) {
+  .yearly-layout .chart-panel {
+    padding: 18px;
+  }
+
+  .yearly-kpis {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+}
+
+/* ==========================================================================
    Motion & Animation
    ========================================================================== */
 @media (prefers-reduced-motion: no-preference) {

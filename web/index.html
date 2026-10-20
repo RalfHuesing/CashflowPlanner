@@ -36,6 +36,8 @@
       </a>
       <a href="#zeitplan" data-view="timeline">
         <span aria-hidden="true">↗</span> Zeitplan</a>
+      <a href="#jahresplan" data-view="yearly">
+        <span aria-hidden="true">▥</span> Jahresplan</a>
       <a href="#monatsplan" data-view="monthly">
         <span aria-hidden="true">▤</span> Monatsplan</a>
     </nav>
@@ -189,6 +191,41 @@
             <span>
               <i class="event-dot">
               </i> Ausgabe</span>
+          </div>
+        </section>
+      </section>
+      <section id="yearly-view" class="app-view yearly-layout" aria-label="Jahresplan" hidden>
+        <section class="panel chart-panel" aria-labelledby="yearly-heading">
+          <div class="section-heading">
+            <div>
+              <h2 id="yearly-heading">Cash vs. Übrig pro Jahr</h2>
+              <p class="muted small">Wieviel von deinem Sparbudget in Cash fließt und wieviel für langfristige Anlagen frei bleibt</p>
+            </div>
+          </div>
+          <div id="yearly-summary" class="yearly-summary">
+          </div>
+          <div id="yearly-chart" class="yearly-chart-container">
+          </div>
+          <div class="legend">
+            <span>
+              <i class="box free-box">
+              </i> Übrig für Vermögensaufbau</span>
+            <span>
+              <i class="box cash-box">
+              </i> In Cash zurückgelegt (für Konsum)</span>
+            <span>
+              <i class="diamond-dot">
+              </i> Tatsächliche Ausgaben</span>
+          </div>
+        </section>
+        <section class="panel" aria-labelledby="yearly-table-heading">
+          <div class="section-heading">
+            <div>
+              <h3 id="yearly-table-heading">Jahresübersicht im Detail</h3>
+              <p class="muted small">Alle Jahre mit freier Quote, Zuführungen und Ausgaben</p>
+            </div>
+          </div>
+          <div id="yearly-table-container">
           </div>
         </section>
       </section>
