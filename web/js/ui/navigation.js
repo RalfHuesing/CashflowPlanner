@@ -1,5 +1,5 @@
 const views = {
-  start: { id: 'start', title: 'Willkommen beim CashflowPlanner', description: 'So wenig Cash wie möglich, so viel wie nötig: Vorausschauende Liquiditätsplanung statt starrer Spartöpfe.' },
+  start: { id: 'start', title: 'Willkommen beim Cashflow-Planner', description: 'So wenig Cash wie möglich, so viel wie nötig: Vorausschauende Liquiditätsplanung statt starrer Spartöpfe.' },
   uebersicht: { id: 'overview', title: 'Deine Übersicht', description: 'Dein aktueller Bestand, die Ausgaben dieses Monats und die Tragfähigkeit deiner Ziele.' },
   ziele: { id: 'goals', title: 'Deine finanziellen Ziele', description: 'Plane große Wünsche und regelmäßige Ausgaben an einem Ort.' },
   zeitplan: { id: 'timeline', title: 'Dein Zeitplan', description: 'Sieh, wann du Cash zurücklegen musst und wie sich dein Bestand entwickelt.' },
@@ -21,7 +21,9 @@ export function bindNavigation() {
     const title = document.getElementById('page-title');
     title.textContent = view.title;
     document.getElementById('page-description').textContent = view.description;
-    document.title = `${view.title} · CashflowPlanner`;
+    document.title = view.id === 'start'
+      ? 'Cashflow-Planner · Deine Liquidität im Blick'
+      : `${view.title} · Cashflow-Planner`;
     if (moveFocus) {
       title.focus({ preventScroll: true });
       window.scrollTo({ top: 0, behavior: 'instant' });

@@ -234,7 +234,7 @@ export function parseImport(text) {
   if (!requiredTopKeys.every((k) => keys.includes(k)) || keys.some((k) => !allowedTopKeys.has(k))) {
     fail('Unbekanntes JSON-Datenformat.');
   }
-  if (parsed.format !== FORMAT_NAME) fail('Die Datei stammt nicht aus dem CashflowPlanner.');
+  if (parsed.format !== FORMAT_NAME) fail('Die Datei stammt nicht aus dem Cashflow-Planner.');
   if (parsed.version !== FORMAT_VERSION) fail('Diese Datenformat-Version wird nicht unterstützt.');
   validateTimestamp(parsed.exportedAt, 'exportedAt');
   return validateData(parsed.data);
