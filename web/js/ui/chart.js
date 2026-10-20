@@ -22,7 +22,7 @@ export function renderChart(plan) {
   const y = (cents) => top + (maximum - cents) / (maximum - minimum) * (height - top - bottom);
   const svg = svgNode('svg', {viewBox: `0 0 ${width} ${height}`, role: 'img', tabindex: '0', 'aria-labelledby': 'cash-chart-title', 'aria-describedby': 'chart-instructions chart-tooltip'});
   svg.append(svgNode('title', {id: 'cash-chart-title'}, 'Cashbestand und erforderliche Liquidität nach Monat, Jahr und Alter'));
-  const instructions = node('p', 'sr-only', 'Diagramm: Die waagerechte Achse zeigt Monat und Jahr sowie das ungefähre Alter. Mit Pfeiltasten einzelne Monate erkunden. Pos1 und Ende springen zum Anfang und Ende. Die Monatsvorschau steht als Tabelle unter dem Diagramm.');
+  const instructions = node('p', 'sr-only', 'Diagramm: Die waagerechte Achse zeigt Jahr und Alter. Mit Pfeiltasten einzelne Monate erkunden. Pos1 und Ende springen zum Anfang und Ende. Die Monatsvorschau steht als Tabelle unter dem Diagramm.');
   instructions.id = 'chart-instructions';
   for (let step = 0; step <= 4; step++) {
     const cents = minimum + (maximum - minimum) * step / 4;
@@ -35,11 +35,10 @@ export function renderChart(plan) {
     const index = Math.round((rows.length - 1) * step / 5);
     if (step && index === 0) continue;
     const tick = svgNode('text', {x:x(index), y:height-36, 'text-anchor':'middle', class:'chart-label'});
-    tick.append(svgNode('tspan', {x:x(index), dy:0}, `${rows[index].month.slice(5)}/${rows[index].month.slice(0, 4)}`));
+    tick.append(svgNode('tspan', {x:x(index), dy:0}, rows[index].month.slice(0, 4)));
     tick.append(svgNode('tspan', {x:x(index), dy:15}, `Alter ${formatAge(rows[index].age, { withUnit: false })}`));
     svg.append(tick);
   }
-  svg.append(svgNode('text', {x:width-right, y:height-2, 'text-anchor':'end', class:'chart-label'}, 'Monat/Jahr · Alter (Jahre, näherungsweise)'));
   const path = (key) => rows.map((row, index) => `${index ? 'L' : 'M'}${x(index).toFixed(2)},${y(row[key]).toFixed(2)}`).join(' ');
   const cashPath = path('cashCents');
   svg.append(svgNode('path', {d:`${cashPath} L${x(rows.length-1)},${y(0)} L${x(0)},${y(0)} Z`, class:'chart-fill'}));

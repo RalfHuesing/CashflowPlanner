@@ -402,7 +402,8 @@ input[aria-invalid=true] {
   padding: 10px 13px;
   border-radius: 6px;
   background: #f1f5f2;
-  min-height: 61px;
+  min-height: 96px;
+  box-sizing: border-box;
   font-size: .74rem;
   margin: 0 10px;
   line-height: 1.7;
@@ -619,7 +620,7 @@ dialog::backdrop {
     font-size: 1.5rem;
   }
   .chart-tooltip {
-    min-height: 95px;
+    min-height: 120px;
   }
   .chart-label {
     font-size: 13px;
