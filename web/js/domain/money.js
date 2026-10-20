@@ -16,6 +16,16 @@ export function assertCents(value, name = 'Betrag', positive = false) {
   return value;
 }
 
+export function inflateAmount(cents, inflationBps = DEFAULT_INFLATION_BPS, monthIndex = 0, name = 'Betrag') {
+  if (inflationBps === 0 || monthIndex === 0 || cents === 0) return cents;
+  const inflated = Math.round(cents * (1 + inflationBps / 10000) ** (monthIndex / 12));
+  if (!Number.isSafeInteger(inflated)) {
+    const article = name === 'Mindestreserve' ? 'Die' : 'Der';
+    throw new RangeError(`${article} ${name} mit Inflation ist zu groß.`);
+  }
+  return inflated;
+}
+
 export function safeSum(a, b) {
   const result = a + b;
   if (!Number.isSafeInteger(result)) throw new RangeError('Der Gesamtbetrag ist zu groß.');

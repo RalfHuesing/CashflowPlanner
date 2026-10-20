@@ -89,12 +89,12 @@
                   <input id="horizonAge" name="horizonAge" type="number" min="0" max="120" step="1">
                 </div>
               </div>
-              <label for="inflationBps">Jährliche Inflation für Zielzahlungen</label>
+              <label for="inflationBps">Jährliche Inflation</label>
               <div class="money-input">
                 <input id="inflationBps" name="inflationBps" inputmode="decimal" autocomplete="off" aria-describedby="inflation-help settings-error">
                 <span>%</span>
               </div>
-              <p id="inflation-help" class="field-help">Diese Annahme erhöht künftige Zielbeträge. Dein verfügbarer Monatsbetrag bleibt gleich; 0 % schaltet die Inflation für Ziele aus.</p>
+              <p id="inflation-help" class="field-help">Diese Annahme erhöht künftige Zielbeträge und die Mindestreserve. Dein verfügbarer Monatsbetrag bleibt gleich; 0 % schaltet die Inflation aus.</p>
               <p id="settings-error" class="error-text" role="status">
               </p>
               <button type="button" id="confirm-cash" class="text-button">Cashbestand als aktuell bestätigen</button>
@@ -127,7 +127,7 @@
         <details class="panel assumptions">
           <summary>Wie wird gerechnet?</summary>
           <p>Cash wird so spät wie möglich angespart. Ab dem nächsten Kalendermonat erfolgt die Zuführung vor den Ausgaben. Offene Ausgaben im aktuellen Monat werden aus deinem heutigen Bestand bezahlt; für diesen Monat wird keine zusätzliche Sparrate angenommen.</p>
-          <p>Zukünftige Zielzahlungen steigen mit der eingestellten jährlichen Inflation. Der verfügbare Monatsbetrag bleibt in jedem künftigen Monat nominal gleich; die Mindestreserve bleibt ebenfalls gleich. Bei 0 % gibt es keine Inflation auf Ziele. Zinsen, Steuern und Renditen werden nicht berücksichtigt. Altersangaben sind näherungsweise; Fälligkeiten werden kalendermonatsgenau berechnet. Wiederkehrende Ausgaben werden nur bis zum Planungshorizont berücksichtigt.</p>
+          <p>Zukünftige Zielzahlungen und die Mindestreserve steigen mit der eingestellten jährlichen Inflation. Der verfügbare Monatsbetrag bleibt in jedem künftigen Monat nominal gleich. Bei 0 % gibt es keine Inflation. Zinsen, Steuern und Renditen werden nicht berücksichtigt. Altersangaben sind näherungsweise; Fälligkeiten werden kalendermonatsgenau berechnet. Wiederkehrende Ausgaben werden nur bis zum Planungshorizont berücksichtigt.</p>
           <p>Der langfristige Modellbedarf berechnet den benötigten Bestand für Ziele über den gesamten Planungshorizont, unter Berücksichtigung der gleichbleibenden Monatszuführungen und der Mindestreserve. Er ist ein Rechenwert und keine Empfehlung, diesen Betrag heute vorzuhalten. Ein Fehlbetrag zeigt, dass der heutige Bestand und der gleichbleibende Monatsbetrag unter den getroffenen Annahmen nicht für alle Ziele reichen.</p>
           <p id="horizon-note">
           </p>

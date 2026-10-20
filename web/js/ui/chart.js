@@ -6,15 +6,15 @@ function svgNode(tag, attributes = {}, text) {
   if (text !== undefined) element.textContent = text;
   return element;
 }
-export function renderChart(plan, settings) {
+export function renderChart(plan) {
   const container = document.getElementById('chart');
   const rows = plan.rows;
   const width = 820; const height = 300;
   const left = 77; const right = 20; const top = 20; const bottom = 53;
   let minimum = 0; let maximum = 0;
   for (const row of rows) {
-    minimum = Math.min(minimum, row.cashCents);
-    maximum = Math.max(maximum, row.cashCents, row.requiredCents, settings.reserveCents);
+    minimum = Math.min(minimum, row.cashCents, row.reserveCents);
+    maximum = Math.max(maximum, row.cashCents, row.requiredCents, row.reserveCents);
   }
   const range = Math.max(maximum - minimum, 10000);
   maximum += range * 0.08; minimum -= minimum < 0 ? range * 0.05 : 0;
@@ -44,10 +44,10 @@ export function renderChart(plan, settings) {
   const cashPath = path('cashCents');
   svg.append(svgNode('path', {d:`${cashPath} L${x(rows.length-1)},${y(0)} L${x(0)},${y(0)} Z`, class:'chart-fill'}));
   for (let index = 1; index < rows.length; index++) {
-    if (rows[index].cashCents >= settings.reserveCents && rows[index-1].cashCents >= settings.reserveCents) continue;
+    if (rows[index].cashCents >= rows[index].reserveCents && rows[index-1].cashCents >= rows[index-1].reserveCents) continue;
     svg.append(svgNode('rect', {x:x(index-1), y:top, width:Math.max(1,x(index)-x(index-1)), height:height-top-bottom, fill:'#b43b3814'}));
   }
-  svg.append(svgNode('line', {x1:left,x2:width-right,y1:y(settings.reserveCents),y2:y(settings.reserveCents),class:'chart-reserve'}));
+  svg.append(svgNode('path', {d:path('reserveCents'), class:'chart-reserve', fill:'none'}));
   svg.append(svgNode('path', {d:path('requiredCents'),class:'chart-required'}), svgNode('path', {d:cashPath,class:'chart-cash'}));
   for (const row of rows.filter((entry) => entry.events.length)) {
     const marker = svgNode('circle', {cx:x(row.index),cy:y(row.cashCents),r:3.3,fill:'#876846',stroke:'#fff','stroke-width':1});
@@ -65,7 +65,10 @@ export function renderChart(plan, settings) {
     const row = rows[index];
     indicator.setAttribute('x1',x(index)); indicator.setAttribute('x2',x(index));
     const date = node('strong','',`${monthLabel(row.month)} · Alter ${formatAge(row.age, { withUnit: false })}`);
-    const detail = node('span','',`Cash: ${money(row.cashCents)} · Erforderlich: ${money(row.requiredCents)} · Ausgaben: ${money(row.expenseCents)}`);
+    const detailText = row.reserveCents > 0
+      ? `Cash: ${money(row.cashCents)} · Erforderlich: ${money(row.requiredCents)} · Reserve: ${money(row.reserveCents)} · Ausgaben: ${money(row.expenseCents)}`
+      : `Cash: ${money(row.cashCents)} · Erforderlich: ${money(row.requiredCents)} · Ausgaben: ${money(row.expenseCents)}`;
+    const detail = node('span','',detailText);
     tooltip.replaceChildren(date,node('br'),detail);
     if (row.events.length) tooltip.append(node('br'),node('span','',row.events.map((event) => event.name).join(', ')));
   };

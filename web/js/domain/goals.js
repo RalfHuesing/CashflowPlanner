@@ -1,5 +1,5 @@
 import {addMonths, monthDifference, monthNumber} from './calendar.js';
-import {assertCents, assertInflationBps, DEFAULT_INFLATION_BPS, safeSum} from './money.js';
+import {assertCents, assertInflationBps, DEFAULT_INFLATION_BPS, inflateAmount, safeSum} from './money.js';
 
 export function validateGoal(goal) {
   if (!goal || typeof goal !== 'object' || Array.isArray(goal)) throw new TypeError('Ungültiges Ziel.');
@@ -67,8 +67,7 @@ export function generateEvents(goals, startMonth, horizon, inflationBps = DEFAUL
     const indices = occurrenceIndices(goal, dueIndex, lastMonthIndex);
     for (const index of indices) {
       const overdueOccurrence = overdue && index === 0;
-      const amountCents = Math.round(goal.amountCents * (1 + inflationBps / 10000) ** (index / 12));
-      if (!Number.isSafeInteger(amountCents)) throw new RangeError('Der Zielbetrag mit Inflation ist zu groß.');
+      const amountCents = inflateAmount(goal.amountCents, inflationBps, index, 'Zielbetrag');
       events.push({goalId: goal.id, name: goal.name, amountCents,
         index, month: addMonths(startMonth, index),
         originalMonth: overdueOccurrence ? goal.dueMonth : addMonths(startMonth, index),

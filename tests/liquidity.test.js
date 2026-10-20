@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {calculateLiquidity, validateSettings} from '../web/js/domain/liquidity.js';
+import {calculateLiquidity, reserveAtMonth, validateSettings} from '../web/js/domain/liquidity.js';
 import {buildPlan} from '../web/js/domain/scenarios.js';
 
 const fixtures = JSON.parse(readFileSync(new URL('./fixtures/scenarios.json', import.meta.url), 'utf8'));
@@ -37,4 +37,12 @@ test('invalid settings and expense input are rejected', () => {
     assert.throws(() => validateSettings({...settings, inflationBps}), RangeError);
   }
   for (const inflationBps of [0, 200, 10000]) assert.equal(validateSettings({...settings, inflationBps}).inflationBps, inflationBps);
+});
+
+test('reserveAtMonth compounds reserve with inflation and rejects overflow', () => {
+  assert.equal(reserveAtMonth(10000, 200, 12), 10200);
+  assert.equal(reserveAtMonth(10000, 200, 24), 10404);
+  assert.equal(reserveAtMonth(10000, 0, 120), 10000);
+  assert.equal(reserveAtMonth(0, 500, 120), 0);
+  assert.throws(() => reserveAtMonth(10_000_000_000, 10000, 240), /zu groß/u);
 });

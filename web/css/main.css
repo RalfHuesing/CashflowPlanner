@@ -399,6 +399,7 @@ input[aria-invalid=true] {
   stroke: #9a7a49;
   stroke-dasharray: 3 4;
   stroke-width: 1;
+  fill: none;
 }
 .chart-fill {
   fill: #176b590c;

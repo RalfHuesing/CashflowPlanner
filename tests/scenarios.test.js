@@ -102,12 +102,12 @@ test('deterministic generated cases uphold cash balance, feasibility and monoton
   }
 });
 
-test('expenses follow inflation while monthly capacity and the reserve stay nominal', () => {
+test('expenses and the minimum reserve follow inflation while monthly capacity stays nominal', () => {
   const input = {...settings, cashCents: 200, inflationBps: 200};
   const result = buildPlan(input, [{...goal, dueMonth: '2027-10', flexMonths: 12}], '2026-10');
   assert.equal(result.expensesCents[12], 1020);
-  assert.equal(result.rows[12].cashCents, 200);
-  assert.equal(result.rows[12].requiredCents, 200);
+  assert.equal(result.rows[12].reserveCents, 204);
+  assert.equal(result.rows[12].requiredCents, 204);
   assert.equal(result.events[0].amountCents, 1020);
   for (const row of result.rows.slice(1)) {
     assert.equal(row.contributionCents + row.longTermCents, 100);
@@ -131,8 +131,8 @@ test('a long horizon with fixed nominal capacity includes inflation-driven futur
     id: String(index), name: `Payment ${index}`, amountCents, dueMonth, type, flexMonths: 0,
   }));
   const plan = buildPlan(input, goals, '2026-10');
-  assert.equal(plan.requiredTodayCents, 17_980_743);
-  assert.equal(plan.gapCents, 13_980_743);
+  assert.equal(plan.requiredTodayCents, 19_349_361);
+  assert.equal(plan.gapCents, 15_349_361);
   assert.equal(plan.firstCriticalMonth, '2030-10');
   assert.equal(plan.feasible, false);
   assert.equal(plan.expensesCents.reduce((sum, value) => sum + value, 0), 89_380_743);
@@ -145,7 +145,7 @@ test('a long horizon with fixed nominal capacity includes inflation-driven futur
   let bindingMonth = null;
   for (const row of plan.rows) {
     expenses += row.expenseCents;
-    const prefixRequirement = input.reserveCents + expenses - row.index * input.monthlyCents;
+    const prefixRequirement = row.reserveCents + expenses - row.index * input.monthlyCents;
     if (prefixRequirement > required) {
       required = prefixRequirement;
       bindingMonth = row.month;
@@ -156,7 +156,7 @@ test('a long horizon with fixed nominal capacity includes inflation-driven futur
   assert.equal(buildPlan({...input, inflationBps: 0}, goals, '2026-10').requiredTodayCents, 4_050_000);
   const funded = buildPlan({...input, cashCents: required}, goals, '2026-10');
   assert.equal(funded.feasible, true);
-  assert.ok(funded.rows.every(row => row.cashCents >= input.reserveCents));
+  assert.ok(funded.rows.every(row => row.cashCents >= row.reserveCents));
   assert.equal(buildPlan({...input, cashCents: required - 1}, goals, '2026-10').gapCents, 1);
 });
 

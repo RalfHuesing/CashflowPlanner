@@ -29,7 +29,7 @@ function updateFreshness() {
 }
 function renderResult() {
   renderSummary(plan, data.settings);
-  renderChart(plan, data.settings);
+  renderChart(plan);
   renderMonthlyPlan(plan);
 }
 function render() {
