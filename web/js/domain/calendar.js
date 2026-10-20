@@ -21,8 +21,15 @@ export function currentMonth(date = new Date()) {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
 }
 
-export function ageAtMonth(currentAge, index) {
-  return currentAge + index / 12;
+export function ageAtMonth(currentAge, indexOrMonth, startMonth = currentMonth()) {
+  const startYear = Number(startMonth.slice(0, 4));
+  if (typeof indexOrMonth === 'string') {
+    const targetYear = Number(indexOrMonth.slice(0, 4));
+    return currentAge + (targetYear - startYear);
+  }
+  const targetMonth = addMonths(startMonth, indexOrMonth);
+  const targetYear = Number(targetMonth.slice(0, 4));
+  return currentAge + (targetYear - startYear);
 }
 
 export function horizonMonths(currentAge, horizonAge) {

@@ -17,6 +17,78 @@ function groupRowsByYear(rows) {
   }));
 }
 
+function renderMonthRows(row, plan) {
+  const isCurrentMonth = row.index === 0;
+  const contribution = isCurrentMonth
+    ? '–'
+    : money(plan.feasible ? row.contributionCents : row.bestCaseContributionCents);
+  const remainder = isCurrentMonth
+    ? '–'
+    : money(plan.feasible ? row.longTermCents : 0);
+  const events = row.events;
+  const eventCount = events.length;
+
+  const dateAge = node('td', 'month-age-cell');
+  dateAge.append(
+    node('span', '', `${row.month.slice(5)}/${row.month.slice(0, 4)}`),
+    node('span', 'muted', isCurrentMonth ? `Alter ${formatAge(row.age)} · Aktuell` : `Alter ${formatAge(row.age)}`),
+  );
+  if (eventCount > 1) {
+    dateAge.append(node('span', 'event-total-note', `${eventCount} Ausgaben: - ${money(row.expenseCents)}`));
+  }
+
+  if (eventCount === 0) {
+    const tr = node('tr');
+    tr.append(
+      dateAge,
+      node('td', 'event-cell', '–'),
+      node('td', 'expense-cell', '–'),
+      node('td', isCurrentMonth ? '' : 'cash-contribution', contribution),
+      node('td', '', remainder),
+      node('td', '', money(row.cashCents)),
+    );
+    return [tr];
+  }
+
+  const rows = [];
+  const firstTr = node('tr');
+  if (eventCount > 1) dateAge.rowSpan = eventCount;
+
+  const firstEvent = events[0];
+  const eventNameWrap = node('td', 'event-cell');
+  eventNameWrap.append(node('span', '', firstEvent.name));
+  if (firstEvent.overdue) {
+    eventNameWrap.append(node('span', 'status-badge negative overdue-badge', 'Überfällig'));
+  }
+  const expenseCell = node('td', 'expense-cell expense-amount', `- ${money(firstEvent.amountCents)}`);
+  const contribCell = node('td', isCurrentMonth ? '' : 'cash-contribution', contribution);
+  const remainderCell = node('td', '', remainder);
+  const cashCell = node('td', '', money(row.cashCents));
+
+  if (eventCount > 1) {
+    contribCell.rowSpan = eventCount;
+    remainderCell.rowSpan = eventCount;
+    cashCell.rowSpan = eventCount;
+  }
+
+  firstTr.append(dateAge, eventNameWrap, expenseCell, contribCell, remainderCell, cashCell);
+  rows.push(firstTr);
+
+  for (let i = 1; i < eventCount; i++) {
+    const subTr = node('tr', 'sub-event-row');
+    const ev = events[i];
+    const subEventCell = node('td', 'event-cell');
+    subEventCell.append(node('span', '', ev.name));
+    if (ev.overdue) {
+      subEventCell.append(node('span', 'status-badge negative overdue-badge', 'Überfällig'));
+    }
+    const subExpenseCell = node('td', 'expense-cell expense-amount', `- ${money(ev.amountCents)}`);
+    subTr.append(subEventCell, subExpenseCell);
+    rows.push(subTr);
+  }
+  return rows;
+}
+
 export function renderMonthlyPlan(plan) {
   const container = document.getElementById('monthly-plan');
   if (!container) return;
@@ -106,8 +178,17 @@ export function renderMonthlyPlan(plan) {
   const header = node('tr');
   const contributionLabel = plan.feasible ? 'In Cash zurücklegen' : 'Volle Monatszuführung';
 
-  for (const label of ['Monat / Alter', contributionLabel, 'Übrig vom Monatsbetrag', 'Cash am Monatsende']) {
-    const cell = node('th', '', label);
+  const columns = [
+    { label: 'Monat / Alter', className: '' },
+    { label: 'Ereignis', className: 'event-header' },
+    { label: 'Ausgabe', className: 'expense-header' },
+    { label: contributionLabel, className: '' },
+    { label: 'Übrig vom Monatsbetrag', className: '' },
+    { label: 'Cash am Monatsende', className: '' },
+  ];
+
+  for (const col of columns) {
+    const cell = node('th', col.className, col.label);
     cell.scope = 'col';
     header.append(cell);
   }
@@ -115,31 +196,7 @@ export function renderMonthlyPlan(plan) {
 
   const body = node('tbody');
   for (const row of currentYear.rows) {
-    const tr = node('tr');
-    const isCurrentMonth = row.index === 0;
-    const contribution = isCurrentMonth
-      ? '–'
-      : money(plan.feasible ? row.contributionCents : row.bestCaseContributionCents);
-    const remainder = isCurrentMonth
-      ? '–'
-      : money(plan.feasible ? row.longTermCents : 0);
-
-    const dateAge = node('td', 'month-age-cell');
-    dateAge.append(
-      node('span', '', `${row.month.slice(5)}/${row.month.slice(0, 4)}`),
-      node('span', 'muted', isCurrentMonth ? `Alter ${formatAge(row.age)} · Aktuell` : `Alter ${formatAge(row.age)}`),
-    );
-    if (row.events.length) {
-      dateAge.append(node('span', 'event-note', row.events.map((e) => `${e.name} (${money(e.amountCents)})`).join(', ')));
-    }
-
-    tr.append(
-      dateAge,
-      node('td', isCurrentMonth ? '' : 'cash-contribution', contribution),
-      node('td', '', remainder),
-      node('td', '', money(row.cashCents)),
-    );
-    body.append(tr);
+    body.append(...renderMonthRows(row, plan));
   }
   table.append(caption, head, body);
   wrapper.append(table);

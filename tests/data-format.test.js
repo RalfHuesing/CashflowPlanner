@@ -103,4 +103,27 @@ test('Import lehnt übergroße Dateien und zusätzliche unbekannte Strukturfelde
   const document = JSON.parse(exportData(example));
   document.data.unexpected = 'ignored?';
   assert.throws(() => parseImport(JSON.stringify(document)), /Datenstruktur/);
+  const badTopLevel = JSON.parse(exportData(example));
+  badTopLevel.unknownTopField = true;
+  assert.throws(() => parseImport(JSON.stringify(badTopLevel)), /Unbekanntes JSON-Datenformat/);
+});
+
+test('Export enthält einen LLM-optimierten vollständigen Plan mit Zusammenfassung und Monatsverlauf', () => {
+  const json = exportData(example, new Date('2026-10-20T12:00:00.000Z'));
+  const parsed = JSON.parse(json);
+  assert.ok(parsed.plan);
+  assert.equal(typeof parsed.plan.summary.feasible, 'boolean');
+  assert.equal(parsed.plan.summary.currentAge, 35);
+  assert.equal(parsed.plan.summary.horizonAge, 60);
+  assert.equal(parsed.plan.summary.initialCashEuro, 40000);
+  assert.equal(parsed.plan.summary.monthlySavingsCapacityEuro, 500);
+  assert.equal(parsed.plan.summary.initialMinimumReserveEuro, 123.45);
+  assert.equal(parsed.plan.summary.annualInflationPercent, 2.5);
+  assert.ok(Array.isArray(parsed.plan.goals));
+  assert.equal(parsed.plan.goals[0].name, 'Urlaub');
+  assert.ok(Array.isArray(parsed.plan.monthlyTimeline));
+  assert.equal(parsed.plan.monthlyTimeline[0].month, '2026-10');
+  assert.equal(parsed.plan.monthlyTimeline[0].age, 35);
+  assert.equal(typeof parsed.plan.monthlyTimeline[0].cashEndEuro, 'number');
+  assert.ok(parsed.plan.keyRules.strategy);
 });

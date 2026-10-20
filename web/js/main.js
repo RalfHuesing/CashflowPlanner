@@ -85,7 +85,7 @@ document.getElementById('sample-button').addEventListener('click',() => {
 });
 document.getElementById('export-button').addEventListener('click',() => {
   try {
-    const blob = new Blob([exportData(data)],{type:'application/json'});
+    const blob = new Blob([exportData(data, new Date(), plan)],{type:'application/json'});
     const url = URL.createObjectURL(blob);
     const anchor = document.createElement('a'); anchor.href=url;anchor.download=`cashflow-planner-${startMonth}.json`;
     document.body.append(anchor);anchor.click();anchor.remove();

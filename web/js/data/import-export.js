@@ -1,4 +1,5 @@
 import { MAX_CENTS } from '../domain/money.js';
+import { buildPlan } from '../domain/scenarios.js';
 
 export const FORMAT_NAME = 'cashflow-planner';
 export const FORMAT_VERSION = 1;
@@ -100,14 +101,107 @@ export function validateData(data) {
   };
 }
 
-export function exportData(data, now = new Date()) {
+function centsToEuro(cents) {
+  if (cents === null || cents === undefined) return null;
+  return Number((cents / 100).toFixed(2));
+}
+
+export function buildLlmPlanExport(settings, goals, plan) {
+  const inflationPercent = settings.inflationBps / 100;
+  const horizonYears = settings.horizonAge - settings.currentAge;
+
+  let totalExpensesInflatedCents = 0;
+  for (const ev of plan.events) {
+    totalExpensesInflatedCents += ev.amountCents;
+  }
+
+  const summary = {
+    feasible: plan.feasible,
+    status: plan.feasible
+      ? 'Machbar: Die Liquidität und die wachsende Mindestreserve sind über den gesamten Horizont gesichert.'
+      : `Engpass: Bei voller Monatszuführung fällt der Cashbestand erstmals im ${plan.firstCriticalMonth} unter die Mindestreserve.`,
+    startMonth: plan.startMonth,
+    horizonMonth: plan.horizonMonth,
+    horizonYears,
+    currentAge: settings.currentAge,
+    horizonAge: settings.horizonAge,
+    initialCashEuro: centsToEuro(settings.cashCents),
+    monthlySavingsCapacityEuro: centsToEuro(settings.monthlyCents),
+    initialMinimumReserveEuro: centsToEuro(settings.reserveCents),
+    annualInflationPercent: Number(inflationPercent.toFixed(2)),
+    minimumStartingCashNeededEuro: centsToEuro(plan.minCashCents),
+    cashSurplusOrGapEuro: centsToEuro(settings.cashCents - plan.minCashCents),
+    firstShortfallMonth: plan.firstCriticalMonth,
+    totalPlannedExpensesEuro: centsToEuro(totalExpensesInflatedCents),
+  };
+
+  const keyRules = {
+    strategy: 'So wenig Cash wie möglich, so viel wie nötig. Der Cashbestand puffert anstehende Ausgaben und die Mindestreserve.',
+    monthlySavingsAllocation: 'In jedem Monat wird nur so viel vom monatlichen Sparbetrag in Cash zurückgelegt, wie für künftige Ausgaben und Mindestreserve nötig ist. Der Rest steht frei für langfristige Vermögensanlagen (z. B. ETFs) zur Verfügung.',
+    inflationMethod: 'Ausgaben und Mindestreserve steigen jährlich mit der Inflationsrate. Die monatliche Sparrate bleibt nominal konstant.',
+  };
+
+  const goalsSummary = goals.map((g) => ({
+    id: g.id,
+    name: g.name,
+    type: g.type === 'annual' ? 'annual' : 'once',
+    baseAmountEuro: centsToEuro(g.amountCents),
+    firstDueMonth: g.dueMonth,
+    endMonth: g.endMonth,
+  }));
+
+  let prevCash = settings.cashCents;
+  const monthlyTimeline = plan.rows.map((row) => {
+    const isCurrentMonth = row.index === 0;
+    const contributionCents = isCurrentMonth
+      ? 0
+      : (plan.feasible ? row.contributionCents : row.bestCaseContributionCents);
+    const freeForInvestmentsCents = isCurrentMonth
+      ? 0
+      : (plan.feasible ? row.longTermCents : 0);
+
+    const monthData = {
+      month: row.month,
+      age: row.age,
+      cashStartEuro: centsToEuro(prevCash),
+      contributionToCashEuro: centsToEuro(contributionCents),
+      freeForLongTermInvestmentEuro: centsToEuro(freeForInvestmentsCents),
+      expensesEuro: centsToEuro(row.expenseCents),
+      cashEndEuro: centsToEuro(row.cashCents),
+      minimumReserveEuro: centsToEuro(row.reserveCents),
+      bufferAboveReserveEuro: centsToEuro(row.cashCents - row.reserveCents),
+    };
+
+    if (row.events.length > 0) {
+      monthData.events = row.events.map((e) => ({
+        name: e.name,
+        amountEuro: centsToEuro(e.amountCents),
+        overdue: Boolean(e.overdue),
+      }));
+    }
+
+    prevCash = row.cashCents;
+    return monthData;
+  });
+
+  return {
+    summary,
+    keyRules,
+    goals: goalsSummary,
+    monthlyTimeline,
+  };
+}
+
+export function exportData(data, now = new Date(), plan = null) {
   const validated = validateData(data);
   const exportedAt = now instanceof Date ? now.toISOString() : new Date(now).toISOString();
+  const effectivePlan = plan ?? buildPlan(validated.settings, validated.goals);
   return JSON.stringify({
     format: FORMAT_NAME,
     version: FORMAT_VERSION,
     exportedAt,
     data: validated,
+    plan: buildLlmPlanExport(validated.settings, validated.goals, effectivePlan),
   }, null, 2);
 }
 
@@ -121,7 +215,13 @@ export function parseImport(text) {
   } catch {
     fail('Die Datei enthält kein gültiges JSON.');
   }
-  if (!isPlainObject(parsed) || !hasExactKeys(parsed, ['format', 'version', 'exportedAt', 'data'])) fail('Unbekanntes JSON-Datenformat.');
+  const requiredTopKeys = ['format', 'version', 'exportedAt', 'data'];
+  const allowedTopKeys = new Set([...requiredTopKeys, 'plan']);
+  if (!isPlainObject(parsed)) fail('Unbekanntes JSON-Datenformat.');
+  const keys = Object.keys(parsed);
+  if (!requiredTopKeys.every((k) => keys.includes(k)) || keys.some((k) => !allowedTopKeys.has(k))) {
+    fail('Unbekanntes JSON-Datenformat.');
+  }
   if (parsed.format !== FORMAT_NAME) fail('Die Datei stammt nicht aus dem CashflowPlanner.');
   if (parsed.version !== FORMAT_VERSION) fail('Diese Datenformat-Version wird nicht unterstützt.');
   validateTimestamp(parsed.exportedAt, 'exportedAt');

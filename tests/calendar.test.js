@@ -7,7 +7,10 @@ test('calendar arithmetic crosses years without day or leap-year effects', () =>
   assert.equal(addMonths('2026-01', -1), '2025-12');
   assert.equal(monthDifference('2026-10', '2042-10'), 192);
   assert.equal(monthDifference('2026-10', '2026-09'), -1);
-  assert.equal(ageAtMonth(40, 6), 40.5);
+  assert.equal(ageAtMonth(40, 2, '2026-10'), 40);
+  assert.equal(ageAtMonth(40, 3, '2026-10'), 41);
+  assert.equal(ageAtMonth(40, '2027-06', '2026-10'), 41);
+  assert.equal(ageAtMonth(40, '2028-01', '2026-10'), 42);
   assert.equal(horizonMonths(40, 56), 192);
   assert.equal(horizonMonths(40, 40), 0);
   assert.equal(currentMonth(new Date(2024, 1, 29)), '2024-02');

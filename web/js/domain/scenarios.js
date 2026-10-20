@@ -27,7 +27,7 @@ export function buildPlan(settings, goals, startMonth = currentMonth()) {
       firstCriticalMonth = addMonths(startMonth, index);
       criticalEvents = eventsByMonth[index];
     }
-    rows.push({index, month: addMonths(startMonth, index), age: ageAtMonth(settings.currentAge, index),
+    rows.push({index, month: addMonths(startMonth, index), age: ageAtMonth(settings.currentAge, index, startMonth),
       cashCents: cash, requiredCents, expenseCents, capacityCents, reserveCents,
       contributionCents: liquidity.feasible ? contribution : null,
       longTermCents: liquidity.feasible ? capacityCents - contribution : null,

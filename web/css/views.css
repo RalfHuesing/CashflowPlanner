@@ -579,6 +579,47 @@
   font-weight: 500;
 }
 
+.monthly-layout .event-header,
+.monthly-layout .event-cell {
+  text-align: left;
+}
+
+.monthly-layout .event-cell {
+  max-width: 240px;
+  white-space: normal;
+  overflow-wrap: break-word;
+}
+
+.monthly-layout .expense-header,
+.monthly-layout .expense-cell {
+  text-align: right;
+}
+
+.monthly-layout .expense-amount {
+  color: var(--red);
+  font-weight: 550;
+}
+
+.monthly-layout .event-total-note {
+  display: block;
+  font-size: .72rem;
+  color: var(--muted);
+  margin-top: 3px;
+}
+
+.monthly-layout .overdue-badge {
+  margin-left: 6px;
+  font-size: .65rem;
+  padding: 1px 6px;
+  vertical-align: middle;
+}
+
+.monthly-layout tr.sub-event-row td {
+  border-top: 1px dashed #e6eee9;
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+
 .current-month-summary {
   display: flex;
   flex-wrap: wrap;
