@@ -1,11 +1,11 @@
-import { editableMoney, money, node, parseMoney } from './format.js';
+import { editableMoney, formatAge, money, node, parseMoney } from './format.js';
 import { monthDifference } from '../domain/calendar.js';
 export const GOALS_PER_PAGE = 12;
 const listState = { query: '', sort: 'due', page: 1 };
 const monthYear = (month) => `${month.slice(5)}/${month.slice(0, 4)}`;
 const ageLabel = (month, startMonth, currentAge) => {
   const age = currentAge + monthDifference(startMonth, month) / 12;
-  return age < 0 ? 'vor Geburt' : `${age.toLocaleString('de-DE', { maximumFractionDigits: 1 })} Jahre`;
+  return formatAge(age);
 };
 
 /** Keep list selection independent of DOM so large lists remain easy to verify. */

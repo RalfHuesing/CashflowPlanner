@@ -1,4 +1,4 @@
-import { money, monthLabel, node } from './format.js';
+import { formatAge, money, monthLabel, node } from './format.js';
 const NS = 'http://www.w3.org/2000/svg';
 function svgNode(tag, attributes = {}, text) {
   const element = document.createElementNS(NS, tag);
@@ -36,7 +36,7 @@ export function renderChart(plan, settings) {
     if (step && index === 0) continue;
     const tick = svgNode('text', {x:x(index), y:height-36, 'text-anchor':'middle', class:'chart-label'});
     tick.append(svgNode('tspan', {x:x(index), dy:0}, `${rows[index].month.slice(5)}/${rows[index].month.slice(0, 4)}`));
-    tick.append(svgNode('tspan', {x:x(index), dy:15}, `Alter ${rows[index].age.toLocaleString('de-DE', {maximumFractionDigits: 1})}`));
+    tick.append(svgNode('tspan', {x:x(index), dy:15}, `Alter ${formatAge(rows[index].age, { withUnit: false })}`));
     svg.append(tick);
   }
   svg.append(svgNode('text', {x:width-right, y:height-2, 'text-anchor':'end', class:'chart-label'}, 'Monat/Jahr · Alter (Jahre, näherungsweise)'));
@@ -64,7 +64,7 @@ export function renderChart(plan, settings) {
     selected = index;
     const row = rows[index];
     indicator.setAttribute('x1',x(index)); indicator.setAttribute('x2',x(index));
-    const date = node('strong','',`${monthLabel(row.month)} · Alter ${row.age.toLocaleString('de-DE',{maximumFractionDigits:1})}`);
+    const date = node('strong','',`${monthLabel(row.month)} · Alter ${formatAge(row.age, { withUnit: false })}`);
     const detail = node('span','',`Cash: ${money(row.cashCents)} · Erforderlich: ${money(row.requiredCents)} · Ausgaben: ${money(row.expenseCents)}`);
     tooltip.replaceChildren(date,node('br'),detail);
     if (row.events.length) tooltip.append(node('br'),node('span','',row.events.map((event) => event.name).join(', ')));

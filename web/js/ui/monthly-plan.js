@@ -1,4 +1,4 @@
-import { money, node } from './format.js';
+import { formatAge, money, node } from './format.js';
 export function renderMonthlyPlan(plan) {
   const container = document.getElementById('monthly-plan');
   const current = plan.rows[0];
@@ -30,7 +30,7 @@ export function renderMonthlyPlan(plan) {
     const contribution = plan.feasible ? row.contributionCents : row.bestCaseContributionCents;
     const remainder = plan.feasible ? row.longTermCents : 0;
     const dateAge = node('td', 'month-age-cell');
-    dateAge.append(node('span', '', `${row.month.slice(5)}/${row.month.slice(0, 4)}`), node('span', 'muted', `Alter ${row.age.toLocaleString('de-DE', { maximumFractionDigits: 1 })} Jahre`));
+    dateAge.append(node('span', '', `${row.month.slice(5)}/${row.month.slice(0, 4)}`), node('span', 'muted', `Alter ${formatAge(row.age)}`));
     tr.append(dateAge, node('td', 'cash-contribution', money(contribution)), node('td', '', money(remainder)), node('td', '', money(row.cashCents)));
     body.append(tr);
   }
