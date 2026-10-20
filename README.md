@@ -13,7 +13,7 @@ npm run dev
 
 Anschließend `http://127.0.0.1:4173` öffnen. Für eine statische Bereitstellung genügt der Inhalt von `web/` auf einem beliebigen statischen Webserver. Es ist kein Build-Schritt erforderlich.
 
-Für eine öffentliche Bereitstellung HTTPS aktivieren und am Webserver sinnvolle Sicherheitsheader setzen. Als Ausgangspunkt eignet sich eine Content Security Policy mit `default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'`. Ergänze `X-Content-Type-Options: nosniff`, `Referrer-Policy: no-referrer` und eine `Permissions-Policy`, die nicht benötigte Funktionen wie Kamera, Mikrofon und Geolocation sperrt. Nach Aktivierung von HTTPS kann `Strict-Transport-Security` gesetzt werden.
+Für Hetzner mit Apache 2.4 liegt eine passende [`.htaccess`](web/.htaccess) im Verzeichnis `web/`. Sie wird zusammen mit `index.html` in das Document Root der Subdomain kopiert und setzt eine Content Security Policy und weitere Sicherheitsheader. Vor der Veröffentlichung muss ein gültiges HTTPS-Zertifikat für die Subdomain aktiv sein; die HTTPS-Weiterleitung wird im Hetzner SSL Manager eingeschaltet. So entsteht keine doppelte Weiterleitung in der `.htaccess`. Die Datei setzt HSTS nur bei HTTPS und ohne `includeSubDomains`. Der Webserver muss `mod_headers` und `.htaccess`-Direktiven mit `AllowOverride FileInfo` zulassen. Nach dem Hochladen die Weiterleitung und Header mit `curl -I http://DEINE-SUBDOMAIN/` und `curl -I https://DEINE-SUBDOMAIN/` prüfen; die Anwendung selbst wird dadurch nicht veröffentlicht.
 
 ## Prüfen
 
