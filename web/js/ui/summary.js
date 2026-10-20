@@ -1,8 +1,32 @@
 import { money, monthLabel, node } from './format.js';
+function nextMonthMetrics(plan, settings) {
+  const next = plan.rows[1];
+  if (!next) {
+    return [
+      ['Nächsten Monat für Cash zurücklegen', '–', 'Kein weiterer Monat im Planungshorizont', ''],
+      ['Nächsten Monat für langfristige Anlagen verfügbar', '–', 'Kein weiterer Monat im Planungshorizont', ''],
+    ];
+  }
+
+  const month = monthLabel(next.month);
+  if (!plan.feasible) {
+    return [
+      ['Nächsten Monat für Cash zurücklegen', money(next.bestCaseContributionCents), `${month} · volle monatliche Zuführung; insgesamt nicht finanzierbar`, ''],
+      ['Nächsten Monat für langfristige Anlagen verfügbar', '–', 'Nicht berechenbar, solange der Plan unter den aktuellen Annahmen nicht finanzierbar ist.', ''],
+    ];
+  }
+
+  return [
+    ['Nächsten Monat für Cash zurücklegen', money(next.contributionCents), `${month} · geplante Zuführung`, ''],
+    ['Nächsten Monat für langfristige Anlagen verfügbar', money(next.longTermCents), `Von ${money(settings.monthlyCents)} verfügbarem Monatsbetrag`, next.longTermCents > 0 ? 'positive' : ''],
+  ];
+}
+
 export function renderSummary(plan, settings) {
   const next = plan.rows[1];
   const firstShortfall = plan.firstCriticalMonth ? monthLabel(plan.firstCriticalMonth) : null;
   const metrics = [
+    ...nextMonthMetrics(plan, settings),
     ['Dein aktueller Cashbestand', money(settings.cashCents), 'Tatsächlich heute verfügbar', ''],
     ['Ausgaben im aktuellen Monat', money(plan.rows[0].expenseCents), 'Aus dem heutigen Cashbestand; keine Sparrate in diesem Monat', ''],
     ['Fehlender Cashbestand', money(plan.gapCents), plan.feasible ? 'Keine Lücke unter den eingestellten Annahmen' : firstShortfall ? `Erster Engpass: ${firstShortfall}` : 'Bei heutigem Bestand und gleichbleibendem Monatsbetrag', plan.feasible ? '' : 'negative'],

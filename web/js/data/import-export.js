@@ -129,8 +129,8 @@ export function buildLlmPlanExport(settings, goals, plan) {
     monthlySavingsCapacityEuro: centsToEuro(settings.monthlyCents),
     initialMinimumReserveEuro: centsToEuro(settings.reserveCents),
     annualInflationPercent: Number(inflationPercent.toFixed(2)),
-    minimumStartingCashNeededEuro: centsToEuro(plan.minCashCents),
-    cashSurplusOrGapEuro: centsToEuro(settings.cashCents - plan.minCashCents),
+    minimumStartingCashNeededEuro: centsToEuro(plan.requiredTodayCents),
+    cashSurplusOrGapEuro: centsToEuro(settings.cashCents - plan.requiredTodayCents),
     firstShortfallMonth: plan.firstCriticalMonth,
     totalPlannedExpensesEuro: centsToEuro(totalExpensesInflatedCents),
   };
@@ -156,9 +156,9 @@ export function buildLlmPlanExport(settings, goals, plan) {
     const contributionCents = isCurrentMonth
       ? 0
       : (plan.feasible ? row.contributionCents : row.bestCaseContributionCents);
-    const freeForInvestmentsCents = isCurrentMonth
-      ? 0
-      : (plan.feasible ? row.longTermCents : 0);
+    const freeForInvestmentsCents = isCurrentMonth || !plan.feasible
+      ? null
+      : row.longTermCents;
 
     const monthData = {
       month: row.month,
@@ -196,13 +196,25 @@ export function exportData(data, now = new Date(), plan = null) {
   const validated = validateData(data);
   const exportedAt = now instanceof Date ? now.toISOString() : new Date(now).toISOString();
   const effectivePlan = plan ?? buildPlan(validated.settings, validated.goals);
-  return JSON.stringify({
+  const document = {
     format: FORMAT_NAME,
     version: FORMAT_VERSION,
     exportedAt,
     data: validated,
     plan: buildLlmPlanExport(validated.settings, validated.goals, effectivePlan),
-  }, null, 2);
+  };
+  let serialized = JSON.stringify(document, null, 2);
+  if (new TextEncoder().encode(serialized).byteLength > MAX_IMPORT_BYTES) {
+    delete document.plan;
+    serialized = JSON.stringify(document, null, 2);
+  }
+  if (new TextEncoder().encode(serialized).byteLength > MAX_IMPORT_BYTES) {
+    serialized = JSON.stringify(document);
+  }
+  if (new TextEncoder().encode(serialized).byteLength > MAX_IMPORT_BYTES) {
+    fail('Die Eingabedaten sind zu groß für einen wieder importierbaren Export.');
+  }
+  return serialized;
 }
 
 export function parseImport(text) {

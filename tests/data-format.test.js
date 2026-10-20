@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { exportData, parseImport, MAX_IMPORT_BYTES } from '../web/js/data/import-export.js';
+import { buildPlan } from '../web/js/domain/scenarios.js';
 
 const example = {
   settings: { cashCents: 4_000_000, monthlyCents: 50_000, reserveCents: 12_345, currentAge: 35, horizonAge: 60, inflationBps: 250 },
@@ -109,7 +110,8 @@ test('Import lehnt übergroße Dateien und zusätzliche unbekannte Strukturfelde
 });
 
 test('Export enthält einen LLM-optimierten vollständigen Plan mit Zusammenfassung und Monatsverlauf', () => {
-  const json = exportData(example, new Date('2026-10-20T12:00:00.000Z'));
+  const plan = buildPlan(example.settings, example.goals, '2026-10');
+  const json = exportData(example, new Date('2026-10-20T12:00:00.000Z'), plan);
   const parsed = JSON.parse(json);
   assert.ok(parsed.plan);
   assert.equal(typeof parsed.plan.summary.feasible, 'boolean');
@@ -119,6 +121,9 @@ test('Export enthält einen LLM-optimierten vollständigen Plan mit Zusammenfass
   assert.equal(parsed.plan.summary.monthlySavingsCapacityEuro, 500);
   assert.equal(parsed.plan.summary.initialMinimumReserveEuro, 123.45);
   assert.equal(parsed.plan.summary.annualInflationPercent, 2.5);
+  const requiredToday = plan.requiredTodayCents;
+  assert.equal(parsed.plan.summary.minimumStartingCashNeededEuro, requiredToday / 100);
+  assert.equal(parsed.plan.summary.cashSurplusOrGapEuro, (example.settings.cashCents - requiredToday) / 100);
   assert.ok(Array.isArray(parsed.plan.goals));
   assert.equal(parsed.plan.goals[0].name, 'Urlaub');
   assert.ok(Array.isArray(parsed.plan.monthlyTimeline));
@@ -126,4 +131,41 @@ test('Export enthält einen LLM-optimierten vollständigen Plan mit Zusammenfass
   assert.equal(parsed.plan.monthlyTimeline[0].age, 35);
   assert.equal(typeof parsed.plan.monthlyTimeline[0].cashEndEuro, 'number');
   assert.ok(parsed.plan.keyRules.strategy);
+});
+
+test('Maximaler Jahresplan bleibt als Export unter dem Importlimit wieder importierbar', () => {
+  const data = {
+    settings: { cashCents: 1_000_000, monthlyCents: 0, reserveCents: 0, currentAge: 0, horizonAge: 120, inflationBps: 0 },
+    goals: Array.from({ length: 1_000 }, (_, index) => ({
+      id: `goal-${index}`,
+      name: `Jahresziel ${index}`,
+      amountCents: 100,
+      type: 'annual',
+      dueMonth: '2026-10',
+      endMonth: null,
+      flexMonths: 0,
+    })),
+    cashUpdatedAt: null,
+  };
+  const plan = buildPlan(data.settings, data.goals, '2026-10');
+  const json = exportData(data, new Date('2026-10-20T12:00:00.000Z'), plan);
+  const parsed = JSON.parse(json);
+
+  assert.ok(new TextEncoder().encode(json).byteLength <= MAX_IMPORT_BYTES);
+  assert.equal(Object.hasOwn(parsed, 'plan'), false);
+  const normalized = structuredClone(data);
+  normalized.goals = normalized.goals.map((goal) => ({ ...goal, endMonth: null }));
+  assert.deepEqual(parseImport(json), normalized);
+});
+
+test('Export weist bei Unterdeckung keinen freien Anlagebetrag aus', () => {
+  const data = {
+    settings: { cashCents: 0, monthlyCents: 0, reserveCents: 0, currentAge: 30, horizonAge: 31, inflationBps: 0 },
+    goals: [{ id: 'g', name: 'Ausgabe', amountCents: 100, type: 'once', dueMonth: '2026-11', endMonth: null, flexMonths: 0 }],
+    cashUpdatedAt: null,
+  };
+  const plan = buildPlan(data.settings, data.goals, '2026-10');
+  const exported = JSON.parse(exportData(data, new Date('2026-10-20T12:00:00.000Z'), plan));
+  assert.equal(exported.plan.summary.feasible, false);
+  assert.equal(exported.plan.monthlyTimeline[1].freeForLongTermInvestmentEuro, null);
 });

@@ -53,7 +53,7 @@ function aggregateYearlyData(rows, feasible) {
   });
 }
 
-function renderYearlySummary(years) {
+function renderYearlySummary(years, feasible) {
   let totalCapacity = 0;
   let totalContribution = 0;
   let totalFree = 0;
@@ -71,32 +71,36 @@ function renderYearlySummary(years) {
 
   const grid = node('div', 'summary-grid yearly-kpis');
 
-  const freeCard = node('div', 'metric positive');
+  const freeCard = node('div', `metric${feasible ? ' positive' : ''}`);
   freeCard.append(
     node('span', 'metric-label', 'Übrig für Vermögensaufbau (Gesamt)'),
-    node('strong', 'metric-value', money(totalFree)),
-    node('span', 'metric-detail', `${freePercent} % deines gesamten Sparbudgets (${money(totalCapacity)})`),
+    node('strong', 'metric-value', feasible ? money(totalFree) : '–'),
+    node('span', 'metric-detail', feasible
+      ? `${freePercent} % deines gesamten Sparbudgets (${money(totalCapacity)})`
+      : 'Nicht berechenbar, da der Plan unter den aktuellen Annahmen nicht finanzierbar ist.'),
   );
 
   const cashCard = node('div', 'metric');
   cashCard.append(
-    node('span', 'metric-label', 'In Cash zurückgelegt (für Konsum)'),
+    node('span', 'metric-label', feasible ? 'In Cash zurückgelegt (für geplante Ausgaben)' : 'Volle monatliche Zuführung in Cash'),
     node('strong', 'metric-value', money(totalContribution)),
-    node('span', 'metric-detail', `${cashPercent} % deines gesamten Sparbudgets fließen in Liquidität`),
+    node('span', 'metric-detail', feasible
+      ? `${cashPercent} % deines gesamten Sparbudgets fließen in Liquidität`
+      : `Rechnerische Vorschau mit vollem Monatsbudget (${cashPercent} %); der Plan bleibt nicht finanzierbar.`),
   );
 
   const expenseCard = node('div', 'metric');
   expenseCard.append(
-    node('span', 'metric-label', 'Tatsächlich verkonsumiert (Ausgaben)'),
+    node('span', 'metric-label', 'Geplante Ausgaben'),
     node('strong', 'metric-value', money(totalExpenses)),
-    node('span', 'metric-detail', `Summe aller geplanten Ziele über ${years.length} Jahre`),
+    node('span', 'metric-detail', `Summe der geplanten Ausgaben über ${years.length} Jahre`),
   );
 
   grid.append(freeCard, cashCard, expenseCard);
   return grid;
 }
 
-function renderYearlyChart(years) {
+function renderYearlyChart(years, feasible) {
   const width = 860;
   const height = 320;
   const left = 75;
@@ -127,7 +131,7 @@ function renderYearlyChart(years) {
   });
   svg.append(svgNode('title', { id: 'yearly-chart-title' }, 'Stapeldiagramm: Cash-Zuführung und verbleibender Sparbetrag pro Jahr'));
 
-  const instructions = node('p', 'sr-only', 'Stapeldiagramm: Die waagerechte Achse zeigt jedes Planungsjahr und das Alter. Grüne Balken zeigen den für freie Anlagen verbleibenden Sparbetrag, bernsteinfarbene Balken den für Cash zurückgelegten Betrag. Rote Rauten markieren die tatsächlichen Ausgaben.');
+  const instructions = node('p', 'sr-only', 'Stapeldiagramm: Die waagerechte Achse zeigt jedes Planungsjahr und das Alter. Grüne Balken zeigen den für langfristige Anlagen verbleibenden Sparbetrag, bernsteinfarbene Balken den für Cash zurückgelegten Betrag. Rote Rauten markieren geplante Ausgaben. Mit den Pfeiltasten erkundest du einzelne Jahre; Pos1 und Ende springen zum Anfang und Ende.');
   instructions.id = 'yearly-chart-instructions';
 
   // Horizontal grid lines
@@ -211,13 +215,15 @@ function renderYearlyChart(years) {
     indicator.setAttribute('opacity', '1');
 
     const header = node('strong', '', `Jahr ${yr.year} · Alter ${formatAge(yr.age, { withUnit: false })}`);
-    const freeText = node('span', 'tooltip-free', `Übrig für Vermögensaufbau: ${money(yr.longTermCents)} (${yr.freePercent} %)`);
+    const freeText = node('span', 'tooltip-free', feasible
+      ? `Übrig für Vermögensaufbau: ${money(yr.longTermCents)} (${yr.freePercent} %)`
+      : 'Für langfristige Anlagen verfügbar: nicht berechenbar');
     const cashText = node('span', 'tooltip-cash', `In Cash zurückgelegt: ${money(yr.contributionCents)} (${yr.cashPercent} %)`);
     const budgetText = node('span', 'muted small', `Jahres-Sparbudget: ${money(yr.capacityCents)} · Cash-Endstand: ${money(yr.endCashCents)}`);
 
     const elements = [header, node('br'), freeText, node('br'), cashText, node('br'), budgetText];
     if (yr.expenseCents > 0) {
-      const expenseText = node('span', 'tooltip-expense', `Tatsächliche Ausgaben: ${money(yr.expenseCents)}`);
+      const expenseText = node('span', 'tooltip-expense', `Geplante Ausgaben: ${money(yr.expenseCents)}`);
       elements.push(node('br'), expenseText);
       if (yr.events.length) {
         const eventsNames = yr.events.map((e) => e.name).join(', ');
@@ -239,12 +245,27 @@ function renderYearlyChart(years) {
     indicator.setAttribute('opacity', '0');
   });
 
+  svg.addEventListener('keydown', (event) => {
+    const indices = {
+      ArrowRight: selectedIndex + 1,
+      ArrowLeft: selectedIndex - 1,
+      Home: 0,
+      End: years.length - 1,
+    };
+    if (Object.hasOwn(indices, event.key)) {
+      event.preventDefault();
+      select(indices[event.key]);
+    }
+  });
+
+  select(0);
+
   const wrapper = node('div', 'yearly-chart-wrap');
   wrapper.append(instructions, svg, tooltip);
   return wrapper;
 }
 
-function renderYearlyTable(years) {
+function renderYearlyTable(years, feasible) {
   const wrapper = node('div', 'table-scroll');
   const table = node('table');
   const caption = node('caption', 'sr-only', 'Jahresübersicht aller Sparraten, Zuführungen und Ausgaben');
@@ -256,7 +277,7 @@ function renderYearlyTable(years) {
     { label: 'Übrig vom Sparbudget', align: 'right' },
     { label: 'In Cash zurücklegen', align: 'right' },
     { label: 'Anteil frei', align: 'right' },
-    { label: 'Ausgaben (Verkonsumiert)', align: 'right' },
+    { label: 'Geplante Ausgaben', align: 'right' },
     { label: 'Cash am Jahresende', align: 'right' },
   ];
 
@@ -280,9 +301,9 @@ function renderYearlyTable(years) {
       yearAgeCell.append(node('span', 'event-note', yr.events.map((e) => e.name).join(', ')));
     }
 
-    const freeCell = node('td', yr.longTermCents > 0 ? 'cash-contribution' : '', money(yr.longTermCents));
+    const freeCell = node('td', feasible && yr.longTermCents > 0 ? 'cash-contribution' : '', feasible ? money(yr.longTermCents) : '–');
     const cashCell = node('td', '', money(yr.contributionCents));
-    const ratioCell = node('td', '', `${yr.freePercent} %`);
+    const ratioCell = node('td', '', feasible ? `${yr.freePercent} %` : '–');
     const expenseCell = node('td', yr.expenseCents > 0 ? 'expense-amount' : '', yr.expenseCents > 0 ? `- ${money(yr.expenseCents)}` : '–');
     const endCashCell = node('td', '', money(yr.endCashCents));
 
@@ -299,10 +320,15 @@ export function renderYearlyPlan(plan) {
   const summaryContainer = document.getElementById('yearly-summary');
   const chartContainer = document.getElementById('yearly-chart');
   const tableContainer = document.getElementById('yearly-table-container');
+  const infeasibleNotice = document.getElementById('yearly-infeasible-notice');
 
   if (!summaryContainer || !chartContainer || !tableContainer) return;
 
   const years = aggregateYearlyData(plan.rows, plan.feasible);
+  if (infeasibleNotice) {
+    infeasibleNotice.hidden = true;
+    infeasibleNotice.textContent = '';
+  }
 
   if (!years.length) {
     summaryContainer.replaceChildren(node('p', 'muted', 'Keine Plandaten vorhanden.'));
@@ -311,7 +337,12 @@ export function renderYearlyPlan(plan) {
     return;
   }
 
-  summaryContainer.replaceChildren(renderYearlySummary(years));
-  chartContainer.replaceChildren(renderYearlyChart(years));
-  tableContainer.replaceChildren(renderYearlyTable(years));
+  if (infeasibleNotice && !plan.feasible) {
+    infeasibleNotice.hidden = false;
+    infeasibleNotice.textContent = 'Der Jahresverlauf zeigt eine rechnerische Vorschau mit voller monatlicher Zuführung ab dem nächsten Monat. Auch damit reicht der Plan unter den aktuellen Annahmen nicht für alle Ziele; die dargestellten Zuführungen sind kein finanzierbarer Sparplan.';
+  }
+
+  summaryContainer.replaceChildren(renderYearlySummary(years, plan.feasible));
+  chartContainer.replaceChildren(renderYearlyChart(years, plan.feasible));
+  tableContainer.replaceChildren(renderYearlyTable(years, plan.feasible));
 }

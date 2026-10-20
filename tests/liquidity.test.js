@@ -40,6 +40,7 @@ test('invalid settings and expense input are rejected', () => {
 });
 
 test('reserveAtMonth compounds reserve with inflation and rejects overflow', () => {
+  assert.equal(reserveAtMonth(100, 50, 12), 101);
   assert.equal(reserveAtMonth(10000, 200, 12), 10200);
   assert.equal(reserveAtMonth(10000, 200, 24), 10404);
   assert.equal(reserveAtMonth(10000, 0, 120), 10000);

@@ -50,11 +50,12 @@ function render() {
     renderResult(); updateFreshness();
   } catch (error) { notify(`Die Planung konnte nicht berechnet werden: ${error.message}`); }
 }
-function applyData(next) {
+function applyData(next, updateForm = true) {
   const valid = validateData(next);
   buildPlan(valid.settings, valid.goals, startMonth);
   data = valid;
-  fillSettings(data.settings); persist(); render();
+  if (updateForm) fillSettings(data.settings);
+  persist(); render();
 }
 function removeGoal(id) {
   data = {...data,goals:data.goals.filter((goal) => goal.id !== id)};
@@ -68,8 +69,7 @@ const openGoal = bindGoalForm((goal) => {
   applyData({...data,goals}); notify('Ziel gespeichert.');
 },startMonth, () => data.settings.currentAge);
 bindSettings((settings, cashChanged) => {
-  data = {...data,settings,cashUpdatedAt:cashChanged ? new Date().toISOString() : data.cashUpdatedAt};
-  persist(); render();
+  applyData({...data, settings, cashUpdatedAt: cashChanged ? new Date().toISOString() : data.cashUpdatedAt}, false);
 });
 function confirmReplacement(description, action) {
   const dialog = document.getElementById('confirm-dialog');

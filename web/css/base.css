@@ -48,7 +48,7 @@ button, input, select, summary {
   outline-offset: 4px;
 }
 
-button:focus-visible, input:focus-visible, select:focus-visible, summary:focus-visible, a:focus-visible {
+button:focus-visible, input:focus-visible, select:focus-visible, summary:focus-visible, a:focus-visible, svg:focus-visible, .page-heading h1:focus-visible {
   outline: 3px solid #3078a3;
   outline-offset: 4px;
 }
@@ -227,10 +227,6 @@ main {
 
 .page-heading h1 {
   margin-bottom: 10px;
-}
-
-#page-title:focus {
-  outline: none;
 }
 
 .page-heading p:not(.eyebrow) {

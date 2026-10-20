@@ -57,8 +57,7 @@
         <div class="panel start-hero">
           <h2>Wie viel Cash brauchst du wirklich auf dem Konto?</h2>
           <p>
-            Viele Menschen halten aus Vorsicht zu viel unverzinstes Geld als Cash vor – oder geraten bei größeren Ausgaben plötzlich in Engpässe.
-            CashflowPlanner berechnet dir vorausschauend den perfekten Mittelweg: <strong>So wenig Cash wie möglich, so viel wie nötig.</strong>
+            CashflowPlanner zeigt anhand deiner Angaben, wann du für geplante Ausgaben Cash zurücklegen musst und welcher Teil deines Monatsbetrags rechnerisch für langfristige Anlagen übrig bleibt. Die Berechnung folgt deinen Annahmen: <strong>So wenig Cash wie möglich, so viel wie nötig.</strong>
           </p>
           <div class="start-actions">
             <a href="#uebersicht" class="button primary">Zur Planung starten →</a>
@@ -95,29 +94,29 @@
         <div class="panel start-audience">
           <h3>Für wen dieser Planer gedacht ist</h3>
           <p>
-            Der CashflowPlanner richtet sich an finanzielle Selbstentscheider mit Sinn für ein solides, risikobewusstes Liquiditätsmanagement: Menschen, die ihre Finanzen eigenverantwortlich steuern und nach Abzug aller laufenden Lebenshaltungskosten einen verlässlichen monatlichen Betrag frei zur Verfügung haben.
+            Der CashflowPlanner ist für Menschen gedacht, die nach ihren laufenden Ausgaben einen monatlichen Betrag für geplante Ausgaben und langfristige Anlagen einteilen möchten.
           </p>
           <p>
-            <strong>Eiserne Grundregel: Keine Schulden.</strong> Der Planer setzt zwingend voraus, dass keine Konsum- oder Ratenkredite offen sind. Solange Verbindlichkeiten bestehen, hat deren Tilgung immer Vorrang – jede Liquiditätsplanung für Konsum oder Anschaffungen wäre sonst Augenwischerei auf Pump.
+            Der Planer bildet keine Kreditverträge oder Tilgungsstrategien ab. Berücksichtige Kreditraten und andere feste Zahlungen bei der Ermittlung des monatlich verfügbaren Betrags.
           </p>
           <p>
-            <strong>Eine Planung pro Lebensphase:</strong> Dieser Planer bildet immer <em>einen</em> zusammenhängenden Lebensabschnitt ab – typischerweise die aktive Erwerbsphase. Er ist bewusst nicht dafür gedacht, fundamentale Umbrüche wie den Übergang in den Ruhestand in einer einzigen Modellrechnung zu vermischen, da sich Einnahmen, Cashflows und Ausgaben dort grundlegend ändern. Tritt eine neue Lebensphase ein, erstellt man dafür eine eigenständige, neue Planung.
+            Ändern sich Einkommen, Ausgaben oder Prioritäten, passe den verfügbaren Monatsbetrag und deine Ziele an und berechne den Plan neu.
           </p>
         </div>
 
         <div class="panel start-philosophy">
           <h3>Bewusst einfach gehalten: Das Leben ist keine Excel-Tabelle</h3>
           <p>
-            Planungen über viele Dekaden werden mit jedem Jahr ungenauer – darauf weisen auch große Vermögensverwalter wie Vanguard oder Fidelity regelmäßig hin. Je weiter man in die Zukunft rechnet, desto fragwürdiger wird der Informationsgehalt, denn Lebensphasen, Gehaltsentwicklungen und Prioritäten verändern sich.
+            Je weiter ein Ziel in der Zukunft liegt, desto stärker hängt das Ergebnis von den heutigen Annahmen ab. Einkommen, Ausgaben und Prioritäten können sich ändern.
           </p>
           <p>
-            Dieser Planer verzichtet deshalb bewusst auf Scheingenauigkeit: Er soll dir schnelle Klarheit für deine nächsten Schritte geben. <strong>Prüfe und passe deine Ziele am besten einfach einmal im Jahr an – das reicht völlig aus.</strong>
+            Die monatsgenaue Berechnung ist eine Planung unter diesen Annahmen, keine Vorhersage. Prüfe und aktualisiere deine Angaben, wenn sich deine Situation oder deine Ziele ändern.
           </p>
         </div>
 
         <div class="panel start-privacy">
-          <strong>100 % privat und lokal</strong>
-          <p>Deine Finanzdaten verlassen niemals dein Gerät. Keine Registrierung, keine Bankanbindung, keine Cloud – deine Planung gehört nur dir.</p>
+          <strong>Lokal im Browser gespeichert</strong>
+          <p>Die Anwendung überträgt keine Finanzdaten an einen Server. Wenn du eine Exportdatei teilst, gibst du die darin enthaltenen Angaben weiter.</p>
         </div>
       </section>
       <section id="overview-view" class="app-view" aria-label="Übersicht" hidden>
@@ -142,7 +141,7 @@
                     <input id="monthlyCents" name="monthlyCents" inputmode="decimal" autocomplete="off">
                     <span>€</span>
                   </div>
-                  <p class="field-help">Dieser Betrag bleibt in jedem künftigen Monat gleich.</p>
+                  <p class="field-help">Der Betrag, der nach deinen laufenden Ausgaben für Ziele und langfristige Anlagen verfügbar ist. In der Rechnung bleibt er nominal gleich.</p>
                 </div>
                 <div>
                   <label for="reserveCents">Mindestreserve</label>
@@ -150,6 +149,7 @@
                     <input id="reserveCents" name="reserveCents" inputmode="decimal" autocomplete="off">
                     <span>€</span>
                   </div>
+                  <p class="field-help">Dieser Betrag soll nach den geplanten Ausgaben als Mindestbestand verfügbar bleiben.</p>
                 </div>
               </div>
               <div class="field-row">
@@ -267,10 +267,11 @@
         <section class="panel chart-panel" aria-labelledby="yearly-heading">
           <div class="section-heading">
             <div>
-              <h2 id="yearly-heading">Cash vs. Übrig pro Jahr</h2>
-              <p class="muted small">Wieviel von deinem Sparbudget in Cash fließt und wieviel für langfristige Anlagen frei bleibt</p>
+              <h2 id="yearly-heading">Monatsbetrag pro Jahr aufteilen</h2>
+              <p class="muted small">Wie viel deines verfügbaren Monatsbetrags in Cash fließt und wie viel für langfristige Anlagen übrig bleibt</p>
             </div>
           </div>
+          <p id="yearly-infeasible-notice" class="notice" role="status" hidden></p>
           <div id="yearly-summary" class="yearly-summary">
           </div>
           <div id="yearly-chart" class="yearly-chart-container">
@@ -281,10 +282,10 @@
               </i> Übrig für Vermögensaufbau</span>
             <span>
               <i class="box cash-box">
-              </i> In Cash zurückgelegt (für Konsum)</span>
+              </i> In Cash zurückgelegt (für geplante Ausgaben)</span>
             <span>
               <i class="diamond-dot">
-              </i> Tatsächliche Ausgaben</span>
+              </i> Geplante Ausgaben</span>
           </div>
         </section>
         <section class="panel" aria-labelledby="yearly-table-heading">
@@ -313,7 +314,7 @@
     </main>
     <footer>
       <strong>CashflowPlanner</strong>
-      <p>Deine Planung bleibt lokal. Beim Löschen der Browserdaten kann sie verloren gehen. Sichere sie regelmäßig über „Exportieren“. Lokale Daten sind nicht automatisch verschlüsselt.</p>
+      <p>Die Ergebnisse sind Modellrechnungen auf Grundlage deiner Angaben und keine individuelle Anlageberatung. Deine Planung bleibt lokal. Beim Löschen der Browserdaten kann sie verloren gehen. Sichere sie regelmäßig über „Exportieren“. Lokale Daten sind nicht automatisch verschlüsselt.</p>
     </footer>
     <dialog id="goal-dialog" aria-labelledby="goal-dialog-title">
       <form id="goal-form" novalidate>

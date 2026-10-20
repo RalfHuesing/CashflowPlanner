@@ -24,7 +24,7 @@ function renderMonthRows(row, plan) {
     : money(plan.feasible ? row.contributionCents : row.bestCaseContributionCents);
   const remainder = isCurrentMonth
     ? '–'
-    : money(plan.feasible ? row.longTermCents : 0);
+    : plan.feasible ? money(row.longTermCents) : '–';
   const events = row.events;
   const eventCount = events.length;
 
@@ -109,7 +109,7 @@ export function renderMonthlyPlan(plan) {
   const content = [];
 
   if (!plan.feasible) {
-    content.push(node('p', 'notice', 'Der gleichbleibende Monatsbetrag reicht zusammen mit dem heutigen Bestand bei der eingestellten Inflation auf Zielbeträge nicht für den gesamten Planungshorizont. Die Vorschau zeigt den Verlauf bei voller monatlicher Zuführung. Sie ist kein finanzierbarer Sparplan; der heute nötige Cashbestand muss nicht pauschal heute vorgehalten werden.'));
+    content.push(node('p', 'notice', 'Der gleichbleibende Monatsbetrag reicht zusammen mit dem heutigen Bestand bei der eingestellten Inflation auf Zielbeträge nicht für den gesamten Planungshorizont. Die Vorschau zeigt den Verlauf bei voller monatlicher Zuführung. Die freie Sparrate für langfristige Anlagen ist deshalb nicht berechenbar; der heute nötige Cashbestand muss nicht pauschal heute vorgehalten werden.'));
     const critical = currentYear.rows.find((row) => row.month === plan.firstCriticalMonth);
     if (critical?.events.length) {
       content.push(node('p', 'small', `Ausgaben im ersten Engpassmonat (${monthLabel(plan.firstCriticalMonth)}): ${critical.events.map((event) => event.name ?? event.goalName).join(', ')}.`));

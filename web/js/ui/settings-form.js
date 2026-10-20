@@ -52,7 +52,11 @@ export function bindSettings(onChange) {
     }
     if (!invalid) {
       error.textContent = '';
-      onChange(settings, event.target.name === 'cashCents');
+      try {
+        onChange(settings, event.target.name === 'cashCents');
+      } catch (problem) {
+        error.textContent = `Die Planung konnte nicht berechnet werden: ${problem.message}`;
+      }
     }
   });
   for (const field of form.querySelectorAll('input')) {

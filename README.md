@@ -13,6 +13,8 @@ npm run dev
 
 Anschließend `http://127.0.0.1:4173` öffnen. Für eine statische Bereitstellung genügt der Inhalt von `web/` auf einem beliebigen statischen Webserver. Es ist kein Build-Schritt erforderlich.
 
+Für eine öffentliche Bereitstellung HTTPS aktivieren und am Webserver sinnvolle Sicherheitsheader setzen. Als Ausgangspunkt eignet sich eine Content Security Policy mit `default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'`. Ergänze `X-Content-Type-Options: nosniff`, `Referrer-Policy: no-referrer` und eine `Permissions-Policy`, die nicht benötigte Funktionen wie Kamera, Mikrofon und Geolocation sperrt. Nach Aktivierung von HTTPS kann `Strict-Transport-Security` gesetzt werden.
+
 ## Prüfen
 
 ```sh

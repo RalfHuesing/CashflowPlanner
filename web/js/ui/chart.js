@@ -22,7 +22,7 @@ export function renderChart(plan) {
   const y = (cents) => top + (maximum - cents) / (maximum - minimum) * (height - top - bottom);
   const svg = svgNode('svg', {viewBox: `0 0 ${width} ${height}`, role: 'img', tabindex: '0', 'aria-labelledby': 'cash-chart-title', 'aria-describedby': 'chart-instructions chart-tooltip'});
   svg.append(svgNode('title', {id: 'cash-chart-title'}, 'Cashbestand und erforderliche Liquidität nach Monat, Jahr und Alter'));
-  const instructions = node('p', 'sr-only', 'Diagramm: Die waagerechte Achse zeigt Jahr und Alter. Mit Pfeiltasten einzelne Monate erkunden. Pos1 und Ende springen zum Anfang und Ende. Die Monatsvorschau steht als Tabelle unter dem Diagramm.');
+  const instructions = node('p', 'sr-only', 'Diagramm: Die waagerechte Achse zeigt Jahr und Alter. Mit den Pfeiltasten einzelne Monate erkunden. Pos1 und Ende springen zum Anfang und Ende. Einzelne Monate und Ausgaben findest du im Monatsplan.');
   instructions.id = 'chart-instructions';
   for (let step = 0; step <= 4; step++) {
     const cents = minimum + (maximum - minimum) * step / 4;

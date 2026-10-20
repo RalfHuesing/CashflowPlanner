@@ -87,6 +87,7 @@ test('invalid goals and limits fail explicitly', () => {
 });
 
 test('annual effective inflation compounds from today and rounds each occurrence to cents', () => {
+  assert.equal(generateEvents([{...goal, amountCents: 100, type: 'once', dueMonth: '2027-10'}], '2026-10', 12, 50).events[0].amountCents, 101);
   const annual = {...goal, amountCents: 10000, dueMonth: '2026-10'};
   const result = generateEvents([annual], '2026-10', 24, 200);
   assert.deepEqual(result.events.map(event => event.amountCents), [10000, 10200, 10404]);
