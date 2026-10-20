@@ -1,7 +1,7 @@
 import { readFile, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { resolve } from 'node:path';
-import { buildScenarios } from '../web/js/domain/scenarios.js';
+import { buildPlan } from '../web/js/domain/scenarios.js';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const fixturePath = resolve(root, 'tests/fixtures/scenarios.json');
@@ -12,21 +12,21 @@ const money = cents => euro.format(cents / 100);
 export async function generateExamples() {
   const fixtures = JSON.parse(await readFile(fixturePath, 'utf8'));
   const lines = [
-    '# Beispielszenarien',
+    '# Beispielpläne',
     '',
     'Automatisch aus `tests/fixtures/scenarios.json` und dem aktuellen Berechnungskern erzeugt. Nicht manuell bearbeiten.',
     ''
   ];
   for (const fixture of fixtures) {
-    const result = buildScenarios(fixture.settings, fixture.goals, fixture.startMonth).keep;
+    const result = buildPlan(fixture.settings, fixture.goals, fixture.startMonth);
     lines.push(`## ${fixture.name}`, '');
     lines.push(`Startmonat: ${fixture.startMonth}; Alter: ${fixture.settings.currentAge} bis ${fixture.settings.horizonAge} Jahre.`, '');
     lines.push(`Cash heute: ${money(fixture.settings.cashCents)}; monatlich verfügbar: ${money(fixture.settings.monthlyCents)}; Mindestreserve: ${money(fixture.settings.reserveCents)}; jährliche Inflation: ${((fixture.settings.inflationBps ?? 200) / 100).toLocaleString('de-DE')} %.`, '');
-    lines.push('| Ziel | Betrag | Erster Termin | Letzter Termin | Wiederholung | Spielraum |', '|---|---:|---|---|---|---:|');
+    lines.push('| Ziel | Betrag | Erster Termin | Letzter Termin | Wiederholung |', '|---|---:|---|---|---|');
     for (const goal of fixture.goals) {
-      lines.push(`| ${goal.name} | ${money(goal.amountCents)} | ${goal.dueMonth} | ${goal.endMonth ?? '—'} | ${goal.type === 'annual' ? 'jährlich' : 'einmalig'} | ± ${goal.flexMonths} Monate |`);
+      lines.push(`| ${goal.name} | ${money(goal.amountCents)} | ${goal.dueMonth} | ${goal.endMonth ?? '—'} | ${goal.type === 'annual' ? 'jährlich' : 'einmalig'} |`);
     }
-    lines.push('', `Erforderlicher Cashbestand heute: **${money(result.requiredTodayCents)}**. Finanzierungslücke: **${money(result.gapCents)}**. Rechnerisch freigebbar: **${money(result.releasableCents)}**. Plan: **${result.feasible ? 'finanzierbar' : 'nicht finanzierbar'}**.`, '');
+    lines.push('', `Ausgaben im Startmonat: **${money(result.rows[0].expenseCents)}**. Rechnerisches Startkapital für den gesamten Horizont: **${money(result.requiredTodayCents)}**. Modelllücke: **${money(result.gapCents)}**. Plan: **${result.feasible ? 'finanzierbar' : 'nicht finanzierbar'}**.`, '');
     if (result.firstCriticalMonth) lines.push(`Erster kritischer Monat im Maximalzuführungsverlauf: ${result.firstCriticalMonth}.`, '');
   }
   return `${lines.join('\n').trimEnd()}\n`;

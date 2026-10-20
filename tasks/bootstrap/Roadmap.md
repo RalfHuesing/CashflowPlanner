@@ -296,6 +296,7 @@ Ziel: Abschließende Prüfung aller 28 Abnahmekriterien aus Konzept Kap. 18, Cod
 | 6 | 6.3 | Fachliches & Technisches Audit | [x] Erledigt |
 | 7 | 7.1 | Jährliche Inflation für Zielzahlungen | [x] Erledigt |
 | 7 | 7.2 | Optionaler Endmonat für jährliche Ziele | [x] Erledigt |
+| 7 | 7.3 | Ein Cashplan, feste Monatsrate und Alter bei Monat/Jahr | [x] Erledigt |
 
 ## Erweiterung 7.1: Inflation
 
@@ -311,3 +312,11 @@ Ziel: Abschließende Prüfung aller 28 Abnahmekriterien aus Konzept Kap. 18, Cod
 - Theoretisch verschobene Zahlungen bleiben innerhalb des Endmonats; heute fällige Zahlungen werden nicht verschoben.
 - Bestehende gespeicherte Ziele und JSON-Dateien ohne `endMonth` bleiben gültig und erhalten beim Laden `null`.
 - Fachliche Tests, Dokumentation und Browserprüfung sind ergänzt.
+
+## Erweiterung 7.3: Vereinfachter Zeitplan
+
+- Ein einziger Cashplan verwendet die gespeicherten Fälligkeiten und baut Cash bei finanzierbaren Plänen so spät wie möglich auf. Frühere Freigabe- und Verschiebevarianten aus den Paketen 2.4 und 4.5 sind entfernt; `flexMonths` bleibt nur für alte JSON-Dateien erhalten.
+- Der monatlich verfügbare Betrag bleibt auch bei positiver Inflation über den gesamten Zeitraum nominal konstant. Inflationsbedingt steigen nur künftige Zielzahlungen.
+- Die Oberfläche trennt aktuelle Ausgaben von langfristigem Modellbedarf und erstem Engpass; bei Unterdeckung zeigt sie einen Verlauf mit voller Monatszuführung statt eines als gültig ausgegebenen Sparplans.
+- Monat/Jahr und das daraus näherungsweise berechnete Alter stehen bei Zielterminen und Zeitplan zusammen.
+- Die private Importdatei in `temp/` wurde zur fachlichen Prüfung gelesen, aber nicht eingecheckt.

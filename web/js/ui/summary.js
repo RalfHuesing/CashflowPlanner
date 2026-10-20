@@ -1,11 +1,12 @@
 import { money, monthLabel, node } from './format.js';
 export function renderSummary(plan, settings) {
   const next = plan.rows[1];
+  const firstShortfall = plan.firstCriticalMonth ? monthLabel(plan.firstCriticalMonth) : null;
   const metrics = [
-    ['Heute erforderlich', money(plan.requiredTodayCents), 'Vor aktuellen Monatsausgaben', ''],
-    [plan.feasible ? 'Rechnerisch freigebbar' : 'Finanzierungslücke', money(plan.feasible ? plan.releasableCents : plan.gapCents), plan.feasible ? 'Unter den Modellannahmen' : 'Zusätzlich heute erforderlich', plan.feasible ? 'positive' : 'negative'],
-    ['Nächste Cash-Zuführung', plan.feasible && next ? money(next.contributionCents) : '—', next ? monthLabel(next.month) : 'Kein weiterer Planungsmonat', ''],
-    ['Langfristig verfügbar', plan.feasible && next ? money(next.longTermCents) : '—', plan.feasible ? 'Vom nächsten Monatsbetrag' : 'Kein gültiger Sparplan', ''],
+    ['Dein aktueller Cashbestand', money(settings.cashCents), 'Tatsächlich heute verfügbar', ''],
+    ['Ausgaben im aktuellen Monat', money(plan.rows[0].expenseCents), 'Aus dem heutigen Cashbestand; keine Sparrate in diesem Monat', ''],
+    ['Lücke zum langfristigen Modellbedarf', money(plan.gapCents), plan.feasible ? 'Keine unter den eingestellten Annahmen' : firstShortfall ? `Erster Engpass: ${firstShortfall}` : 'Bei heutigem Bestand und gleichbleibendem Monatsbetrag', plan.feasible ? '' : 'negative'],
+    ['Langfristiger Modellbedarf', money(plan.requiredTodayCents), 'Rechenwert für alle Ziele inklusive dieses Monats; keine Halteempfehlung', ''],
   ];
   document.getElementById('summary').replaceChildren(...metrics.map(([label, value, detail, style]) => {
     const card = node('div', `metric ${style}`);
@@ -13,10 +14,10 @@ export function renderSummary(plan, settings) {
     return card;
   }));
   const status = document.getElementById('plan-status');
-  status.textContent = plan.feasible ? '✓ Ziele finanzierbar' : 'Finanzierungslücke';
+  status.textContent = plan.feasible ? '✓ Im Modell finanzierbar' : 'Im Modell nicht finanzierbar';
   status.classList.toggle('negative', !plan.feasible);
   const explanation = plan.feasible
-    ? `Für deine geplanten Ausgaben brauchst du heute mindestens ${money(plan.requiredTodayCents)}. Dein tatsächlicher Cashbestand beträgt ${money(settings.cashCents)}. ${next?.contributionCents === 0 ? 'Im nächsten Monat musst du noch kein zusätzliches Cash ansparen.' : 'Die monatlichen Zuführungen werden so spät wie möglich eingeplant.'}`
-    : `Für deine geplanten Ausgaben fehlen heute mindestens ${money(plan.gapCents)}. ${plan.firstCriticalMonth ? `Der erste Engpass entsteht im ${monthLabel(plan.firstCriticalMonth)}. ` : ''}Zusätzlicher Cashbestand, ein höherer Monatsbetrag oder angepasste Ziele sind erforderlich.`;
+    ? `Unter den eingestellten Annahmen reicht dein heutiger Bestand zusammen mit dem gleichbleibenden Monatsbetrag für den gesamten Planungshorizont. Zuführungen werden so spät wie möglich eingeplant${next?.contributionCents === 0 ? '; im nächsten Monat ist noch keine Zuführung nötig.' : '.'}`
+    : `Mit ${money(settings.monthlyCents)} monatlich, gleichbleibend in jedem künftigen Monat, reicht die Planung bei ${settings.inflationBps / 100}% Inflation auf Zielbeträge nicht bis zum Ende des Horizonts. Die Lücke zum langfristigen Modellbedarf beträgt ${money(plan.gapCents)}; der erste Engpass entsteht ${firstShortfall ? `im ${firstShortfall}` : 'innerhalb des Planungshorizonts'}. Der langfristige Modellbedarf ist keine Empfehlung, diesen Betrag heute vorzuhalten. Ein anderer Monatsbetrag oder angepasste Ziele verändern das Ergebnis.`;
   document.getElementById('explanation').textContent = explanation;
 }

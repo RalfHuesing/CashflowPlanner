@@ -1,5 +1,5 @@
 import { currentMonth } from './domain/calendar.js';
-import { buildScenarios } from './domain/scenarios.js';
+import { buildPlan } from './domain/scenarios.js';
 import { getCashFreshness, loadData, saveData } from './data/storage.js';
 import { exportData, MAX_IMPORT_BYTES, parseImport, validateData } from './data/import-export.js';
 import { getSampleData } from './data/sample-data.js';
@@ -13,8 +13,7 @@ import { bindNavigation } from './ui/navigation.js';
 
 const loaded = loadData();
 let data = loaded.data;
-let scenario = 'keep';
-let scenarios;
+let plan;
 const startMonth = currentMonth();
 const message = document.getElementById('app-message');
 function notify(text) { message.textContent = text; message.hidden = !text; }
@@ -29,46 +28,30 @@ function updateFreshness() {
   if (!notice.hidden) notice.textContent = `Dein Cashbestand wurde zuletzt am ${new Date(data.cashUpdatedAt).toLocaleDateString('de-DE')} aktualisiert. Prüfe den aktuellen Betrag für eine zuverlässige Planung.`;
 }
 function renderResult() {
-  const plan = scenarios[scenario];
-  renderSummary(scenarios.keep, data.settings);
+  renderSummary(plan, data.settings);
   renderChart(plan, data.settings);
   renderMonthlyPlan(plan);
-  const descriptions = {
-    keep: 'Szenario A: Dein vorhandener Cashbestand bleibt vollständig erhalten. Es wird keine Entnahme angenommen.',
-    release: `Szenario B · Simulation: ${money(plan.releasedCents)} werden hypothetisch sofort aus dem Cashbestand entnommen. Es erfolgt keine tatsächliche Transaktion.`,
-    flexibility: 'Theoretische Terminvariante: Flexible Ausgaben werden innerhalb ihres Spielraums später eingeplant. Deine gespeicherten Wunschtermine bleiben maßgeblich.',
-  };
-  let description = descriptions[scenario];
-  if (scenario === 'flexibility' && plan.shiftedGoals.length) description += ` Verschiebungen: ${plan.shiftedGoals.map((goal) => `${goal.name} um ${goal.shiftMonths} Monate (auf ${monthLabel(goal.toMonth)})`).join('; ')}.`;
-  document.getElementById('scenario-description').textContent = description;
 }
 function render() {
   try {
-    scenarios = buildScenarios(data.settings, data.goals, startMonth);
-    if (!scenarios[scenario]) scenario = 'keep';
-    document.querySelector(`input[name="scenario"][value="${scenario}"]`).checked = true;
-    document.getElementById('flex-option').hidden = !scenarios.flexibility;
-    const flex = document.getElementById('flexibility-note');
-    flex.hidden = !scenarios.flexibility;
-    if (!flex.hidden) flex.textContent = scenarios.flexibility.feasible ? 'Mit späteren zulässigen Terminen wäre dein Plan finanzierbar. Wähle „Termine verschieben“, um diese theoretische Variante zu prüfen.' : `Auch mit späteren zulässigen Terminen fehlen heute ${money(scenarios.flexibility.gapCents)}. Die theoretische Variante kannst du im Diagramm prüfen.`;
-    renderGoals(data.goals, openGoal, removeGoal, startMonth);
-    const overdue = scenarios.keep.events.filter((event) => event.overdue);
+    plan = buildPlan(data.settings, data.goals, startMonth);
+    renderGoals(data.goals, openGoal, removeGoal, startMonth, data.settings.currentAge);
+    const overdue = plan.events.filter((event) => event.overdue);
     const overdueNotice = document.getElementById('overdue-notice');
     overdueNotice.hidden = !overdue.length;
     overdueNotice.textContent = overdue.length ? `${overdue.length} ${overdue.length === 1 ? 'überfällige Ausgabe wird' : 'überfällige Ausgaben werden'} im aktuellen Monat aus deinem heutigen Cashbestand bezahlt: ${overdue.slice(0, 3).map((event) => event.name).join(', ')}${overdue.length > 3 ? ` und ${overdue.length - 3} weitere` : ''}. Bitte aktualisiere bereits bezahlte Ziele.` : '';
-    const excluded = scenarios.keep.excludedGoals;
+    const excluded = plan.excludedGoals;
     const excludedNotice = document.getElementById('excluded-notice');
     excludedNotice.hidden = !excluded.length;
     excludedNotice.textContent = `Nicht im Plan enthalten: ${excluded.map((goal) => ` ${goal.name} (nach dem Planungshorizont)`.trim()).join('; ')}. Bitte prüfe Fälligkeiten und Planungshorizont.`;
-    document.getElementById('horizon-note').textContent = `Der Plan endet im ${monthLabel(scenarios.keep.horizonMonth)}. ${excluded.length ? `Nicht berücksichtigt: ${excluded.map((goal) => `${goal.name} (nach dem Planungshorizont)`).join('; ')}.` : 'Alle im Planungshorizont fälligen Ziele sind berücksichtigt.'}`;
+    document.getElementById('horizon-note').textContent = `Der Plan endet im ${monthLabel(plan.horizonMonth)}. ${excluded.length ? `Nicht berücksichtigt: ${excluded.map((goal) => `${goal.name} (nach dem Planungshorizont)`).join('; ')}.` : 'Alle im Planungshorizont fälligen Ziele sind berücksichtigt.'}`;
     renderResult(); updateFreshness();
   } catch (error) { notify(`Die Planung konnte nicht berechnet werden: ${error.message}`); }
 }
 function applyData(next) {
   const valid = validateData(next);
-  buildScenarios(valid.settings, valid.goals, startMonth);
+  buildPlan(valid.settings, valid.goals, startMonth);
   data = valid;
-  scenario = 'keep';
   fillSettings(data.settings); persist(); render();
 }
 function removeGoal(id) {
@@ -81,7 +64,7 @@ const openGoal = bindGoalForm((goal) => {
   const goals = data.goals.filter((entry) => entry.id !== goal.id);
   goals.push(goal);
   applyData({...data,goals}); notify('Ziel gespeichert.');
-},startMonth);
+},startMonth, () => data.settings.currentAge);
 bindSettings((settings, cashChanged) => {
   data = {...data,settings,cashUpdatedAt:cashChanged ? new Date().toISOString() : data.cashUpdatedAt};
   persist(); render();
@@ -89,7 +72,6 @@ bindSettings((settings, cashChanged) => {
   data = {...data,cashUpdatedAt:new Date().toISOString()};
   persist(); updateFreshness(); notify('Dein gespeicherter Cashbestand wurde als aktuell bestätigt.');
 });
-for (const radio of document.querySelectorAll('input[name="scenario"]')) radio.addEventListener('change',() => {scenario=radio.value;renderResult();});
 function confirmReplacement(description, action) {
   const dialog = document.getElementById('confirm-dialog');
   document.getElementById('confirm-description').textContent = description;
@@ -123,11 +105,11 @@ fileInput.addEventListener('change',async () => {
   try {
     if (file.size>MAX_IMPORT_BYTES) throw new Error('Die Datei ist zu groß. Erlaubt ist maximal 1 MB.');
     const imported = parseImport(await file.text());
-    buildScenarios(imported.settings,imported.goals,startMonth);
+    buildPlan(imported.settings,imported.goals,startMonth);
     confirmReplacement(`Die gültige Datei enthält ${imported.goals.length} Ziele und ${money(imported.settings.cashCents)} Cashbestand. Deine aktuelle Planung wird vollständig ersetzt.`,() => {applyData(imported);notify('Die Planung wurde vollständig importiert.');});
   } catch (error) {notify(`Import fehlgeschlagen: ${error.message}`);}
 });
-bindGoalList(() => renderGoals(data.goals, openGoal, removeGoal, startMonth));
+bindGoalList(() => renderGoals(data.goals, openGoal, removeGoal, startMonth, data.settings.currentAge));
 bindNavigation();
 fillSettings(data.settings);
 render();

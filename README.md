@@ -24,10 +24,10 @@ npm run docs:check
 npm run verify
 ```
 
-`docs:sync` erzeugt [Beispielszenarien](docs/EXAMPLES.md) aus Test-Fixtures und Berechnungskern. `docs:check` prüft Dokumentationsverweise und die Aktualität dieser Datei, ohne Dateien zu ändern.
+`docs:sync` erzeugt [Beispielpläne](docs/EXAMPLES.md) aus Test-Fixtures und Berechnungskern. `docs:check` prüft Dokumentationsverweise und die Aktualität dieser Datei, ohne Dateien zu ändern.
 
 ## Umfang und Grenzen
 
-Zielbeträge werden als heutige Eurobeträge erfasst und bis zum Zahlungsmonat mit dem einstellbaren jährlichen Inflationssatz hochgerechnet (Vorgabe 2 %, 0 % schaltet die Hochrechnung aus). Geldbeträge werden auf Cent gerundet. Monatlich verfügbarer Betrag und Mindestreserve bleiben nominal konstant; Zinsen und Renditen werden nicht berechnet. CashflowPlanner plant keine Depotverkäufe, Kredite, Transaktionen oder Konten. Die errechnete Freigabe von Cash ist eine hypothetische Möglichkeit, keine Anlageempfehlung. Daten werden lokal im Browser gespeichert; ein JSON-Export dient als manuelle Sicherung. Auf gemeinsam genutzten Geräten sind lokale Browserdaten zugänglich.
+Zielbeträge werden als heutige Eurobeträge erfasst und bis zum Zahlungsmonat mit dem einstellbaren jährlichen Inflationssatz hochgerechnet (Vorgabe 2 %, 0 % schaltet die Hochrechnung aus). Geldbeträge werden auf Cent gerundet. Der monatlich verfügbare Betrag bleibt als fester Eurobetrag über den gesamten Zeitraum unverändert; auch die Mindestreserve ist nominal konstant. Der einzige Plan legt Cash so spät wie möglich zurück. Falls der Bestand und der feste Monatsbetrag nicht für den gesamten Horizont reichen, zeigt die Anwendung den ersten Engpass und einen Verlauf bei voller monatlicher Zuführung. Zinsen und Renditen werden nicht berechnet. CashflowPlanner plant keine Depotverkäufe, Kredite, Transaktionen oder Konten. Daten werden lokal im Browser gespeichert; ein JSON-Export dient als manuelle Sicherung. Auf gemeinsam genutzten Geräten sind lokale Browserdaten zugänglich.
 
 Fachliche Details: [Produkt](docs/PRODUCT.md), [Algorithmus](docs/ALGORITHM.md), [Architektur](docs/ARCHITECTURE.md), [Datenformat](docs/DATA_FORMAT.md).

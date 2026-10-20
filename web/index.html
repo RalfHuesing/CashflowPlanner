@@ -40,7 +40,7 @@
         <div>
           <p class="eyebrow">DEINE LIQUIDITÄTSPLANUNG</p>
           <h1 id="page-title" tabindex="-1">Deine Übersicht</h1>
-          <p id="page-description">Wie viel Cash brauchst du heute – und was bleibt dir langfristig?</p>
+          <p id="page-description">Dein aktueller Bestand, die Ausgaben dieses Monats und die Tragfähigkeit deiner Ziele.</p>
         </div>
         <p class="local-badge">● Nur in deinem Browser gespeichert</p>
       </div>
@@ -69,6 +69,7 @@
                     <input id="monthlyCents" name="monthlyCents" inputmode="decimal" autocomplete="off">
                     <span>€</span>
                   </div>
+                  <p class="field-help">Dieser Betrag bleibt in jedem künftigen Monat gleich.</p>
                 </div>
                 <div>
                   <label for="reserveCents">Mindestreserve</label>
@@ -93,7 +94,7 @@
                 <input id="inflationBps" name="inflationBps" inputmode="decimal" autocomplete="off" aria-describedby="inflation-help settings-error">
                 <span>%</span>
               </div>
-              <p id="inflation-help" class="field-help">Auf heutige Zielbeträge angewendet; 0 % schaltet die Inflation aus.</p>
+              <p id="inflation-help" class="field-help">Diese Annahme erhöht künftige Zielbeträge. Dein verfügbarer Monatsbetrag bleibt gleich; 0 % schaltet die Inflation für Ziele aus.</p>
               <p id="settings-error" class="error-text" role="status">
               </p>
               <button type="button" id="confirm-cash" class="text-button">Cashbestand als aktuell bestätigen</button>
@@ -114,8 +115,6 @@
               </div>
               <div id="excluded-notice" class="notice" hidden>
               </div>
-              <div id="flexibility-note" class="notice" hidden>
-              </div>
             </section>
             <div class="next-step">
               <h2>Deine Planung im Detail</h2>
@@ -128,8 +127,8 @@
         <details class="panel assumptions">
           <summary>Wie wird gerechnet?</summary>
           <p>Cash wird so spät wie möglich angespart. Ab dem nächsten Kalendermonat erfolgt die Zuführung vor den Ausgaben. Offene Ausgaben im aktuellen Monat werden aus deinem heutigen Bestand bezahlt; für diesen Monat wird keine zusätzliche Sparrate angenommen.</p>
-          <p>Zukünftige Zielzahlungen werden mit der eingestellten jährlichen Inflation auf heutige Zielbeträge aufgeschlagen. Der monatlich verfügbare Betrag und die Mindestreserve bleiben nominal; bei 0 % ist die Inflation ausgeschaltet. Zinsen, Steuern und Renditen werden nicht berücksichtigt. Altersangaben sind näherungsweise; Fälligkeiten werden kalendermonatsgenau berechnet. Wiederkehrende Ausgaben werden nur bis zum Planungshorizont berücksichtigt.</p>
-          <p>Ein freigebbarer Überschuss setzt voraus, dass du künftig bei Bedarf den gesamten verfügbaren Monatsbetrag für Cash einsetzen kannst. Er ist keine Empfehlung für eine Investition.</p>
+          <p>Zukünftige Zielzahlungen steigen mit der eingestellten jährlichen Inflation. Der verfügbare Monatsbetrag bleibt in jedem künftigen Monat nominal gleich; die Mindestreserve bleibt ebenfalls gleich. Bei 0 % gibt es keine Inflation auf Ziele. Zinsen, Steuern und Renditen werden nicht berücksichtigt. Altersangaben sind näherungsweise; Fälligkeiten werden kalendermonatsgenau berechnet. Wiederkehrende Ausgaben werden nur bis zum Planungshorizont berücksichtigt.</p>
+          <p>Der langfristige Modellbedarf berechnet den benötigten Bestand für Ziele über den gesamten Planungshorizont, unter Berücksichtigung der gleichbleibenden Monatszuführungen und der Mindestreserve. Er ist ein Rechenwert und keine Empfehlung, diesen Betrag heute vorzuhalten. Ein Fehlbetrag zeigt, dass der heutige Bestand und der gleichbleibende Monatsbetrag unter den getroffenen Annahmen nicht für alle Ziele reichen.</p>
           <p id="horizon-note">
           </p>
         </details>
@@ -180,17 +179,6 @@
               <p class="muted small">Monatliche Endstände über deinen Planungshorizont</p>
             </div>
           </div>
-          <fieldset class="scenario-switch">
-            <legend class="sr-only">Szenario wählen</legend>
-            <label>
-              <input type="radio" name="scenario" value="keep" checked> Cash behalten</label>
-            <label>
-              <input type="radio" name="scenario" value="release"> Überschuss freigeben</label>
-            <label id="flex-option" hidden>
-              <input type="radio" name="scenario" value="flexibility"> Termine verschieben</label>
-          </fieldset>
-          <p id="scenario-description" class="field-help">
-          </p>
           <div id="chart">
           </div>
           <div class="legend">
@@ -237,6 +225,7 @@
           <div>
             <label for="goal-month">Erste Fälligkeit</label>
             <input id="goal-month" name="dueMonth" type="month" min="1900-01" max="9999-12" required>
+            <p id="goal-month-age" class="field-help month-age"></p>
           </div>
           <div>
             <label for="goal-type">Wiederholung</label>
@@ -249,11 +238,12 @@
         <div id="goal-end-month-field" hidden>
           <label for="goal-end-month">Letzte Fälligkeit (optional)</label>
           <input id="goal-end-month" name="endMonth" type="month" min="1900-01" max="9999-12" disabled aria-describedby="goal-end-month-help goal-error">
-          <p id="goal-end-month-help" class="field-help">Der Monat zählt noch mit. Ohne Endmonat bleibt das jährliche Ziel bis zum Ende des Planungshorizonts bestehen.</p>
+          <p id="goal-end-month-help" class="field-help">Der Monat zählt noch mit. Ohne Endmonat bleibt das jährliche Ziel bis zum Ende des Planungshorizonts bestehen.<span id="goal-end-month-age" class="month-age"></span></p>
         </div>
-        <label for="goal-flex">Zeitlicher Spielraum (± Monate)</label>
-        <input id="goal-flex" name="flexMonths" type="number" min="0" max="1200" step="1" value="0">
-        <p class="field-help">Der normale Plan verwendet immer deinen Wunschtermin.</p>
+        <div hidden>
+          <label for="goal-flex">Zeitlicher Spielraum</label>
+          <input id="goal-flex" name="flexMonths" type="number" min="0" max="1200" step="1" value="0">
+        </div>
         <p id="goal-error" role="status" class="error-text">
         </p>
         <div class="dialog-actions">

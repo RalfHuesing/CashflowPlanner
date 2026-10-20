@@ -1,6 +1,12 @@
-import { editableMoney, money, monthLabel, node, parseMoney } from './format.js';
+import { editableMoney, money, node, parseMoney } from './format.js';
+import { monthDifference } from '../domain/calendar.js';
 export const GOALS_PER_PAGE = 12;
 const listState = { query: '', sort: 'due', page: 1 };
+const monthYear = (month) => `${month.slice(5)}/${month.slice(0, 4)}`;
+const ageLabel = (month, startMonth, currentAge) => {
+  const age = currentAge + monthDifference(startMonth, month) / 12;
+  return age < 0 ? 'vor Geburt' : `${age.toLocaleString('de-DE', { maximumFractionDigits: 1 })} Jahre`;
+};
 
 /** Keep list selection independent of DOM so large lists remain easy to verify. */
 export function selectGoals(goals, { query = '', sort = 'due', page = 1 } = {}) {
@@ -34,7 +40,7 @@ export function bindGoalList(onChange) {
   });
 }
 
-export function renderGoals(goals, onEdit, onDelete, startMonth) {
+export function renderGoals(goals, onEdit, onDelete, startMonth, currentAge) {
   const selection = selectGoals(goals, listState);
   listState.page = selection.page;
   const container = document.getElementById('goal-list');
@@ -56,7 +62,7 @@ export function renderGoals(goals, onEdit, onDelete, startMonth) {
     const content = node('div', 'goal-content');
     const heading = node('div', 'goal-card-header');
     heading.append(node('h3', '', goal.name), node('span', 'goal-amount', money(goal.amountCents)));
-    const timing = `${monthLabel(goal.dueMonth)} · ${goal.type === 'annual' ? 'Jährlich' : 'Einmalig'}${goal.type === 'annual' && goal.endMonth ? ` · bis ${monthLabel(goal.endMonth)}` : ''}${goal.flexMonths ? ` · ± ${goal.flexMonths} Monate` : ''}`;
+    const timing = `${monthYear(goal.dueMonth)} · Alter: ${ageLabel(goal.dueMonth, startMonth, currentAge)} · ${goal.type === 'annual' ? 'Jährlich' : 'Einmalig'}${goal.type === 'annual' && goal.endMonth ? ` · bis ${monthYear(goal.endMonth)} · Alter: ${ageLabel(goal.endMonth, startMonth, currentAge)}` : ''}`;
     content.append(heading, node('p', '', timing));
     if (goal.dueMonth < startMonth && (goal.type !== 'annual' || goal.dueMonth.slice(5) !== startMonth.slice(5) || (goal.endMonth && goal.endMonth < startMonth))) {
       content.append(node('p', 'overdue-label', goal.type === 'annual'
@@ -83,14 +89,14 @@ export function renderGoals(goals, onEdit, onDelete, startMonth) {
   document.getElementById('goals-page').textContent = `Seite ${selection.page} von ${selection.pageCount}`;
   const turnPage = (direction) => {
     listState.page += direction;
-    renderGoals(goals, onEdit, onDelete, startMonth);
+    renderGoals(goals, onEdit, onDelete, startMonth, currentAge);
     document.getElementById('goals-page').focus({ preventScroll: true });
     document.getElementById('goals-view').scrollIntoView({ block: 'start' });
   };
   previous.onclick = () => turnPage(-1);
   next.onclick = () => turnPage(1);
 }
-export function bindGoalForm(onSave, startMonth) {
+export function bindGoalForm(onSave, startMonth, getCurrentAge) {
   const dialog = document.getElementById('goal-dialog');
   const form = document.getElementById('goal-form');
   const fields = ['name', 'amount', 'dueMonth', 'type', 'flexMonths', 'endMonth'].map((name) => form.elements[name]);
@@ -110,7 +116,27 @@ export function bindGoalForm(onSave, startMonth) {
       form.elements.endMonth.removeAttribute('aria-invalid');
     }
   };
-  form.elements.type.addEventListener('change', updateEndMonthField);
+  const updateAgePreviews = () => {
+    const currentAge = getCurrentAge();
+    const dueMonth = form.elements.dueMonth.value;
+    const duePreview = document.getElementById('goal-month-age');
+    duePreview.textContent = /^(19\d{2}|[2-9]\d{3})-(0[1-9]|1[0-2])$/.test(dueMonth)
+      ? `Entspricht ungefähr Alter ${ageLabel(dueMonth, startMonth, currentAge)}.`
+      : '';
+    const endMonth = form.elements.endMonth.value;
+    const endPreview = document.getElementById('goal-end-month-age');
+    endPreview.textContent = /^(19\d{2}|[2-9]\d{3})-(0[1-9]|1[0-2])$/.test(endMonth)
+      ? ` Entspricht ungefähr Alter ${ageLabel(endMonth, startMonth, currentAge)}.`
+      : '';
+  };
+  for (const field of [form.elements.dueMonth, form.elements.endMonth]) {
+    field.addEventListener('input', updateAgePreviews);
+    field.addEventListener('change', updateAgePreviews);
+  }
+  form.elements.type.addEventListener('change', () => {
+    updateEndMonthField();
+    updateAgePreviews();
+  });
   let editingId = null;
   let opener = null;
   dialog.addEventListener('close', () => {
@@ -129,6 +155,7 @@ export function bindGoalForm(onSave, startMonth) {
     document.getElementById('goal-flex').value = goal?.flexMonths ?? 0;
     form.elements.endMonth.value = goal?.type === 'annual' ? goal.endMonth ?? '' : '';
     updateEndMonthField();
+    updateAgePreviews();
     document.getElementById('goal-error').textContent = '';
     for (const field of fields) field.removeAttribute('aria-invalid');
     dialog.showModal();

@@ -39,13 +39,12 @@ function validateEventInputs(goals, startMonth, horizon, inflationBps) {
   if (!Array.isArray(goals) || goals.length > 1000) throw new RangeError('Maximal 1.000 Ziele sind zulässig.');
 }
 
-/** Delay future events together, preserving overdue payments today and every event. */
-export function generateEvents(goals, startMonth, horizon, delayed = false, inflationBps = DEFAULT_INFLATION_BPS) {
+/** Preserve due dates, with outstanding past payments payable today. */
+export function generateEvents(goals, startMonth, horizon, inflationBps = DEFAULT_INFLATION_BPS) {
   validateEventInputs(goals, startMonth, horizon, inflationBps);
   const seen = new Set();
   const events = [];
   const excludedGoals = [];
-  const shiftedGoals = [];
   const recurringGoalIds = [];
   for (const goal of goals) {
     validateGoal(goal);
@@ -66,24 +65,18 @@ export function generateEvents(goals, startMonth, horizon, delayed = false, infl
       continue;
     }
     const indices = occurrenceIndices(goal, dueIndex, lastMonthIndex);
-    const last = indices.at(-1);
-    const firstShiftableIndex = first === 0 ? indices[1] : first;
-    const shiftMonths = delayed && firstShiftableIndex !== undefined ? Math.min(goal.flexMonths, lastMonthIndex - last) : 0;
-    if (shiftMonths > 0) shiftedGoals.push({id: goal.id, name: goal.name, shiftMonths, fromMonth: addMonths(startMonth, firstShiftableIndex), toMonth: addMonths(startMonth, firstShiftableIndex + shiftMonths)});
     for (const index of indices) {
       const overdueOccurrence = overdue && index === 0;
-      const eventShift = index === 0 ? 0 : shiftMonths;
-      const paymentIndex = index + eventShift;
-      const amountCents = Math.round(goal.amountCents * (1 + inflationBps / 10000) ** (paymentIndex / 12));
+      const amountCents = Math.round(goal.amountCents * (1 + inflationBps / 10000) ** (index / 12));
       if (!Number.isSafeInteger(amountCents)) throw new RangeError('Der Zielbetrag mit Inflation ist zu groß.');
       events.push({goalId: goal.id, name: goal.name, amountCents,
-        index: paymentIndex, month: addMonths(startMonth, paymentIndex),
+        index, month: addMonths(startMonth, index),
         originalMonth: overdueOccurrence ? goal.dueMonth : addMonths(startMonth, index),
-        overdue: overdueOccurrence, shiftMonths: eventShift});
+        overdue: overdueOccurrence});
     }
   }
   events.sort((a, b) => a.index - b.index || a.goalId.localeCompare(b.goalId));
   const expensesCents = Array(horizon + 1).fill(0);
   for (const event of events) expensesCents[event.index] = safeSum(expensesCents[event.index], event.amountCents);
-  return {events, expensesCents, excludedGoals, shiftedGoals, recurringGoalIds};
+  return {events, expensesCents, excludedGoals, recurringGoalIds};
 }

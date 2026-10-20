@@ -362,38 +362,6 @@ input[aria-invalid=true] {
 .notice[hidden],[hidden] {
   display: none!important;
 }
-.scenario-switch {
-  display: flex;
-  gap: 5px;
-  flex-wrap: wrap;
-  border: 0;
-  padding: 4px;
-  margin: 0;
-  background: #f0f4f2;
-  border-radius: 8px;
-  width: fit-content;
-}
-.scenario-switch label {
-  margin: 0;
-  font-size: .74rem;
-  font-weight: 500;
-  padding: 7px 10px;
-  border-radius: 5px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-.scenario-switch label:has(input:checked) {
-  background: #fff;
-  box-shadow: 0 1px 4px #0001;
-  color: var(--green);
-}
-.scenario-switch input {
-  width: auto;
-  accent-color: var(--green);
-  margin: 0;
-}
 .chart-panel {
   padding-bottom: 18px;
 }
@@ -695,10 +663,6 @@ dialog::backdrop {
   .status-badge {
     font-size: .66rem;
   }
-  .scenario-switch label {
-    padding: 7px;
-    font-size: .7rem;
-  }
   th,td {
     padding-left: 6px;
     padding-right: 6px;
@@ -931,9 +895,6 @@ h1 {
   max-width: 1100px;
   margin: 16px auto 0;
 }
-.timeline-layout .scenario-switch {
-  margin-bottom: 12px;
-}
 .timeline-layout .legend {
   justify-content: center;
 }
@@ -942,6 +903,30 @@ h1 {
 }
 .timeline-layout #monthly-plan {
   margin-top: 8px;
+}
+.month-age-cell span {
+  display: block;
+  white-space: nowrap;
+}
+.month-age-cell span + span,
+.month-age {
+  color: var(--muted);
+  font-size: .76rem;
+}
+.current-month-summary {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 8px 20px;
+  padding: 13px 16px;
+  margin: 0 0 16px;
+  background: #edf4f0;
+  border: 1px solid #d4e3da;
+  border-radius: 8px;
+  font-size: .84rem;
+}
+.current-month-summary span {
+  color: var(--muted);
 }
 .timeline-layout table {
   font-size: .86rem;
