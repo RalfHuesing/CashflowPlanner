@@ -48,25 +48,26 @@ export function loadData(storage) {
   } catch {
     return { data: cloneDefaults(), warning: 'Gespeicherte Daten konnten nicht gelesen werden.' };
   }
-  if (raw === null) return { data: cloneDefaults(), warning: null };
+  if (raw === null) return { data: cloneDefaults(), warning: null, storageValue: null };
 
   try {
     const record = JSON.parse(raw);
     if (record?.version !== STORAGE_VERSION || !Object.hasOwn(record, 'data')) {
-      return { data: cloneDefaults(), warning: 'Gespeicherte Daten haben eine unbekannte Version und wurden nicht geladen.' };
+      return { data: cloneDefaults(), warning: 'Gespeicherte Daten haben eine unbekannte Version und wurden nicht geladen.', storageValue: raw };
     }
     const data = validateData(record.data);
     const freshness = getCashFreshness(data.cashUpdatedAt);
     return {
       data,
       warning: freshness.stale ? 'Der gespeicherte Cashbestand wurde seit längerer Zeit nicht aktualisiert.' : null,
+      storageValue: raw,
     };
   } catch {
-    return { data: cloneDefaults(), warning: 'Gespeicherte Daten sind beschädigt und wurden nicht geladen.' };
+    return { data: cloneDefaults(), warning: 'Gespeicherte Daten sind beschädigt und wurden nicht geladen.', storageValue: raw };
   }
 }
 
-export function saveData(data, storage, now = new Date()) {
+export function saveData(data, storage, now = new Date(), expectedValue) {
   const target = resolveStorage(storage);
   if (!target) return { ok: false, error: 'Lokaler Speicher ist nicht verfügbar.' };
   let validated;
@@ -77,14 +78,18 @@ export function saveData(data, storage, now = new Date()) {
   }
 
   try {
-    target.setItem(STORAGE_KEY, JSON.stringify({
+    if (expectedValue !== undefined && target.getItem(STORAGE_KEY) !== expectedValue) {
+      return { ok: false, error: 'Die gespeicherte Planung wurde in einem anderen Tab geändert. Exportiere deinen aktuellen Stand vor dem Neuladen.' };
+    }
+    const storageValue = JSON.stringify({
       version: STORAGE_VERSION,
       savedAt: (now instanceof Date ? now : new Date(now)).toISOString(),
       data: validated,
-    }));
-    return { ok: true, error: null };
+    });
+    target.setItem(STORAGE_KEY, storageValue);
+    return { ok: true, error: null, storageValue };
   } catch {
-    return { ok: false, error: 'Daten konnten nicht gespeichert werden. Der lokale Speicher ist möglicherweise voll.' };
+    return { ok: false, error: 'Daten konnten nicht gespeichert werden. Exportiere deinen aktuellen Stand vor dem Neuladen; der lokale Speicher ist möglicherweise voll.' };
   }
 }
 

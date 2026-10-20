@@ -1,6 +1,6 @@
 import { currentMonth } from './domain/calendar.js';
 import { buildPlan } from './domain/scenarios.js';
-import { getCashFreshness, loadData, saveData } from './data/storage.js';
+import { getCashFreshness, loadData, saveData, STORAGE_KEY } from './data/storage.js';
 import { exportData, MAX_IMPORT_BYTES, parseImport, validateData } from './data/import-export.js';
 import { getSampleData } from './data/sample-data.js';
 import { bindSettings, fillSettings } from './ui/settings-form.js';
@@ -15,13 +15,30 @@ import { bindNavigation } from './ui/navigation.js';
 const loaded = loadData();
 let data = loaded.data;
 let plan;
+let storageValue = loaded.storageValue;
+let storageIssue = null;
 const startMonth = currentMonth();
 const message = document.getElementById('app-message');
-function notify(text) { message.textContent = text; message.hidden = !text; }
-function persist() {
-  const result = saveData(data);
-  if (!result.ok) notify(result.error);
+function notify(text) {
+  message.textContent = [storageIssue, text].filter(Boolean).join(' ');
+  message.hidden = !message.textContent;
 }
+function persist() {
+  const result = saveData(data, undefined, new Date(), storageValue);
+  if (result.ok) {
+    storageValue = result.storageValue;
+    storageIssue = null;
+  } else {
+    storageIssue = result.error;
+    notify('');
+  }
+  return result.ok;
+}
+window.addEventListener('storage', (event) => {
+  if (event.key !== STORAGE_KEY && event.key !== null) return;
+  storageIssue = 'Die Planung wurde in einem anderen Tab geändert. Exportiere deinen aktuellen Stand vor dem Neuladen.';
+  notify('');
+});
 function updateFreshness() {
   const notice = document.getElementById('stale-notice');
   const { stale } = getCashFreshness(data.cashUpdatedAt);
@@ -55,18 +72,20 @@ function applyData(next, updateForm = true) {
   buildPlan(valid.settings, valid.goals, startMonth);
   data = valid;
   if (updateForm) fillSettings(data.settings);
-  persist(); render();
+  const saved = persist(); render();
+  return saved;
 }
 function removeGoal(id) {
   data = {...data,goals:data.goals.filter((goal) => goal.id !== id)};
-  persist(); render();
+  const saved = persist(); render();
   document.getElementById('add-goal').focus({ preventScroll: true });
-  notify('Ziel gelöscht. Die Planung wurde aktualisiert.');
+  notify(saved ? 'Ziel gelöscht. Die Planung wurde aktualisiert.' : '');
 }
 const openGoal = bindGoalForm((goal) => {
   const goals = data.goals.filter((entry) => entry.id !== goal.id);
   goals.push(goal);
-  applyData({...data,goals}); notify('Ziel gespeichert.');
+  const saved = applyData({...data,goals});
+  notify(saved ? 'Ziel gespeichert.' : '');
 },startMonth, () => data.settings.currentAge);
 bindSettings((settings, cashChanged) => {
   applyData({...data, settings, cashUpdatedAt: cashChanged ? new Date().toISOString() : data.cashUpdatedAt}, false);
@@ -82,8 +101,8 @@ function confirmReplacement(description, action) {
 }
 function loadSamples() {
   const action = () => {
-    applyData(getSampleData());
-    notify('Beispieldaten geladen. Du kannst alle Werte ausprobieren und anpassen.');
+    const saved = applyData(getSampleData());
+    notify(saved ? 'Beispieldaten geladen. Du kannst alle Werte ausprobieren und anpassen.' : '');
     window.location.hash = '#uebersicht';
   };
   if (data.goals.length || data.settings.cashCents || data.settings.monthlyCents || data.settings.reserveCents) {
@@ -115,7 +134,10 @@ fileInput.addEventListener('change',async () => {
     if (file.size>MAX_IMPORT_BYTES) throw new Error('Die Datei ist zu groß. Erlaubt ist maximal 1 MB.');
     const imported = parseImport(await file.text());
     buildPlan(imported.settings,imported.goals,startMonth);
-    confirmReplacement(`Die gültige Datei enthält ${imported.goals.length} Ziele und ${money(imported.settings.cashCents)} Cashbestand. Deine aktuelle Planung wird vollständig ersetzt.`,() => {applyData(imported);notify('Die Planung wurde vollständig importiert.');});
+    confirmReplacement(`Die gültige Datei enthält ${imported.goals.length} Ziele und ${money(imported.settings.cashCents)} Cashbestand. Deine aktuelle Planung wird vollständig ersetzt.`,() => {
+      const saved = applyData(imported);
+      notify(saved ? 'Die Planung wurde vollständig importiert.' : '');
+    });
   } catch (error) {notify(`Import fehlgeschlagen: ${error.message}`);}
 });
 bindGoalList(() => renderGoals(data.goals, openGoal, removeGoal, startMonth, data.settings.currentAge));

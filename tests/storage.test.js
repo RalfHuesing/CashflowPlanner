@@ -19,13 +19,31 @@ function memoryStorage() {
 
 test('LocalStorage speichert und lädt das vollständige versionierte Datenmodell', () => {
   const storage = memoryStorage();
-  assert.deepEqual(saveData(data, storage, new Date('2026-10-20T12:00:00.000Z')), { ok: true, error: null });
+  const saved = saveData(data, storage, new Date('2026-10-20T12:00:00.000Z'));
+  assert.equal(saved.ok, true);
+  assert.equal(saved.error, null);
+  assert.equal(saved.storageValue, storage.getItem(STORAGE_KEY));
   const record = JSON.parse(storage.getItem(STORAGE_KEY));
   assert.equal(record.version, STORAGE_VERSION);
   assert.equal(record.savedAt, '2026-10-20T12:00:00.000Z');
   const normalized = structuredClone(data);
   normalized.goals[0].endMonth = null;
   assert.deepEqual(loadData(storage).data, normalized);
+});
+
+test('Ein veralteter Tab überschreibt keine neuere gespeicherte Planung', () => {
+  const storage = memoryStorage();
+  const original = saveData(data, storage, new Date('2026-10-20T12:00:00.000Z'));
+  const otherTab = loadData(storage);
+  const newer = { ...data, settings: { ...data.settings, cashCents: 2_000_000 } };
+  const updated = saveData(newer, storage, new Date('2026-10-20T12:01:00.000Z'), otherTab.storageValue);
+  assert.equal(updated.ok, true);
+  assert.notEqual(updated.storageValue, original.storageValue);
+
+  const stale = saveData(data, storage, new Date('2026-10-20T12:02:00.000Z'), otherTab.storageValue);
+  assert.equal(stale.ok, false);
+  assert.match(stale.error, /anderen Tab/);
+  assert.equal(storage.getItem(STORAGE_KEY), updated.storageValue);
 });
 
 test('Standard- und Beispieldaten verwenden 2 Prozent Inflation', () => {
