@@ -1,4 +1,5 @@
 const views = {
+  start: { id: 'start', title: 'Willkommen beim CashflowPlanner', description: 'So wenig Cash wie möglich, so viel wie nötig: Vorausschauende Liquiditätsplanung statt starrer Spartöpfe.' },
   uebersicht: { id: 'overview', title: 'Deine Übersicht', description: 'Dein aktueller Bestand, die Ausgaben dieses Monats und die Tragfähigkeit deiner Ziele.' },
   ziele: { id: 'goals', title: 'Deine finanziellen Ziele', description: 'Plane große Wünsche und regelmäßige Ausgaben an einem Ort.' },
   zeitplan: { id: 'timeline', title: 'Dein Zeitplan', description: 'Sieh, wann du Cash zurücklegen musst und wie sich dein Bestand entwickelt.' },
@@ -9,7 +10,7 @@ const views = {
 export function bindNavigation() {
   const showView = (moveFocus) => {
     const key = window.location.hash.slice(1);
-    const view = views[key] ?? views.uebersicht;
+    const view = views[key] ?? views.start;
     for (const panel of document.querySelectorAll('.app-view')) {
       panel.hidden = panel.id !== `${view.id}-view`;
     }

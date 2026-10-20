@@ -29,7 +29,9 @@
       </div>
     </header>
     <nav class="primary-nav" aria-label="Hauptnavigation">
-      <a href="#uebersicht" data-view="overview" aria-current="page">
+      <a href="#start" data-view="start" aria-current="page">
+        <span aria-hidden="true">⌂</span> Start</a>
+      <a href="#uebersicht" data-view="overview">
         <span aria-hidden="true">◫</span> Übersicht</a>
       <a href="#ziele" data-view="goals">
         <span aria-hidden="true">◎</span> Ziele <span id="nav-goal-count" class="nav-count">0</span>
@@ -45,13 +47,60 @@
       <div class="page-heading">
         <div>
           <p class="eyebrow">DEINE LIQUIDITÄTSPLANUNG</p>
-          <h1 id="page-title" tabindex="-1">Deine Übersicht</h1>
-          <p id="page-description">Dein aktueller Bestand, die Ausgaben dieses Monats und die Tragfähigkeit deiner Ziele.</p>
+          <h1 id="page-title" tabindex="-1">Willkommen beim CashflowPlanner</h1>
+          <p id="page-description">So wenig Cash wie möglich, so viel wie nötig: Vorausschauende Liquiditätsplanung statt starrer Spartöpfe.</p>
         </div>
       </div>
       <p id="app-message" class="notice" role="status" hidden>
       </p>
-      <section id="overview-view" class="app-view" aria-label="Übersicht">
+      <section id="start-view" class="app-view start-layout" aria-label="Startseite">
+        <div class="panel start-hero">
+          <h2>Wie viel Cash brauchst du wirklich auf dem Konto?</h2>
+          <p>
+            Viele Menschen halten aus Vorsicht zu viel unverzinstes Geld als Cash vor – oder geraten bei größeren Ausgaben plötzlich in Engpässe.
+            CashflowPlanner berechnet dir vorausschauend den perfekten Mittelweg: <strong>So wenig Cash wie möglich, so viel wie nötig.</strong>
+          </p>
+          <div class="start-actions">
+            <a href="#uebersicht" class="button primary">Zur Planung starten →</a>
+            <button type="button" id="start-sample-btn" class="button subtle">Beispiel laden</button>
+          </div>
+        </div>
+
+        <div class="start-grid">
+          <div class="panel start-card">
+            <div class="start-card-icon" aria-hidden="true">1</div>
+            <h3>Gemeinsamer Cashbestand</h3>
+            <p>
+              Keine komplizierten, starren Einzeltöpfe. Alle deine Ziele – vom jährlichen Urlaub bis zum Autokauf in 5 Jahren – greifen auf einen gemeinsamen Liquiditätspuffer zu.
+            </p>
+          </div>
+
+          <div class="panel start-card">
+            <div class="start-card-icon" aria-hidden="true">2</div>
+            <h3>Vorausschauende Projektion</h3>
+            <p>
+              Das System rechnet rückwärts aus der Zukunft: Du erfährst auf den Monat genau, ab wann du Geld für anstehende Ausgaben zurücklegen musst – so spät wie möglich.
+            </p>
+          </div>
+
+          <div class="panel start-card">
+            <div class="start-card-icon" aria-hidden="true">3</div>
+            <h3>Freie Sparrate ermitteln</h3>
+            <p>
+              Jeder Euro, der nicht als Cash für Ziele oder deine Mindestreserve gebraucht wird, bleibt Monat für Monat frei für deinen langfristigen Vermögensaufbau (z. B. ETFs).
+            </p>
+          </div>
+        </div>
+
+        <div class="panel start-principle">
+          <div>
+            <strong>100 % privat und lokal</strong>
+            <p>Deine Finanzdaten verlassen niemals dein Gerät. Keine Registrierung, keine Bankanbindung, keine Cloud – deine Planung gehört nur dir.</p>
+          </div>
+          <a href="#uebersicht" class="button subtle">Jetzt loslegen →</a>
+        </div>
+      </section>
+      <section id="overview-view" class="app-view" aria-label="Übersicht" hidden>
         <p id="stale-notice" class="notice" hidden>
         </p>
         <div class="overview-layout">
@@ -244,7 +293,7 @@
     </main>
     <footer>
       <strong>CashflowPlanner</strong>
-      <p>Deine Planung bleibt lokal. Beim Löschen der Browserdaten kann sie verloren gehen. Sichere sie regelmäßig per JSON-Export. Lokale Daten sind nicht automatisch verschlüsselt.</p>
+      <p>Deine Planung bleibt lokal. Beim Löschen der Browserdaten kann sie verloren gehen. Sichere sie regelmäßig über „Exportieren“. Lokale Daten sind nicht automatisch verschlüsselt.</p>
     </footer>
     <dialog id="goal-dialog" aria-labelledby="goal-dialog-title">
       <form id="goal-form" novalidate>

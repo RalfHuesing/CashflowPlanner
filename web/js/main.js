@@ -80,11 +80,21 @@ function confirmReplacement(description, action) {
   document.getElementById('confirm-cancel').onclick = () => dialog.close();
   dialog.showModal();
 }
-document.getElementById('sample-button').addEventListener('click',() => {
-  const action = () => {applyData(getSampleData());notify('Beispieldaten geladen. Du kannst alle Werte ausprobieren und anpassen.');};
-  if (data.goals.length || data.settings.cashCents || data.settings.monthlyCents || data.settings.reserveCents) confirmReplacement('Die Beispieldaten ersetzen deine aktuelle Planung. Sichere sie bei Bedarf zuerst über „Exportieren“.',action);
-  else action();
-});
+function loadSamples() {
+  const action = () => {
+    applyData(getSampleData());
+    notify('Beispieldaten geladen. Du kannst alle Werte ausprobieren und anpassen.');
+    window.location.hash = '#uebersicht';
+  };
+  if (data.goals.length || data.settings.cashCents || data.settings.monthlyCents || data.settings.reserveCents) {
+    confirmReplacement('Die Beispieldaten ersetzen deine aktuelle Planung. Sichere sie bei Bedarf zuerst über „Exportieren“.', action);
+  } else {
+    action();
+  }
+}
+document.getElementById('sample-button').addEventListener('click', loadSamples);
+const startSampleBtn = document.getElementById('start-sample-btn');
+if (startSampleBtn) startSampleBtn.addEventListener('click', loadSamples);
 document.getElementById('export-button').addEventListener('click',() => {
   try {
     const blob = new Blob([exportData(data, new Date(), plan)],{type:'application/json'});
@@ -92,7 +102,7 @@ document.getElementById('export-button').addEventListener('click',() => {
     const anchor = document.createElement('a'); anchor.href=url;anchor.download=`cashflow-planner-${startMonth}.json`;
     document.body.append(anchor);anchor.click();anchor.remove();
     setTimeout(() => URL.revokeObjectURL(url),1000);
-    notify('Deine Planung wurde als JSON-Datei zum Download bereitgestellt.');
+    notify('Deine Planung wurde als Datei zum Download bereitgestellt.');
   } catch (error) {notify(`Export fehlgeschlagen: ${error.message}`);}
 });
 const fileInput = document.getElementById('import-file');
