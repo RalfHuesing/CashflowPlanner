@@ -1,0 +1,292 @@
+/* ==========================================================================
+   Buttons
+   ========================================================================== */
+.button {
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  padding: 9px 15px;
+  font-weight: 600;
+  font-size: .86rem;
+  background: #fff;
+  color: var(--ink);
+}
+
+.button:hover {
+  background: #edf3f0;
+}
+
+.button.primary,
+.primary {
+  background: var(--green);
+  border-color: var(--green);
+  color: #fff;
+}
+
+.button.primary:hover,
+.primary:hover {
+  background: #125544;
+}
+
+.button.subtle {
+  background: #fff;
+}
+
+.text-button {
+  border: 0;
+  background: none;
+  color: var(--green);
+  padding: 0;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  font-size: .8rem;
+}
+
+.icon-button {
+  background: transparent;
+  border: 0;
+  font-size: 1.6rem;
+  padding: 0 6px;
+  color: var(--muted);
+}
+
+/* ==========================================================================
+   Panels & Section Headings
+   ========================================================================== */
+.panel {
+  padding: 23px;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: 0 3px 8px #16332703;
+}
+
+.section-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.section-heading p {
+  margin: 4px 0 0;
+}
+
+.count {
+  font-size: .72rem;
+  background: #eff3f1;
+  border-radius: 20px;
+  padding: 2px 8px;
+  color: var(--muted);
+}
+
+.empty-state {
+  border: 1px dashed var(--border);
+  border-radius: 8px;
+  padding: 20px 14px;
+  margin: 16px 0;
+  text-align: center;
+  color: var(--muted);
+  font-size: .84rem;
+}
+
+/* ==========================================================================
+   Form Controls
+   ========================================================================== */
+label {
+  display: block;
+  font-size: .81rem;
+  font-weight: 600;
+  margin: 15px 0 6px;
+}
+
+input, select {
+  width: 100%;
+  min-width: 0;
+  border: 1px solid #cfdad4;
+  border-radius: 6px;
+  background: #fff;
+  padding: 10px 11px;
+  color: var(--ink);
+}
+
+input[aria-invalid=true] {
+  border-color: var(--red);
+}
+
+.money-input {
+  position: relative;
+}
+
+.money-input input {
+  padding-right: 30px;
+}
+
+.money-input span {
+  position: absolute;
+  right: 12px;
+  top: 10px;
+  color: var(--muted);
+}
+
+.field-help {
+  font-size: .74rem;
+  color: var(--muted);
+  margin: 7px 0 0;
+}
+
+.field-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.error-text {
+  font-size: .8rem;
+  color: var(--red);
+  margin: 8px 0;
+}
+
+.error-text:empty {
+  display: none;
+}
+
+/* ==========================================================================
+   Notices & Status Badges
+   ========================================================================== */
+.notice {
+  padding: 13px 16px;
+  background: #fff5dc;
+  border: 1px solid #ead6a0;
+  border-radius: 8px;
+  font-size: .83rem;
+  margin-bottom: 20px;
+}
+
+.notice[hidden], [hidden] {
+  display: none !important;
+}
+
+.status-badge {
+  border-radius: 20px;
+  padding: 4px 10px;
+  font-size: .71rem;
+  font-weight: 600;
+  background: var(--green-light);
+  color: var(--green);
+}
+
+.status-badge.negative {
+  color: var(--red);
+  background: var(--red-light);
+}
+
+/* ==========================================================================
+   Tables
+   ========================================================================== */
+.table-scroll {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: .79rem;
+  font-variant-numeric: tabular-nums;
+}
+
+th {
+  text-align: right;
+  font-size: .7rem;
+  color: var(--muted);
+  font-weight: 500;
+  padding: 0 8px 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+td {
+  text-align: right;
+  padding: 12px 8px;
+  border-bottom: 1px solid #edf1ee;
+  white-space: nowrap;
+}
+
+th:first-child, td:first-child {
+  text-align: left;
+}
+
+tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.cash-contribution {
+  color: var(--green);
+  font-weight: 600;
+}
+
+/* ==========================================================================
+   Dialogs
+   ========================================================================== */
+dialog {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 25px;
+  width: min(470px, calc(100% - 32px));
+  max-height: calc(100% - 40px);
+  overflow: auto;
+  color: var(--ink);
+  box-shadow: 0 20px 80px #15352a33;
+}
+
+dialog::backdrop {
+  background: #12382d55;
+}
+
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 22px;
+}
+
+#confirm-dialog p {
+  font-size: .88rem;
+  color: var(--muted);
+  margin-top: 14px;
+}
+
+/* ==========================================================================
+   Responsive Component Adaptations
+   ========================================================================== */
+@media (max-width: 1100px) {
+  .panel {
+    padding: 19px;
+  }
+}
+
+@media (max-width: 760px) {
+  .panel {
+    padding: 20px;
+  }
+
+  .section-heading {
+    gap: 7px;
+  }
+
+  .status-badge {
+    font-size: .66rem;
+  }
+
+  th, td {
+    padding-left: 6px;
+    padding-right: 6px;
+  }
+
+  th {
+    min-width: 105px;
+  }
+
+  th:first-child {
+    min-width: 110px;
+  }
+}
