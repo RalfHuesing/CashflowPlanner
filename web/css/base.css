@@ -288,16 +288,25 @@ footer p {
   }
 
   .primary-nav {
-    padding: 0 16px;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    position: static;
+    overflow: visible;
+    padding: 0 8px;
     gap: 0;
-    justify-content: space-between;
-    overflow-x: auto;
   }
 
   .primary-nav a {
-    font-size: .8rem;
-    padding: 14px 12px 12px;
+    justify-content: center;
+    min-width: 0;
+    font-size: .78rem;
+    padding: 12px 6px 10px;
+    white-space: nowrap;
     gap: 6px;
+  }
+
+  .primary-nav a > span:first-child {
+    display: none;
   }
 
   main {

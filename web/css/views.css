@@ -147,6 +147,29 @@
 /* ==========================================================================
    Overview View
    ========================================================================== */
+.no-goals-notice {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 24px;
+}
+
+.no-goals-notice p {
+  margin: 0;
+}
+
+.no-goals-notice .button {
+  flex-shrink: 0;
+}
+
+@media (max-width: 760px) {
+  .no-goals-notice {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
 .overview-layout {
   display: grid;
   grid-template-columns: 340px minmax(0, 1fr);
@@ -441,7 +464,7 @@
 
 @media (max-width: 760px) {
   .goals-toolbar {
-    top: 54px;
+    top: 0;
     padding: 15px 0;
   }
 
@@ -818,6 +841,11 @@
 }
 
 @media (max-width: 760px) {
+  .yearly-layout,
+  .monthly-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
   .monthly-layout table,
   .timeline-layout table {
     font-size: .79rem;

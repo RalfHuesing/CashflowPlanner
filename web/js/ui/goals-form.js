@@ -81,6 +81,7 @@ export function renderGoals(goals, onEdit, onDelete, startMonth, currentAge) {
   }
   const previous = document.getElementById('goals-previous');
   const next = document.getElementById('goals-next');
+  document.querySelector('.goal-pagination').hidden = selection.pageCount <= 1;
   previous.disabled = selection.page === 1;
   next.disabled = selection.page === selection.pageCount;
   document.getElementById('goals-page').textContent = `Seite ${selection.page} von ${selection.pageCount}`;
@@ -137,7 +138,9 @@ export function bindGoalForm(onSave, startMonth, getCurrentAge) {
   let editingGoal = null;
   let opener = null;
   dialog.addEventListener('close', () => {
-    const target = opener?.isConnected ? opener : document.getElementById('add-goal');
+    const target = opener?.isConnected && !opener.closest('[hidden]')
+      ? opener
+      : document.getElementById('page-title');
     target.focus({ preventScroll: true });
   });
   const open = (goal = null) => {

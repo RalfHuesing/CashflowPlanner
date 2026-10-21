@@ -13,7 +13,7 @@ Diese Roadmap beschreibt ausschließlich die folgenden, bewusst kleinen Verbesse
 
 ## Umsetzung
 
-- [ ] **1. Kennzahlen der Übersicht eindeutig und handlungsnah formulieren**
+- [x] **1. Kennzahlen der Übersicht eindeutig und handlungsnah formulieren**
 
   Betroffene Dateien: `web/js/ui/summary.js`, `tests/summary.test.js` (neu), `docs/PRODUCT.md`.
 
@@ -49,7 +49,7 @@ Diese Roadmap beschreibt ausschließlich die folgenden, bewusst kleinen Verbesse
   - Testfall nicht finanzierbar mit einem kritischen Ziel: Engpassmonat, Zielname, inflationsberechneter Zielbetrag und Monatsfehlbetrag stehen im Erklärungstext.
   - Testfall nicht finanzierbar nur wegen der Mindestreserve: Der Text nennt ausdrücklich die steigende Mindestreserve und keinen Zielnamen.
 
-- [ ] **2. Leere Planung in der Übersicht direkt zur ersten Zielanlage führen**
+- [x] **2. Leere Planung in der Übersicht direkt zur ersten Zielanlage führen**
 
   Betroffene Dateien: `web/index.html`, `web/js/main.js`, `web/css/views.css`, `docs/PRODUCT.md`.
 
@@ -69,7 +69,7 @@ Diese Roadmap beschreibt ausschließlich die folgenden, bewusst kleinen Verbesse
   - Nach dem Löschen des letzten Ziels erscheint der Hinweis wieder.
   - Bei importierten oder geladenen Beispieldaten mit Zielen ist der Hinweis nicht sichtbar.
 
-- [ ] **3. Monatsbudget und lokale Speicherung klarer beschriften**
+- [x] **3. Monatsbudget und lokale Speicherung klarer beschriften**
 
   Betroffene Dateien: `web/index.html`, `docs/PRODUCT.md`.
 
@@ -87,7 +87,7 @@ Diese Roadmap beschreibt ausschließlich die folgenden, bewusst kleinen Verbesse
   - Der Footer erklärt lokale Speicherung konkret über das Browserprofil und enthält nicht mehr den Satz `Lokale Daten sind nicht automatisch verschlüsselt.`
   - Es entsteht keine Aussage, dass lokale Daten gegen andere Nutzer desselben Browserprofils geschützt seien.
 
-- [ ] **4. Seitennavigation der Zielliste nur bei echtem Seitenwechsel anzeigen**
+- [x] **4. Seitennavigation der Zielliste nur bei echtem Seitenwechsel anzeigen**
 
   Betroffene Dateien: `web/js/ui/goals-form.js`, `tests/goals-form.test.js` (neu).
 
@@ -106,7 +106,7 @@ Diese Roadmap beschreibt ausschließlich die folgenden, bewusst kleinen Verbesse
   - Im Browser sind bei einer Seite weder die deaktivierten Pfeile noch `Seite 1 von 1` sichtbar.
   - Bei zwei Seiten funktionieren Vor, Zurück, Seitenanzeige und Fokusführung unverändert.
 
-- [ ] **5. Hauptnavigation auf schmalen Bildschirmen vollständig sichtbar machen**
+- [x] **5. Hauptnavigation auf schmalen Bildschirmen vollständig sichtbar machen**
 
   Betroffene Dateien: `web/css/base.css`, `web/css/views.css`.
 
@@ -128,7 +128,7 @@ Diese Roadmap beschreibt ausschließlich die folgenden, bewusst kleinen Verbesse
   - Aktiver Tab, Hover- und Fokuszustände bleiben eindeutig sichtbar.
   - Oberhalb von 760px bleibt das bisherige Layout unverändert.
 
-- [ ] **6. Beispieldaten durch einen realistischen, finanzierbaren Demonstrationsplan ersetzen**
+- [x] **6. Beispieldaten durch einen realistischen, finanzierbaren Demonstrationsplan ersetzen**
 
   Betroffene Dateien: `web/js/data/sample-data.js`, `tests/storage.test.js`, bei Bedarf `docs/PRODUCT.md` nur zur Beschreibung des Beispiels.
 
@@ -163,7 +163,7 @@ Diese Roadmap beschreibt ausschließlich die folgenden, bewusst kleinen Verbesse
   - Nach `Beispiel laden` zeigt die Übersicht den Status `Im Modell finanzierbar`, 2.000 € als heute nicht benötigten Betrag und für den nächsten Monat 0 € Cash-Zuführung sowie 1.200 € für langfristige Anlagen.
   - Jahresplan, Zeitplan und Monatsplan enthalten alle drei Ziele; keine Warnung wegen eines Ziels außerhalb des Planungshorizonts erscheint.
 
-- [ ] **7. Gesamtabnahme, Dokumentation und fokussierter Commit**
+- [x] **7. Gesamtabnahme, Dokumentation und fokussierter Commit**
 
   Umsetzung und Abnahme:
 
@@ -175,3 +175,14 @@ Diese Roadmap beschreibt ausschließlich die folgenden, bewusst kleinen Verbesse
 ## Definition of Done
 
 Die Roadmap ist umgesetzt, wenn alle sieben Hauptpunkte `[x]` tragen, alle genannten Akzeptanzkriterien erfüllt sind, die vollständigen Prüfungen erfolgreich waren und keine der unter „Verbindlicher Umfang“ ausgeschlossenen Funktionen eingeführt wurde.
+
+
+## Abnahmeprotokoll (21. Oktober 2026)
+
+- Alle sieben Hauptpunkte umgesetzt und geprüft; Berechnungskern, Datenformat und Import-/Export-Schema bleiben unverändert. Keine Abhängigkeiten ergänzt.
+- `npm run lint`, `npm test` (59 Tests), `npm run test:coverage` (59 Tests) und `npm run docs:check` erfolgreich.
+- Browserabnahme mit leerer Zielliste, finanzierbaren Beispieldaten und gezielter Unterdeckung: Übersicht, Zielanlage, Speichern/Löschen, Dialogfokus, erste Engpassziele und steigende Mindestreserve geprüft.
+- Zielliste mit 13 Zielen: Vor/Zurück, Seitenanzeige, Fokus nach Seitenwechsel und Suche mit zwei Treffern geprüft. Bei einer Seite bleibt die Navigation verborgen.
+- Alle sechs Ansichten bei 320, 375, 531 und 760 px sowie auf Desktop geprüft. Kein horizontaler Seitenüberlauf; breite Tabellen scrollen in ihren vorhandenen Containern. Mobile Navigation zeigt alle sechs Links, Tastaturfokus bleibt sichtbar; Desktop-Navigation bleibt sticky.
+- Beispielwerte in der Übersicht bestätigt: 2.000 € heute nicht benötigt, nächsten Monat 0 € Cash-Zuführung und 1.200 € für langfristige Anlagen. Zielereignisse in Jahres- und Monatsplan geprüft.
+- Zwei bei der Abnahme gefundene UI-Probleme lokal behoben: mobile Grid-Breite der Tabellenansichten und sichtbares Fokusziel nach der ersten Zielanlage.

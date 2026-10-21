@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { STORAGE_KEY, STORAGE_VERSION, createDefaultData, loadData, saveData, getCashFreshness } from '../web/js/data/storage.js';
 import { getSampleData } from '../web/js/data/sample-data.js';
+import { buildPlan } from '../web/js/domain/scenarios.js';
 
 const data = {
   settings: { cashCents: 1_234_567, monthlyCents: 75_000, reserveCents: 5_000, currentAge: 40, horizonAge: 75, inflationBps: 300 },
@@ -46,9 +47,32 @@ test('Ein veralteter Tab überschreibt keine neuere gespeicherte Planung', () =>
   assert.equal(storage.getItem(STORAGE_KEY), updated.storageValue);
 });
 
-test('Standard- und Beispieldaten verwenden 2 Prozent Inflation', () => {
+test('Beispieldaten zeigen einen finanzierbaren Plan mit relativ terminierten Zielen', () => {
   assert.equal(createDefaultData().settings.inflationBps, 200);
-  assert.equal(getSampleData(new Date('2026-10-20T12:00:00.000Z')).settings.inflationBps, 200);
+  const sample = getSampleData(new Date('2026-10-20T12:00:00.000Z'));
+  assert.deepEqual(sample.settings, {
+    cashCents: 800_000,
+    monthlyCents: 120_000,
+    reserveCents: 600_000,
+    currentAge: 35,
+    horizonAge: 50,
+    inflationBps: 200,
+  });
+  assert.deepEqual(sample.goals, [
+    { id: 'sample-urlaub', name: 'Jährlicher Urlaub', amountCents: 300_000, type: 'annual', dueMonth: '2027-06', endMonth: null, flexMonths: 0 },
+    { id: 'sample-kueche', name: 'Neue Küche', amountCents: 1_200_000, type: 'once', dueMonth: '2029-10', endMonth: null, flexMonths: 0 },
+    { id: 'sample-auto', name: 'Nächstes Auto', amountCents: 2_500_000, type: 'once', dueMonth: '2033-10', endMonth: null, flexMonths: 0 },
+  ]);
+  assert.equal(sample.cashUpdatedAt, '2026-10-20T12:00:00.000Z');
+
+  const plan = buildPlan(sample.settings, sample.goals, '2026-10');
+  assert.equal(plan.feasible, true);
+  assert.equal(plan.gapCents, 0);
+  assert.equal(plan.requiredTodayCents, 600_000);
+  assert.equal(plan.releasableCents, 200_000);
+  assert.equal(plan.rows[1].contributionCents, 0);
+  assert.equal(plan.rows[1].longTermCents, 120_000);
+  assert.ok(plan.rows.some((row) => row.contributionCents > 0 && row.longTermCents > 0));
 });
 
 test('alte v1 LocalStorage-Daten erhalten 2 Prozent und werden beim Speichern ergänzt', () => {

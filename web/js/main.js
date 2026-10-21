@@ -52,6 +52,7 @@ function renderResult() {
   renderMonthlyPlan(plan);
 }
 function render() {
+  document.getElementById('no-goals-notice').hidden = data.goals.length !== 0;
   try {
     plan = buildPlan(data.settings, data.goals, startMonth);
     renderGoals(data.goals, openGoal, removeGoal, startMonth, data.settings.currentAge);
@@ -87,6 +88,7 @@ const openGoal = bindGoalForm((goal) => {
   const saved = applyData({...data,goals});
   notify(saved ? 'Ziel gespeichert.' : '');
 },startMonth, () => data.settings.currentAge);
+document.getElementById('overview-add-goal').addEventListener('click', () => openGoal());
 bindSettings((settings, cashChanged) => {
   applyData({...data, settings, cashUpdatedAt: cashChanged ? new Date().toISOString() : data.cashUpdatedAt}, false);
 });

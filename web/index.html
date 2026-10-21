@@ -57,7 +57,7 @@
         <div class="panel start-hero">
           <h2>Wie viel Cash brauchst du wirklich auf dem Konto?</h2>
           <p>
-            Cashflow-Planner zeigt anhand deiner Angaben, wann du für geplante Ausgaben Cash zurücklegen musst und welcher Teil deines Monatsbetrags rechnerisch für langfristige Anlagen übrig bleibt. Die Berechnung folgt deinen Annahmen: <strong>So wenig Cash wie möglich, so viel wie nötig.</strong>
+            Cashflow-Planner zeigt anhand deiner Angaben, wann du für geplante Ausgaben Cash zurücklegen musst und welcher Teil deines Sparbudgets rechnerisch für langfristige Anlagen übrig bleibt. Die Berechnung folgt deinen Annahmen: <strong>So wenig Cash wie möglich, so viel wie nötig.</strong>
           </p>
           <div class="start-actions">
             <a href="#uebersicht" class="button primary">Zur Planung starten →</a>
@@ -97,10 +97,10 @@
             Der Cashflow-Planner ist für Menschen gedacht, die nach ihren laufenden Ausgaben einen monatlichen Betrag für geplante Ausgaben und langfristige Anlagen einteilen möchten.
           </p>
           <p>
-            Der Planer bildet keine Kreditverträge oder Tilgungsstrategien ab. Berücksichtige Kreditraten und andere feste Zahlungen bei der Ermittlung des monatlich verfügbaren Betrags.
+            Der Planer bildet keine Kreditverträge oder Tilgungsstrategien ab. Berücksichtige Kreditraten und andere feste Zahlungen bei der Ermittlung des monatlichen Sparbudgets.
           </p>
           <p>
-            Ändern sich Einkommen, Ausgaben oder Prioritäten, passe den verfügbaren Monatsbetrag und deine Ziele an und berechne den Plan neu.
+            Ändern sich Einkommen, Ausgaben oder Prioritäten, passe das monatliche Sparbudget und deine Ziele an und berechne den Plan neu.
           </p>
         </div>
 
@@ -122,6 +122,10 @@
       <section id="overview-view" class="app-view" aria-label="Übersicht" hidden>
         <p id="stale-notice" class="notice" hidden>
         </p>
+        <div id="no-goals-notice" class="notice no-goals-notice" hidden>
+          <p>Du hast noch keine Ziele angelegt. Lege dein erstes Ziel an, damit der Planer künftige Ausgaben berücksichtigen kann.</p>
+          <button id="overview-add-goal" class="button primary" type="button">Erstes Ziel anlegen</button>
+        </div>
         <div class="overview-layout">
           <section class="panel">
             <div class="section-heading">
@@ -136,12 +140,12 @@
               <p id="cash-help" class="field-help">Dein tatsächlich heute verfügbarer Bestand.</p>
               <div class="field-row">
                 <div>
-                  <label for="monthlyCents">Monatlich verfügbar</label>
+                  <label for="monthlyCents">Monatliches Sparbudget</label>
                   <div class="money-input">
                     <input id="monthlyCents" name="monthlyCents" inputmode="decimal" autocomplete="off">
                     <span>€</span>
                   </div>
-                  <p class="field-help">Der Betrag, der nach deinen laufenden Ausgaben für Ziele und langfristige Anlagen verfügbar ist. In der Rechnung bleibt er nominal gleich.</p>
+                  <p class="field-help">Alles, was nach laufenden Ausgaben monatlich für geplante Ausgaben und langfristige Anlagen zusammen verfügbar ist. Der Betrag bleibt in der Rechnung nominal gleich.</p>
                 </div>
                 <div>
                   <label for="reserveCents">Mindestreserve</label>
@@ -167,7 +171,7 @@
                 <input id="inflationBps" name="inflationBps" inputmode="decimal" autocomplete="off" aria-describedby="inflation-help settings-error">
                 <span>%</span>
               </div>
-              <p id="inflation-help" class="field-help">Diese Annahme erhöht künftige Zielbeträge und die Mindestreserve. Dein verfügbarer Monatsbetrag bleibt gleich; 0 % schaltet die Inflation aus.</p>
+              <p id="inflation-help" class="field-help">Diese Annahme erhöht künftige Zielbeträge und die Mindestreserve. Dein monatliches Sparbudget bleibt gleich; 0 % schaltet die Inflation aus.</p>
               <p id="settings-error" class="error-text" role="status">
               </p>
             </form>
@@ -193,8 +197,8 @@
         <details class="panel assumptions">
           <summary>Wie wird gerechnet?</summary>
           <p>Cash wird so spät wie möglich angespart. Ab dem nächsten Kalendermonat erfolgt die Zuführung vor den Ausgaben. Offene Ausgaben im aktuellen Monat werden aus deinem heutigen Bestand bezahlt; für diesen Monat wird keine zusätzliche Sparrate angenommen.</p>
-          <p>Zukünftige Zielzahlungen und die Mindestreserve steigen mit der eingestellten jährlichen Inflation. Der verfügbare Monatsbetrag bleibt in jedem künftigen Monat nominal gleich. Bei 0 % gibt es keine Inflation. Zinsen, Steuern und Renditen werden nicht berücksichtigt. Altersangaben sind näherungsweise; Fälligkeiten werden kalendermonatsgenau berechnet. Wiederkehrende Ausgaben werden nur bis zum Planungshorizont berücksichtigt.</p>
-          <p>Der heute nötige Cashbestand berechnet das benötigte Startkapital für Ziele über den gesamten Planungshorizont, unter Berücksichtigung der gleichbleibenden Monatszuführungen und der Mindestreserve. Er ist ein Rechenwert und keine Empfehlung, diesen Betrag heute vorzuhalten. Ein fehlender Cashbestand zeigt, dass der heutige Bestand und der gleichbleibende Monatsbetrag unter den getroffenen Annahmen nicht für alle Ziele reichen.</p>
+          <p>Zukünftige Zielzahlungen und die Mindestreserve steigen mit der eingestellten jährlichen Inflation. Das monatliche Sparbudget bleibt in jedem künftigen Monat nominal gleich. Bei 0 % gibt es keine Inflation. Zinsen, Steuern und Renditen werden nicht berücksichtigt. Altersangaben sind näherungsweise; Fälligkeiten werden kalendermonatsgenau berechnet. Wiederkehrende Ausgaben werden nur bis zum Planungshorizont berücksichtigt.</p>
+          <p>Das rechnerisch benötigte Startkapital gilt für Ziele über den gesamten Planungshorizont, unter Berücksichtigung des gleichbleibenden monatlichen Sparbudgets und der Mindestreserve. Ein fehlender Cashbestand zeigt, dass der heutige Bestand und das gleichbleibende monatliche Sparbudget unter den getroffenen Annahmen nicht für alle Ziele reichen.</p>
           <p id="horizon-note">
           </p>
         </details>
@@ -267,8 +271,8 @@
         <section class="panel chart-panel" aria-labelledby="yearly-heading">
           <div class="section-heading">
             <div>
-              <h2 id="yearly-heading">Monatsbetrag pro Jahr aufteilen</h2>
-              <p class="muted small">Wie viel deines verfügbaren Monatsbetrags in Cash fließt und wie viel für langfristige Anlagen übrig bleibt</p>
+              <h2 id="yearly-heading">Sparbudget pro Jahr aufteilen</h2>
+              <p class="muted small">Wie viel deines monatlichen Sparbudgets in Cash fließt und wie viel für langfristige Anlagen übrig bleibt</p>
             </div>
           </div>
           <p id="yearly-infeasible-notice" class="notice" role="status" hidden></p>
@@ -314,7 +318,7 @@
     </main>
     <footer>
       <strong>Cashflow-Planner</strong>
-      <p>Die Ergebnisse sind Modellrechnungen auf Grundlage deiner Angaben und keine individuelle Anlageberatung. Deine Planung bleibt lokal. Beim Löschen der Browserdaten kann sie verloren gehen. Sichere sie regelmäßig über „Exportieren“. Lokale Daten sind nicht automatisch verschlüsselt.</p>
+      <p>Die Ergebnisse sind Modellrechnungen auf Grundlage deiner Angaben und keine individuelle Anlageberatung. Die Anwendung überträgt keine Finanzdaten an einen Server. Die Planung bleibt lokal in diesem Browserprofil. Auf gemeinsam genutzten Geräten können andere Nutzer dieses Browserprofils darauf zugreifen. Beim Löschen der Browserdaten kann die Planung verloren gehen; sichere sie regelmäßig über „Exportieren“.</p>
     </footer>
     <dialog id="goal-dialog" aria-labelledby="goal-dialog-title">
       <form id="goal-form" novalidate>
@@ -323,7 +327,7 @@
           <button type="button" id="close-goal" class="icon-button" aria-label="Dialog schließen">×</button>
         </div>
         <label for="goal-name">Bezeichnung</label>
-        <input id="goal-name" name="name" maxlength="120" required placeholder="Zum Beispiel Urlaub">
+        <input id="goal-name" name="name" autofocus maxlength="120" required placeholder="Zum Beispiel Urlaub">
         <label for="goal-amount">Betrag in Euro (heutiger Wert)</label>
         <input id="goal-amount" name="amount" inputmode="decimal" required placeholder="5.000,00">
         <div class="field-row">
