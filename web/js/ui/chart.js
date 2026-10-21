@@ -13,8 +13,9 @@ export function renderChart(plan) {
   const left = 77; const right = 20; const top = 20; const bottom = 53;
   let minimum = 0; let maximum = 0;
   for (const row of rows) {
+    const cashBeforeExpenses = row.cashCents + row.expenseCents;
     minimum = Math.min(minimum, row.cashCents, row.reserveCents);
-    maximum = Math.max(maximum, row.cashCents, row.requiredCents, row.reserveCents);
+    maximum = Math.max(maximum, row.cashCents, cashBeforeExpenses, row.requiredCents, row.reserveCents);
   }
   const range = Math.max(maximum - minimum, 10000);
   maximum += range * 0.08; minimum -= minimum < 0 ? range * 0.05 : 0;
@@ -40,7 +41,12 @@ export function renderChart(plan) {
     svg.append(tick);
   }
   const path = (key) => rows.map((row, index) => `${index ? 'L' : 'M'}${x(index).toFixed(2)},${y(row[key]).toFixed(2)}`).join(' ');
-  const cashPath = path('cashCents');
+  const cashPath = rows.flatMap((row, index) => {
+    const prefix = index ? 'L' : 'M';
+    const point = (cashCents, command = prefix) => `${command}${x(index).toFixed(2)},${y(cashCents).toFixed(2)}`;
+    if (!row.events.length) return [point(row.cashCents)];
+    return [point(row.cashCents + row.expenseCents), point(row.cashCents, 'L')];
+  }).join(' ');
   svg.append(svgNode('path', {d:`${cashPath} L${x(rows.length-1)},${y(0)} L${x(0)},${y(0)} Z`, class:'chart-fill'}));
   for (let index = 1; index < rows.length; index++) {
     if (rows[index].cashCents >= rows[index].reserveCents && rows[index-1].cashCents >= rows[index-1].reserveCents) continue;
@@ -49,7 +55,7 @@ export function renderChart(plan) {
   svg.append(svgNode('path', {d:path('reserveCents'), class:'chart-reserve', fill:'none'}));
   svg.append(svgNode('path', {d:path('requiredCents'),class:'chart-required'}), svgNode('path', {d:cashPath,class:'chart-cash'}));
   for (const row of rows.filter((entry) => entry.events.length)) {
-    const marker = svgNode('circle', {cx:x(row.index),cy:y(row.cashCents),r:3.3,fill:'#876846',stroke:'#fff','stroke-width':1});
+    const marker = svgNode('circle', {cx:x(row.index),cy:y(row.cashCents + row.expenseCents),r:3.3,fill:'#876846',stroke:'#fff','stroke-width':1});
     marker.append(svgNode('title', {}, `${monthLabel(row.month)}: ${row.events.map((event) => `${event.name}: ${money(event.amountCents)}`).join(', ')}`));
     svg.append(marker);
   }
@@ -65,8 +71,8 @@ export function renderChart(plan) {
     indicator.setAttribute('x1',x(index)); indicator.setAttribute('x2',x(index));
     const date = node('strong','',`${monthLabel(row.month)} · Alter ${formatAge(row.age, { withUnit: false })}`);
     const detailText = row.reserveCents > 0
-      ? `Cash: ${money(row.cashCents)} · Erforderlich: ${money(row.requiredCents)} · Reserve: ${money(row.reserveCents)} · Ausgaben: ${money(row.expenseCents)}`
-      : `Cash: ${money(row.cashCents)} · Erforderlich: ${money(row.requiredCents)} · Ausgaben: ${money(row.expenseCents)}`;
+      ? `Cash vor Ausgaben: ${money(row.cashCents + row.expenseCents)} · Cash danach: ${money(row.cashCents)} · Erforderlich: ${money(row.requiredCents)} · Reserve: ${money(row.reserveCents)} · Ausgaben: ${money(row.expenseCents)}`
+      : `Cash vor Ausgaben: ${money(row.cashCents + row.expenseCents)} · Cash danach: ${money(row.cashCents)} · Erforderlich: ${money(row.requiredCents)} · Ausgaben: ${money(row.expenseCents)}`;
     const detail = node('span','',detailText);
     tooltip.replaceChildren(date,node('br'),detail);
     if (row.events.length) tooltip.append(node('br'),node('span','',row.events.map((event) => event.name).join(', ')));
