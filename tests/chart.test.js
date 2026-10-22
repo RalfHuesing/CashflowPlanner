@@ -49,13 +49,15 @@ test('event markers sit on the cash path before expenses, including the current 
       assert.equal(Number(pathPoints[pointIndex + 1][0]), markerX);
       assert.ok(Number(pathPoints[pointIndex + 1][1]) > Number(markerY));
     }
-    const minimum = Math.min(...plan.rows.flatMap((row) => [row.cashCents, row.reserveCents]));
-    const peak = Math.max(...plan.rows.flatMap((row) => [row.cashCents, row.cashCents + row.expenseCents, row.requiredCents, row.reserveCents]));
+    const values = plan.rows.flatMap((row) => [row.cashCents, row.cashCents + row.expenseCents, row.requiredCents, row.reserveCents]);
+    const peak = Math.max(...values);
     assert.equal(peak, 170_000);
-    const paddedMaximum = peak + Math.max(peak - minimum, 10_000) * 0.08;
-    const expectedPeakY = 20 + (paddedMaximum - peak) / (paddedMaximum - minimum) * (300 - 20 - 53);
+    const expectedPeakY = 20 + (200_000 - peak) / 200_000 * (300 - 20 - 53);
     assert.ok(Math.abs(Number(markers.at(-1).attributes.cy) - expectedPeakY) < 0.01);
     assert.ok(Number(markers.at(-1).attributes.cy) > 20);
+    const grid = svg.children.filter((child) => child.attributes.class === 'chart-grid');
+    assert.equal(grid.length, 5);
+    assert.deepEqual(grid.map((line) => Number(line.attributes.y1)), [247, 190.25, 133.5, 76.75, 20]);
 
     const tooltip = container.children[2];
     assert.match(tooltip.text, /Cash vor Ausgaben/u);

@@ -1,4 +1,5 @@
 import { formatAge, money, node } from './format.js';
+import { formatAxisEuros, niceAxis } from './axis.js';
 
 const NS = 'http://www.w3.org/2000/svg';
 
@@ -110,13 +111,9 @@ function renderYearlyChart(years, feasible) {
   const plotWidth = width - left - right;
   const plotHeight = height - top - bottom;
 
-  let maxVal = 10000;
-  for (const y of years) {
-    maxVal = Math.max(maxVal, y.capacityCents, y.expenseCents);
-  }
-  maxVal = Math.ceil(maxVal * 1.1);
+  const axis = niceAxis(years.flatMap((year) => [year.capacityCents, year.expenseCents]), {headroom:0.1});
 
-  const yPos = (cents) => top + (maxVal - cents) / maxVal * plotHeight;
+  const yPos = (cents) => top + (axis.maximum - cents) / (axis.maximum - axis.minimum) * plotHeight;
   const slotWidth = plotWidth / Math.max(1, years.length);
   const barWidth = Math.max(6, Math.min(26, slotWidth * 0.72));
   const centerX = (i) => left + (i + 0.5) * slotWidth;
@@ -135,11 +132,10 @@ function renderYearlyChart(years, feasible) {
   instructions.id = 'yearly-chart-instructions';
 
   // Horizontal grid lines
-  for (let step = 0; step <= 4; step++) {
-    const cents = (maxVal * step) / 4;
+  for (const cents of axis.ticks) {
     const lineY = yPos(cents);
     svg.append(svgNode('line', { x1: left, x2: width - right, y1: lineY, y2: lineY, class: 'chart-grid' }));
-    const label = new Intl.NumberFormat('de-DE', { maximumFractionDigits: 0 }).format(Math.round(cents / 100));
+    const label = formatAxisEuros(cents, axis.step);
     svg.append(svgNode('text', { x: left - 10, y: lineY + 4, 'text-anchor': 'end', class: 'chart-label' }, `${label} €`));
   }
 
@@ -150,8 +146,8 @@ function renderYearlyChart(years, feasible) {
     const bx = barX(i);
 
     // Contribution bar (bottom)
-    const hCash = Math.max(0, (yr.contributionCents / maxVal) * plotHeight);
-    const yCash = baseZero - hCash;
+    const yCash = yPos(yr.contributionCents);
+    const hCash = Math.max(0, baseZero - yCash);
     if (hCash > 0) {
       svg.append(svgNode('rect', {
         x: bx, y: yCash, width: barWidth, height: hCash, rx: 2, class: 'bar-cash',
@@ -159,8 +155,8 @@ function renderYearlyChart(years, feasible) {
     }
 
     // Free bar (top)
-    const hFree = Math.max(0, (yr.longTermCents / maxVal) * plotHeight);
-    const yFree = yCash - hFree;
+    const yFree = yPos(yr.contributionCents + yr.longTermCents);
+    const hFree = Math.max(0, yCash - yFree);
     if (hFree > 0) {
       svg.append(svgNode('rect', {
         x: bx, y: yFree, width: barWidth, height: hFree, rx: 2, class: 'bar-free',

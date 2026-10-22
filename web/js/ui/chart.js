@@ -1,4 +1,5 @@
 import { formatAge, money, monthLabel, node } from './format.js';
+import { formatAxisEuros, niceAxis } from './axis.js';
 const NS = 'http://www.w3.org/2000/svg';
 function svgNode(tag, attributes = {}, text) {
   const element = document.createElementNS(NS, tag);
@@ -11,25 +12,22 @@ export function renderChart(plan) {
   const rows = plan.rows;
   const width = 820; const height = 300;
   const left = 77; const right = 20; const top = 20; const bottom = 53;
-  let minimum = 0; let maximum = 0;
+  const values = [];
   for (const row of rows) {
     const cashBeforeExpenses = row.cashCents + row.expenseCents;
-    minimum = Math.min(minimum, row.cashCents, row.reserveCents);
-    maximum = Math.max(maximum, row.cashCents, cashBeforeExpenses, row.requiredCents, row.reserveCents);
+    values.push(row.cashCents, cashBeforeExpenses, row.requiredCents, row.reserveCents);
   }
-  const range = Math.max(maximum - minimum, 10000);
-  maximum += range * 0.08; minimum -= minimum < 0 ? range * 0.05 : 0;
+  const axis = niceAxis(values, {headroom:0.08, negativeHeadroom:0.05});
   const x = (index) => left + index / Math.max(1, rows.length - 1) * (width - left - right);
-  const y = (cents) => top + (maximum - cents) / (maximum - minimum) * (height - top - bottom);
+  const y = (cents) => top + (axis.maximum - cents) / (axis.maximum - axis.minimum) * (height - top - bottom);
   const svg = svgNode('svg', {viewBox: `0 0 ${width} ${height}`, role: 'img', tabindex: '0', 'aria-labelledby': 'cash-chart-title', 'aria-describedby': 'chart-instructions chart-tooltip'});
   svg.append(svgNode('title', {id: 'cash-chart-title'}, 'Cashbestand und erforderliche Liquidität nach Monat, Jahr und Alter'));
   const instructions = node('p', 'sr-only', 'Diagramm: Die waagerechte Achse zeigt Jahr und Alter. Mit den Pfeiltasten einzelne Monate erkunden. Pos1 und Ende springen zum Anfang und Ende. Einzelne Monate und Ausgaben findest du im Monatsplan.');
   instructions.id = 'chart-instructions';
-  for (let step = 0; step <= 4; step++) {
-    const cents = minimum + (maximum - minimum) * step / 4;
+  for (const cents of axis.ticks) {
     const lineY = y(cents);
     svg.append(svgNode('line', {x1:left, x2:width-right, y1:lineY, y2:lineY, class:'chart-grid'}));
-    const label = new Intl.NumberFormat('de-DE', {maximumFractionDigits:0, notation: maximum > 100000000 ? 'compact' : 'standard'}).format(cents / 100);
+    const label = formatAxisEuros(cents, axis.step);
     svg.append(svgNode('text', {x:left-10, y:lineY+4, 'text-anchor':'end', class:'chart-label'}, `${label} €`));
   }
   for (let step = 0; step <= 5; step++) {
