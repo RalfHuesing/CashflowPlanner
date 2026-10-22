@@ -6,4 +6,4 @@ Die statische Anwendung besteht aus `web/index.html`, lokalem CSS und ES Modules
 
 Der Datenfluss ist: Eingabe → Validierung → Domain-Berechnung → UI-Darstellung; bei gültigen Änderungen zusätzlich → LocalStorage. Beim Start wird gespeicherter Zustand validiert und geladen. JSON-Import ersetzt ihn erst nach vollständiger Prüfung und Benutzerbestätigung. Es gibt keine Netzwerkübertragung von Finanzdaten und keine produktiven npm-Abhängigkeiten.
 
-Node.js betreibt nur den lokalen Entwicklungsserver, Tests und Doku-Prüfungen. `npm run dev` liefert `web/` direkt aus. Statische Bereitstellung benötigt keinen Build-Prozess.
+Node.js betreibt nur den lokalen Entwicklungsserver, Tests und Doku-Prüfungen. `npm run dev` liefert `web/` direkt aus. Statische Bereitstellung benötigt keinen Build-Prozess. Die Anwendung wird im Wurzelverzeichnis einer (Sub-)Domain bereitgestellt. Die Brand im Kopfbereich verlinkt auf `/`; Logo und Favicon verwenden gemeinsam `web/favicon.svg`.
