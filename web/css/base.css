@@ -266,6 +266,23 @@ footer p {
   max-width: 850px;
 }
 
+.footer-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  margin-left: auto;
+}
+
+.footer-links a {
+  color: inherit;
+  text-underline-offset: 3px;
+  white-space: nowrap;
+}
+
+.footer-links a:hover {
+  color: var(--green);
+}
+
 /* ==========================================================================
    Responsive Shell Adaptations
    ========================================================================== */
@@ -342,5 +359,9 @@ footer p {
   footer strong {
     display: block;
     margin-bottom: 8px;
+  }
+
+  .footer-links {
+    margin: 16px 0 0;
   }
 }
