@@ -1,6 +1,6 @@
 import { currentMonth } from './domain/calendar.js';
 import { buildPlan } from './domain/scenarios.js';
-import { getCashFreshness, loadData, saveData, STORAGE_KEY } from './data/storage.js';
+import { clearData, createDefaultData, getCashFreshness, loadData, saveData, STORAGE_KEY } from './data/storage.js';
 import { exportData, MAX_IMPORT_BYTES, parseImport, validateData } from './data/import-export.js';
 import { getSampleData } from './data/sample-data.js';
 import { bindSettings, fillSettings } from './ui/settings-form.js';
@@ -42,8 +42,13 @@ window.addEventListener('storage', (event) => {
 function updateFreshness() {
   const notice = document.getElementById('stale-notice');
   const { stale } = getCashFreshness(data.cashUpdatedAt);
-  notice.hidden = !stale || data.cashUpdatedAt === null;
-  if (!notice.hidden) notice.textContent = `Dein Cashbestand wurde zuletzt am ${new Date(data.cashUpdatedAt).toLocaleDateString('de-DE')} aktualisiert. Prüfe den aktuellen Betrag für eine zuverlässige Planung.`;
+  notice.hidden = !stale;
+  const text = document.getElementById('stale-notice-text');
+  if (text) text.textContent = stale
+    ? `Monatscheck: Cashbestand und Ziele noch aktuell? Zuletzt bestätigt am ${new Date(data.cashUpdatedAt).toLocaleDateString('de-DE')}.`
+    : '';
+  const reviewButton = document.getElementById('cash-review-button');
+  if (reviewButton) reviewButton.hidden = !stale;
 }
 function renderResult() {
   renderSummary(plan, data.settings);
@@ -92,9 +97,11 @@ document.getElementById('overview-add-goal').addEventListener('click', () => ope
 bindSettings((settings, cashChanged) => {
   applyData({...data, settings, cashUpdatedAt: cashChanged ? new Date().toISOString() : data.cashUpdatedAt}, false);
 });
-function confirmReplacement(description, action) {
+function confirmReplacement(description, action, { title = 'Planung ersetzen?', accept = 'Planung ersetzen' } = {}) {
   const dialog = document.getElementById('confirm-dialog');
+  document.getElementById('confirm-title').textContent = title;
   document.getElementById('confirm-description').textContent = description;
+  document.getElementById('confirm-accept').textContent = accept;
   document.getElementById('confirm-accept').onclick = () => {
     try {action();dialog.close();} catch (error) {dialog.close();notify(error.message);}
   };
@@ -141,6 +148,66 @@ fileInput.addEventListener('change',async () => {
       notify(saved ? 'Die Planung wurde vollständig importiert.' : '');
     });
   } catch (error) {notify(`Import fehlgeschlagen: ${error.message}`);}
+});
+const cashReviewButton = document.getElementById('cash-review-button');
+if (cashReviewButton) cashReviewButton.addEventListener('click', () => {
+  const saved = applyData({ ...data, cashUpdatedAt: new Date().toISOString() }, false);
+  notify(saved ? 'Cashbestand als aktuell bestätigt.' : '');
+});
+const deletePlanButton = document.getElementById('delete-plan-button');
+if (deletePlanButton) deletePlanButton.addEventListener('click', () => {
+  confirmReplacement(
+    'Deine Planung wird aus diesem Browser gelöscht. Exportiere sie bei Bedarf vorher.',
+    () => {
+      const result = clearData(undefined, storageValue);
+      if (!result.ok) {
+        storageIssue = result.error;
+        notify('');
+        return;
+      }
+      data = createDefaultData();
+      storageValue = null;
+      storageIssue = null;
+      fillSettings(data.settings);
+      document.getElementById('settings-error').textContent = '';
+      document.querySelectorAll('#settings-form [aria-invalid]').forEach((field) => field.removeAttribute('aria-invalid'));
+      render();
+      window.location.hash = '#uebersicht';
+      notify('Die Planung wurde gelöscht.');
+    },
+    { title: 'Planung löschen?', accept: 'Planung löschen' },
+  );
+});
+const printButton = document.getElementById('print-button');
+if (printButton) printButton.addEventListener('click', () => window.print());
+window.addEventListener('beforeprint', () => {
+  const goalsView = document.getElementById('goals-view');
+  if (!goalsView) return;
+  const pageTitle = document.getElementById('page-title');
+  if (pageTitle.dataset.printTitle === undefined) pageTitle.dataset.printTitle = pageTitle.textContent;
+  pageTitle.textContent = 'Cashflow-Planner · Planübersicht';
+  const printList = document.createElement('div');
+  printList.className = 'print-goals-list';
+  goalsView.querySelectorAll('.print-goals-list').forEach((list) => list.remove());
+  for (const goal of data.goals) {
+    const entry = document.createElement('article');
+    entry.className = 'goal-card';
+    const heading = document.createElement('h3');
+    heading.textContent = goal.name;
+    const details = document.createElement('p');
+    details.textContent = `${money(goal.amountCents)} · ${monthLabel(goal.dueMonth)} · ${goal.type === 'annual' ? `Jährlich${goal.endMonth ? ` bis ${monthLabel(goal.endMonth)}` : ''}` : 'Einmalig'}`;
+    entry.append(heading, details);
+    printList.append(entry);
+  }
+  goalsView.append(printList);
+});
+window.addEventListener('afterprint', () => {
+  document.querySelectorAll('.print-goals-list').forEach((list) => list.remove());
+  const pageTitle = document.getElementById('page-title');
+  if (pageTitle.dataset.printTitle !== undefined) {
+    pageTitle.textContent = pageTitle.dataset.printTitle;
+    delete pageTitle.dataset.printTitle;
+  }
 });
 bindGoalList(() => renderGoals(data.goals, openGoal, removeGoal, startMonth, data.settings.currentAge));
 bindNavigation();

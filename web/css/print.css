@@ -1,0 +1,238 @@
+@page {
+  size: A4 portrait;
+  margin: 12mm;
+}
+
+@media print {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  :root {
+    color-scheme: light;
+    font-size: 9pt;
+    line-height: 1.3;
+    background: #fff;
+    color: #111;
+  }
+
+  body {
+    background: #fff;
+  }
+
+  .app-header,
+  .primary-nav,
+  .skip-link,
+  footer,
+  .page-heading .button,
+  button,
+  .goal-filters,
+  .goal-actions,
+  .goal-pagination,
+  .chart-panel .legend,
+  #yearly-chart,
+  #monthly-view,
+  #timeline-view,
+  #start-view,
+  #app-message,
+  #print-button,
+  dialog,
+  noscript {
+    display: none !important;
+  }
+
+  main {
+    max-width: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .page-heading {
+    margin: 0 0 7mm;
+    border-bottom: 1px solid #777;
+    padding-bottom: 3mm;
+  }
+
+  .page-heading h1 {
+    margin: 0;
+    font-size: 19pt;
+  }
+
+  .page-heading .eyebrow,
+  .page-heading p:not(.eyebrow) {
+    display: none;
+  }
+
+  #overview-view,
+  #yearly-view,
+  #goals-view {
+    display: block !important;
+    opacity: 1 !important;
+    margin: 0 0 7mm;
+    break-inside: auto;
+  }
+
+  #overview-view {
+    break-after: page;
+  }
+
+  #yearly-view {
+    break-after: page;
+  }
+
+  .overview-layout {
+    display: grid;
+    grid-template-columns: 0.9fr 1.1fr;
+    gap: 6mm;
+  }
+
+  .panel,
+  .metric,
+  .notice,
+  .assumptions {
+    color: #111;
+    background: #fff !important;
+    border-color: #aaa !important;
+    box-shadow: none !important;
+  }
+
+  .overview-layout > .panel,
+  .overview-results,
+  .yearly-layout > .panel,
+  .goals-panel {
+    min-width: 0;
+    padding: 4mm;
+  }
+
+  input,
+  select {
+    color: #111 !important;
+    background: #fff !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    min-height: 0 !important;
+  }
+
+  label,
+  .field-help,
+  .metric-label,
+  .metric-detail,
+  .muted,
+  .explanation {
+    color: #333 !important;
+  }
+
+  .metric {
+    padding: 3mm;
+  }
+
+  .metric-value {
+    font-size: 14pt;
+    white-space: normal;
+    margin: 2mm 0 1mm;
+  }
+
+  .assumptions {
+    display: none !important;
+  }
+
+  .yearly-layout {
+    display: block;
+  }
+
+  #yearly-view > section:first-child {
+    display: none !important;
+  }
+
+  #yearly-view > section:last-child {
+    padding: 0;
+    border: 0;
+  }
+
+  #yearly-view > section:last-child .section-heading {
+    margin-bottom: 3mm;
+  }
+
+  .table-scroll {
+    overflow: visible !important;
+  }
+
+  #yearly-table-container table {
+    width: 100%;
+    table-layout: fixed;
+    font-size: 7pt;
+  }
+
+  #yearly-table-container th {
+    color: #111;
+    font-size: 7pt;
+    padding: 0.7mm 0.6mm;
+  }
+
+  #yearly-table-container td {
+    padding: 0.5mm 0.6mm;
+    line-height: 1.05;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  #yearly-table-container thead {
+    display: table-header-group;
+  }
+
+  #yearly-table-container tr {
+    break-inside: avoid;
+  }
+
+  #goals-view {
+    break-before: page;
+  }
+
+  .goals-toolbar {
+    position: static;
+    margin: 0 0 3mm;
+    padding: 0;
+    background: #fff;
+    border: 0;
+  }
+
+  .goals-toolbar-heading .button,
+  #goal-results-status {
+    display: none !important;
+  }
+
+  .goals-panel {
+    border: 0;
+    padding: 0;
+  }
+
+  .goal-card {
+    break-inside: avoid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    padding: 3mm 0;
+  }
+
+  .goal-card p {
+    color: #333;
+  }
+
+  #goal-list {
+    display: none !important;
+  }
+
+  .print-goals-list {
+    display: block !important;
+  }
+
+  .sr-only {
+    display: none !important;
+  }
+}
+
+.print-goals-list {
+  display: none;
+}

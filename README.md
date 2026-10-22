@@ -21,12 +21,28 @@ Für Hetzner mit Apache 2.4 liegt eine passende [`.htaccess`](web/.htaccess) im 
 npm run lint
 npm test
 npm run test:coverage
+npx playwright install chromium
+npm run test:e2e
 npm run docs:sync
 npm run docs:check
 npm run verify
 ```
 
 `docs:sync` erzeugt [Beispielpläne](docs/EXAMPLES.md) aus Test-Fixtures und Berechnungskern. `docs:check` prüft Dokumentationsverweise und die Aktualität dieser Datei, ohne Dateien zu ändern.
+
+Die Browserinstallation ist einmalig erforderlich. `test:e2e` prüft Zielverwaltung, Import/Export, Dialogbedienung, Monatsabgleich, Löschung und Druckansicht mit einem lokalen Chromium. Die produktive Website benötigt Playwright nicht.
+
+## Suche und Linkvorschau
+
+SEO-Metadaten, Canonical, `social-preview.png`, `robots.txt` und `sitemap.xml` werden mit `web/` ausgeliefert. Änderungen werden nicht automatisch veröffentlicht.
+
+Nach dem Hochladen in der [Google Search Console](https://search.google.com/search-console/):
+
+1. Eine vorhandene **Domain-Property `huesing.info`** verwenden; sie umfasst die Planner-Subdomain. Alternativ eine **URL-Präfix-Property `https://cashflow-planner.huesing.info/`** hinzufügen und nach Googles Anleitung bestätigen.
+2. Die vollständige Planner-URL mit der URL-Prüfung live testen und einmal die Indexierung beantragen.
+3. Unter „Sitemaps“ `https://cashflow-planner.huesing.info/sitemap.xml` einreichen.
+
+Eine Domain-Property wird per DNS bestätigt. Bei einer HTML-Dateibestätigung der URL-Präfix-Property gehört die unveränderte Google-Datei in das Document Root der Planner-Subdomain. Kein Analytics-Skript erforderlich. Weitere Details: [Property-Arten](https://support.google.com/webmasters/answer/34592?hl=de) und [URL-Prüfung](https://support.google.com/webmasters/answer/9012289?hl=de).
 
 ## Umfang und Grenzen
 

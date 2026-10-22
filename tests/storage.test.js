@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { STORAGE_KEY, STORAGE_VERSION, createDefaultData, loadData, saveData, getCashFreshness } from '../web/js/data/storage.js';
+import { STORAGE_KEY, STORAGE_VERSION, clearData, createDefaultData, loadData, saveData, getCashFreshness } from '../web/js/data/storage.js';
 import { getSampleData } from '../web/js/data/sample-data.js';
 import { buildPlan } from '../web/js/domain/scenarios.js';
 
@@ -15,6 +15,7 @@ function memoryStorage() {
   return {
     getItem(key) { return values.get(key) ?? null; },
     setItem(key, value) { values.set(key, value); },
+    removeItem(key) { values.delete(key); },
   };
 }
 
@@ -45,6 +46,24 @@ test('Ein veralteter Tab überschreibt keine neuere gespeicherte Planung', () =>
   assert.equal(stale.ok, false);
   assert.match(stale.error, /anderen Tab/);
   assert.equal(storage.getItem(STORAGE_KEY), updated.storageValue);
+});
+
+test('Planung löschen prüft den erwarteten Stand und lässt fremde Speicherwerte erhalten', () => {
+  const storage = memoryStorage();
+  storage.setItem('other-app.data', 'bleibt');
+  const original = saveData(data, storage);
+  assert.equal(clearData(storage, 'veralteter Stand').ok, false);
+  assert.equal(storage.getItem(STORAGE_KEY), original.storageValue);
+  const cleared = clearData(storage, original.storageValue);
+  assert.equal(cleared.ok, true);
+  assert.equal(storage.getItem(STORAGE_KEY), null);
+  assert.equal(storage.getItem('other-app.data'), 'bleibt');
+});
+
+test('Planung löschen meldet nicht verfügbaren oder fehlerhaften Speicher', () => {
+  assert.equal(clearData(null).ok, false);
+  assert.equal(clearData({ getItem() { throw new Error('blocked'); } }).ok, false);
+  assert.equal(clearData({ getItem() { return null; }, removeItem() { throw new Error('blocked'); } }).ok, false);
 });
 
 test('Beispieldaten zeigen einen finanzierbaren Plan mit relativ terminierten Zielen', () => {
@@ -107,11 +126,14 @@ test('Speicherfehler und ungültige Daten werden ohne Teilübernahme gemeldet', 
   assert.equal(saveData({ ...data, goals: 'invalid' }, memoryStorage()).ok, false);
 });
 
-test('Cash-Aktualisierungshinweis wird nach einem Jahr angezeigt', () => {
-  assert.deepEqual(getCashFreshness('2025-10-20T00:00:00.000Z', new Date('2026-10-20T00:00:00.000Z')), {
+test('Cashbestand wird nach einem Kalendermonat als prüfbedürftig markiert', () => {
+  assert.deepEqual(getCashFreshness('2025-10-20T12:00:00.000Z', new Date('2026-10-20T12:00:00.000Z')), {
     stale: true,
-    daysSinceUpdate: 365,
+    monthsSinceUpdate: 12,
   });
-  assert.equal(getCashFreshness('2026-10-19T00:00:00.000Z', new Date('2026-10-20T00:00:00.000Z')).stale, false);
-  assert.equal(getCashFreshness(null).stale, true);
+  const januaryEnd = new Date(2026, 0, 31, 12).toISOString();
+  const februaryStart = new Date(2026, 1, 1, 12);
+  assert.deepEqual(getCashFreshness(januaryEnd, februaryStart), { stale: true, monthsSinceUpdate: 1 });
+  assert.equal(getCashFreshness(new Date(2026, 1, 1, 12).toISOString(), new Date(2026, 1, 28, 12)).stale, false);
+  assert.deepEqual(getCashFreshness(null), { stale: false, monthsSinceUpdate: null });
 });

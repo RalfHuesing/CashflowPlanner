@@ -1,9 +1,8 @@
 import { DEFAULT_INFLATION_BPS, validateData } from './import-export.js';
+import { currentMonth, monthDifference } from '../domain/calendar.js';
 
 export const STORAGE_KEY = 'cashflow-planner.data';
 export const STORAGE_VERSION = 1;
-export const CASH_STALE_AFTER_DAYS = 365;
-
 export const DEFAULT_DATA = Object.freeze({
   settings: Object.freeze({
     cashCents: 0,
@@ -93,12 +92,27 @@ export function saveData(data, storage, now = new Date(), expectedValue) {
   }
 }
 
-export function getCashFreshness(cashUpdatedAt, now = new Date()) {
-  if (typeof cashUpdatedAt !== 'string' || Number.isNaN(Date.parse(cashUpdatedAt))) {
-    return { stale: true, daysSinceUpdate: null };
+export function clearData(storage, expectedValue) {
+  const target = resolveStorage(storage);
+  if (!target) return { ok: false, error: 'Lokaler Speicher ist nicht verfügbar.' };
+  try {
+    if (expectedValue !== undefined && target.getItem(STORAGE_KEY) !== expectedValue) {
+      return { ok: false, error: 'Die gespeicherte Planung wurde in einem anderen Tab geändert. Exportiere deinen aktuellen Stand vor dem Neuladen.' };
+    }
+    target.removeItem(STORAGE_KEY);
+    return { ok: true, error: null };
+  } catch {
+    return { ok: false, error: 'Die Planung konnte nicht gelöscht werden. Exportiere deinen aktuellen Stand vor dem Neuladen.' };
   }
-  const nowMs = now instanceof Date ? now.getTime() : new Date(now).getTime();
-  const ageMs = Math.max(0, nowMs - Date.parse(cashUpdatedAt));
-  const daysSinceUpdate = Math.floor(ageMs / 86_400_000);
-  return { stale: daysSinceUpdate >= CASH_STALE_AFTER_DAYS, daysSinceUpdate };
+}
+
+export function getCashFreshness(cashUpdatedAt, now = new Date()) {
+  if (cashUpdatedAt === null || cashUpdatedAt === undefined) return { stale: false, monthsSinceUpdate: null };
+  if (typeof cashUpdatedAt !== 'string' || Number.isNaN(Date.parse(cashUpdatedAt))) {
+    return { stale: true, monthsSinceUpdate: null };
+  }
+  const updatedMonth = currentMonth(new Date(cashUpdatedAt));
+  const current = now instanceof Date ? now : new Date(now);
+  const monthsSinceUpdate = Math.max(0, monthDifference(updatedMonth, currentMonth(current)));
+  return { stale: monthsSinceUpdate >= 1, monthsSinceUpdate };
 }

@@ -4,11 +4,28 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#176b59">
-    <title>Cashflow-Planner · Deine Liquidität im Blick</title>
+    <title>Liquiditätsplaner für private Ausgaben | Cashflow-Planner</title>
+    <meta name="description" content="Plane Ausgaben, Mindestreserve und monatliche Cash-Zuführungen. Kostenlos, ohne Konto und lokal in deinem Browser.">
+    <link rel="canonical" href="https://cashflow-planner.huesing.info/">
+    <meta property="og:type" content="website">
+    <meta property="og:locale" content="de_DE">
+    <meta property="og:site_name" content="Cashflow-Planner">
+    <meta property="og:title" content="Cashflow-Planner – Liquidität planbar machen">
+    <meta property="og:description" content="Finde heraus, wie viel Cash deine Ziele benötigen und was von deinem Monatsbudget übrig bleibt. Kostenlos und lokal im Browser.">
+    <meta property="og:url" content="https://cashflow-planner.huesing.info/">
+    <meta property="og:image" content="https://cashflow-planner.huesing.info/social-preview.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="Cashflow-Planner: Geplante Ausgaben und verfügbares Cash im Blick">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Cashflow-Planner – Liquidität planbar machen">
+    <meta name="twitter:description" content="Plane Ausgaben, Mindestreserve und monatliche Cash-Zuführungen. Kostenlos und lokal im Browser.">
+    <meta name="twitter:image" content="https://cashflow-planner.huesing.info/social-preview.png">
     <link rel="icon" type="image/svg+xml" sizes="any" href="/favicon.svg">
     <link rel="stylesheet" href="css/base.css">
     <link rel="stylesheet" href="css/components.css">
     <link rel="stylesheet" href="css/views.css">
+    <link rel="stylesheet" href="css/print.css">
     <script type="module" src="js/main.js">
     </script>
   </head>
@@ -48,81 +65,55 @@
       <div class="page-heading">
         <div>
           <p class="eyebrow">DEINE LIQUIDITÄTSPLANUNG</p>
-          <h1 id="page-title" tabindex="-1">Willkommen beim Cashflow-Planner</h1>
-          <p id="page-description">So wenig Cash wie möglich, so viel wie nötig: Vorausschauende Liquiditätsplanung statt starrer Spartöpfe.</p>
+          <h1 id="page-title" tabindex="-1">Cashflow planen, Ziele im Blick behalten</h1>
+          <p id="page-description">Plane, wie viel Cash du für kommende Ausgaben brauchst – und was von deinem Monatsbudget übrig bleibt.</p>
         </div>
       </div>
       <p id="app-message" class="notice" role="status" hidden>
       </p>
       <section id="start-view" class="app-view start-layout" aria-label="Startseite">
         <div class="panel start-hero">
-          <h2>Wie viel Cash brauchst du wirklich auf dem Konto?</h2>
-          <p>
-            Cashflow-Planner zeigt anhand deiner Angaben, wann du für geplante Ausgaben Cash zurücklegen musst und welcher Teil deines Sparbudgets rechnerisch für langfristige Anlagen übrig bleibt. Die Berechnung folgt deinen Annahmen: <strong>So wenig Cash wie möglich, so viel wie nötig.</strong>
-          </p>
+          <h2>Plane mit einem gemeinsamen Cashbestand</h2>
+          <p>Trage deine Ziele und dein verfügbares Monatsbudget ein. Der Planer berechnet den nötigen Startbestand und künftige Cash-Zuführungen.</p>
+          <ul class="start-badges" aria-label="Produkteigenschaften">
+            <li>Kostenlos</li><li>Ohne Konto</li><li>Lokal im Browser</li>
+          </ul>
           <div class="start-actions">
             <a href="#uebersicht" class="button primary">Zur Planung starten →</a>
             <button type="button" id="start-sample-btn" class="button subtle">Beispiel laden</button>
           </div>
         </div>
 
-        <div class="start-grid">
-          <div class="panel start-card">
-            <div class="start-card-icon" aria-hidden="true">1</div>
-            <h3>Gemeinsamer Cashbestand</h3>
-            <p>
-              Keine komplizierten, starren Einzeltöpfe. Alle deine Ziele – vom jährlichen Urlaub bis zum Autokauf in 5 Jahren – greifen auf einen gemeinsamen Liquiditätspuffer zu.
-            </p>
-          </div>
+        <ol class="start-grid" aria-label="So funktioniert die Planung">
+          <li class="panel start-card"><span class="start-card-icon" aria-hidden="true">1</span><h3>Trage dein Budget ein</h3><p>Lege fest, was monatlich nach laufenden Ausgaben verfügbar ist.</p></li>
+          <li class="panel start-card"><span class="start-card-icon" aria-hidden="true">2</span><h3>Füge deine Ziele hinzu</h3><p>Plane einmalige oder wiederkehrende Ausgaben mit Betrag und Termin.</p></li>
+          <li class="panel start-card"><span class="start-card-icon" aria-hidden="true">3</span><h3>Sieh deinen Cashplan</h3><p>Prüfe benötigten Bestand, Zuführungen und den verbleibenden Budgetanteil.</p></li>
+        </ol>
 
-          <div class="panel start-card">
-            <div class="start-card-icon" aria-hidden="true">2</div>
-            <h3>Vorausschauende Projektion</h3>
-            <p>
-              Das System rechnet rückwärts aus der Zukunft: Du erfährst auf den Monat genau, ab wann du Geld für anstehende Ausgaben zurücklegen musst – so spät wie möglich.
-            </p>
-          </div>
-
-          <div class="panel start-card">
-            <div class="start-card-icon" aria-hidden="true">3</div>
-            <h3>Freie Sparrate ermitteln</h3>
-            <p>
-              Jeder Euro, der nicht als Cash für Ziele oder deine Mindestreserve gebraucht wird, bleibt Monat für Monat frei für deinen langfristigen Vermögensaufbau (z. B. ETFs).
-            </p>
-          </div>
+        <div class="panel start-example">
+          <h2>Ein kurzes Beispiel</h2>
+          <p>Bei 1.000 € Startbestand, 500 € Monatsbudget und 1.000 € Mindestreserve reichen drei Zuführungen à 500 € für eine Ausgabe von 1.500 € im dritten Monat. Danach bleiben 1.000 € Reserve.</p>
+          <p class="muted small">Vereinfachtes Rechenbeispiel ohne weitere Ziele und ohne Inflation.</p>
         </div>
 
-        <div class="panel start-audience">
-          <h3>Für wen dieser Planer gedacht ist</h3>
-          <p>
-            Der Cashflow-Planner ist für Menschen gedacht, die nach ihren laufenden Ausgaben einen monatlichen Betrag für geplante Ausgaben und langfristige Anlagen einteilen möchten.
-          </p>
-          <p>
-            Der Planer bildet keine Kreditverträge oder Tilgungsstrategien ab. Berücksichtige Kreditraten und andere feste Zahlungen bei der Ermittlung des monatlichen Sparbudgets.
-          </p>
-          <p>
-            Ändern sich Einkommen, Ausgaben oder Prioritäten, passe das monatliche Sparbudget und deine Ziele an und berechne den Plan neu.
-          </p>
-        </div>
-
-        <div class="panel start-philosophy">
-          <h3>Bewusst einfach gehalten: Das Leben ist keine Excel-Tabelle</h3>
-          <p>
-            Je weiter ein Ziel in der Zukunft liegt, desto stärker hängt das Ergebnis von den heutigen Annahmen ab. Einkommen, Ausgaben und Prioritäten können sich ändern.
-          </p>
-          <p>
-            Die monatsgenaue Berechnung ist eine Planung unter diesen Annahmen, keine Vorhersage. Prüfe und aktualisiere deine Angaben, wenn sich deine Situation oder deine Ziele ändern.
-          </p>
-        </div>
+        <section class="panel start-faq" aria-labelledby="start-faq-heading">
+          <h2 id="start-faq-heading">Häufige Fragen</h2>
+          <details><summary>Was zählt zum monatlichen Sparbudget?</summary><p>Der Betrag, der nach laufenden Ausgaben für geplante Ziele und langfristige Anlagen zusammen verfügbar ist. Er bleibt in der Rechnung nominal gleich.</p></details>
+          <details><summary>Was bedeutet Mindestreserve?</summary><p>Der Cashbetrag, der nach geplanten Ausgaben mindestens verfügbar bleiben soll.</p></details>
+          <details><summary>Wie wirkt sich Inflation aus?</summary><p>Die Inflationsannahme erhöht künftige Zielbeträge und die Mindestreserve. Das Monatsbudget bleibt gleich; bei 0 % wird nichts erhöht.</p></details>
+          <details><summary>Wird im aktuellen Monat noch etwas zugeführt?</summary><p>Nein. Offene Ausgaben dieses Monats werden aus deinem heutigen Bestand bezahlt. Zuführungen beginnen ab dem nächsten Kalendermonat und erfolgen vor den Ausgaben.</p></details>
+        </section>
 
         <div class="panel start-privacy">
-          <strong>Lokal im Browser gespeichert</strong>
-          <p>Die Anwendung überträgt keine Finanzdaten an einen Server. Wenn du eine Exportdatei teilst, gibst du die darin enthaltenen Angaben weiter.</p>
+          <strong>Deine Daten bleiben auf deinem Gerät</strong>
+          <p>Finanzdaten werden lokal im Browser gespeichert und nicht an einen Server übertragen. Ergebnisse sind Modellrechnungen unter deinen Annahmen, keine Vorhersage oder Anlageberatung. Zinsen, Steuern und Renditen werden nicht berücksichtigt.</p>
         </div>
       </section>
       <section id="overview-view" class="app-view" aria-label="Übersicht" hidden>
-        <p id="stale-notice" class="notice" hidden>
-        </p>
+        <div id="stale-notice" class="notice" hidden>
+          <p id="stale-notice-text"></p>
+          <button id="cash-review-button" type="button" class="button subtle">Cashbestand stimmt</button>
+        </div>
         <div id="no-goals-notice" class="notice no-goals-notice" hidden>
           <p>Du hast noch keine Ziele angelegt. Lege dein erstes Ziel an, damit der Planer künftige Ausgaben berücksichtigen kann.</p>
           <button id="overview-add-goal" class="button primary" type="button">Erstes Ziel anlegen</button>
@@ -131,6 +122,7 @@
           <section class="panel">
             <div class="section-heading">
               <h2>Ausgangslage</h2>
+              <button id="print-button" type="button" class="button subtle">Drucken / PDF</button>
             </div>
             <form id="settings-form" novalidate>
               <label for="cashCents">Aktueller Cashbestand</label>
@@ -319,11 +311,12 @@
     </main>
     <footer>
       <strong>Cashflow-Planner</strong>
-      <p>Die Ergebnisse sind Modellrechnungen auf Grundlage deiner Angaben und keine individuelle Anlageberatung. Die Anwendung überträgt keine Finanzdaten an einen Server. Die Planung bleibt lokal in diesem Browserprofil. Auf gemeinsam genutzten Geräten können andere Nutzer dieses Browserprofils darauf zugreifen. Beim Löschen der Browserdaten kann die Planung verloren gehen; sichere sie regelmäßig über „Exportieren“.</p>
+      <p>Modellrechnung, keine Anlageberatung. Deine Planung bleibt im Browserprofil und ist dort für Mitnutzer zugänglich. Sichere sie per Export, bevor du Browserdaten löschst.</p>
       <nav class="footer-links" aria-label="Kontakt und rechtliche Informationen">
         <a href="https://ralf.huesing.info/">Von Ralf Hüsing</a>
         <a href="https://ralf.huesing.info/impressum/">Impressum</a>
         <a href="https://ralf.huesing.info/datenschutz/#cashflow-planner">Datenschutz</a>
+        <button id="delete-plan-button" type="button" class="text-button delete-button">Planung löschen</button>
       </nav>
     </footer>
     <dialog id="goal-dialog" aria-labelledby="goal-dialog-title">

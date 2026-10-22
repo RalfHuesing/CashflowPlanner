@@ -9,3 +9,5 @@ Der Datenfluss ist: Eingabe → Validierung → Domain-Berechnung → UI-Darstel
 Node.js betreibt nur den lokalen Entwicklungsserver, Tests und Doku-Prüfungen. `npm run dev` liefert `web/` direkt aus. Statische Bereitstellung benötigt keinen Build-Prozess. Die Anwendung wird im Wurzelverzeichnis einer (Sub-)Domain bereitgestellt. Die Brand im Kopfbereich verlinkt auf `/`; Logo und Favicon verwenden gemeinsam `web/favicon.svg`.
 
 Der Footer bündelt den Autorenlink sowie zentrale Impressums- und Datenschutzhinweise; der Datenschutzlink verweist mit `#cashflow-planner` auf den Abschnitt zur Anwendung.
+
+Die Startseite enthält statische SEO- und Social-Metadaten, eine kanonische URL sowie ein lokales Vorschaubild. `robots.txt` und `sitemap.xml` verweisen auf die einzige öffentliche Inhalts-URL; Hash-Ansichten sind keine separaten Seiten. Für den Browserdruck ergänzt `beforeprint` eine vollständige Zielliste; `print.css` blendet Bedienelemente aus. Löschvorgänge prüfen wie Speichervorgänge den erwarteten LocalStorage-Stand. Playwright ist ausschließlich eine Entwicklungsabhängigkeit für Browserprüfungen.
